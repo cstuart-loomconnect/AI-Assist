@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TypingIndicatorEnabled__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description>Whether a &quot;thinking&quot; indicator displays while a response is being generated.</description>
+    <inlineHelpText>Turn this off to remove the typing indicator at this level.</inlineHelpText>
+    <label>Typing Indicator Enabled</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

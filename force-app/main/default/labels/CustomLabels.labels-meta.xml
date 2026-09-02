@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>AI_Data_Source_Source_Type_SOQL</fullName>
+        <categories>AI Assist,Picklist Value</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AIDataSource__c.SourceType__c API value for a SOQL-backed data source</shortDescription>
+        <value>SOQL</value>
+    </labels>
+    <labels>
+        <fullName>AI_Data_Source_Source_Type_Apex</fullName>
+        <categories>AI Assist,Picklist Value</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AIDataSource__c.SourceType__c API value for an Apex-backed data source</shortDescription>
+        <value>Apex</value>
+    </labels>
+    <labels>
+        <fullName>AI_Workflow_Action_Action_Type_Flow</fullName>
+        <categories>AI Assist,Picklist Value</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AIWorkflowAction__c.ActionType__c API value for a Flow-backed action</shortDescription>
+        <value>Flow</value>
+    </labels>
+    <labels>
+        <fullName>AI_Workflow_Action_Action_Type_Apex</fullName>
+        <categories>AI Assist,Picklist Value</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AIWorkflowAction__c.ActionType__c API value for an Apex-backed action</shortDescription>
+        <value>Apex</value>
+    </labels>
+    <labels>
+        <fullName>AI_Violation_Rule_Detection_Method_AI_Evaluated</fullName>
+        <categories>AI Assist,Picklist Value</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AIViolationRule__c.DetectionMethod__c API value for AI-evaluated detection</shortDescription>
+        <value>AI_Evaluated</value>
+    </labels>
+    <labels>
+        <fullName>AI_Violation_Rule_Detection_Method_Deterministic_Apex</fullName>
+        <categories>AI Assist,Picklist Value</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AIViolationRule__c.DetectionMethod__c API value for deterministic Apex detection</shortDescription>
+        <value>Deterministic_Apex</value>
+    </labels>
+</CustomLabels>

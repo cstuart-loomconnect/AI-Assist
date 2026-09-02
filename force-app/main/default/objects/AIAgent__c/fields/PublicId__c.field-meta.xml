@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PublicId__c</fullName>
+    <description>A stable external identifier for this agent, used by external systems or integrations to reference it without relying on the Salesforce record Id.</description>
+    <externalId>true</externalId>
+    <inlineHelpText>Set this if another system (CI pipeline, external app) needs to reference this agent directly. Keep it stable - changing it will break existing references.</inlineHelpText>
+    <label>Public Id</label>
+    <length>36</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

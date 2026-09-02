@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SingleActiveConversationPer_Record__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Restricts a record to only one open conversation at a time for this agent, rather than allowing multiple concurrent sessions.</description>
+    <inlineHelpText>Turn this on to prevent multiple simultaneous conversations on the same record, which can otherwise create confusing or conflicting context.</inlineHelpText>
+    <label>Single Active Conversation Per Record</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

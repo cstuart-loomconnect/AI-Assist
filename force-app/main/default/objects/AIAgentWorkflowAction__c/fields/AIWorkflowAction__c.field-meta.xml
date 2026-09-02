@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AIWorkflowAction__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>The Workflow Action being assigned to this Agent.</description>
+    <inlineHelpText>Select the action this Agent should be able to suggest to users.</inlineHelpText>
+    <label>AI Workflow Action</label>
+    <referenceTo>AIWorkflowAction__c</referenceTo>
+    <relationshipLabel>AI Agent Workflow Actions</relationshipLabel>
+    <relationshipName>AIAgentWorkflowActions</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

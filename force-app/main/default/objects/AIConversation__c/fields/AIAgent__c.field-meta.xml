@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AIAgent__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>The Agent handling this conversation.</description>
+    <inlineHelpText>Set automatically when the conversation starts, based on which Agent matched the record it was opened from.</inlineHelpText>
+    <label>AI Agent</label>
+    <referenceTo>AIAgent__c</referenceTo>
+    <relationshipLabel>AI Conversations</relationshipLabel>
+    <relationshipName>AIConversations</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

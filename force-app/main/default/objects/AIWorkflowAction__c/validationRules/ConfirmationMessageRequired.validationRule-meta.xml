@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ConfirmationMessageRequired</fullName>
+    <active>true</active>
+    <errorConditionFormula>RequiresConfirmation__c = TRUE &amp;&amp; ISBLANK(ConfirmationMessage__c)</errorConditionFormula>
+    <errorDisplayField>ConfirmationMessage__c</errorDisplayField>
+    <errorMessage>Confirmation Message is required when Requires Confirmation is checked.</errorMessage>
+</ValidationRule>

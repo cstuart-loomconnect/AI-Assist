@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AllowedChannels__c</fullName>
+    <description>Which surfaces this user is permitted to access AI Assist from.</description>
+    <inlineHelpText>Select which entry points this user can use to reach AI Assist.</inlineHelpText>
+    <label>Allowed Channels</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Record Page Chat</fullName>
+                <default>false</default>
+                <label>Record Page Chat</label>
+            </value>
+            <value>
+                <fullName>Mobile</fullName>
+                <default>false</default>
+                <label>Mobile</label>
+            </value>
+            <value>
+                <fullName>Utility Bar</fullName>
+                <default>false</default>
+                <label>Utility Bar</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>3</visibleLines>
+</CustomField>

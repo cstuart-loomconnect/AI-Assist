@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SetupCurrentStep__c</fullName>
+    <description>Which step of the Agent Builder wizard this agent was on when it was last saved.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Used to resume an in-progress build at the correct step. Updated automatically — no manual entry needed.</inlineHelpText>
+    <label>Setup Current Step</label>
+    <precision>1</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

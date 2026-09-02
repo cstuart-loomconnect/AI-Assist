@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PIIRegistry__c</fullName>
+    <description>The parent object registry record.</description>
+    <inlineHelpText>Deleted automatically if the parent registry record is deleted.</inlineHelpText>
+    <label>PII Registry</label>
+    <referenceTo>AIPIIRegistry__c</referenceTo>
+    <relationshipLabel>AI PII Field Metadata</relationshipLabel>
+    <relationshipName>AI_PII_Field_Metadata</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

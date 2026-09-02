@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ConversationClosedTimestamp__c</fullName>
+    <description>The date and time this conversation ended, whether closed by the user, an idle timeout, or a message or token limit being reached.</description>
+    <inlineHelpText>Set automatically when the conversation ends. Left blank while the conversation is still active.</inlineHelpText>
+    <label>Conversation Closed Timestamp</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>DateTime</type>
+</CustomField>

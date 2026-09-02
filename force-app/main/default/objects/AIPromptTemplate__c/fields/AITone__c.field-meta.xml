@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AITone__c</fullName>
+    <description>Describes the tone and communication style the AI should adopt when this template is selected, allowing nuanced, scenario-specific phrasing rather than a fixed set of options.</description>
+    <inlineHelpText>Describe how the AI should sound when this template is active - for example, how formal, warm, or direct it should be</inlineHelpText>
+    <label>AI Tone</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>TextArea</type>
+</CustomField>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Explain the purpose of this agent so someone reviewing the configuration later understands its intended use without needing to read every template. --></help>
+    <label><!-- Description --></label>
+    <name>Description__c</name>
+</CustomFieldTranslation>

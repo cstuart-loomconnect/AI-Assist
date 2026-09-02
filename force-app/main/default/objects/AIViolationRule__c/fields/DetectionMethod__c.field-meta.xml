@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DetectionMethod__c</fullName>
+    <description>Determines whether Apex checks this rule against structured data, or the AI watches for it within the conversation.</description>
+    <inlineHelpText>Choose Deterministic — Apex for anything checkable against configuration or usage data directly. Choose AI Evaluated only for intent-based conditions Apex cannot reliably check on its own, such as a free-text request to export bulk data.</inlineHelpText>
+    <label>Detection Method</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Deterministic_Apex</fullName>
+                <default>false</default>
+                <label>Deterministic — Apex</label>
+            </value>
+            <value>
+                <fullName>AI_Evaluated</fullName>
+                <default>false</default>
+                <label>AI Evaluated</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

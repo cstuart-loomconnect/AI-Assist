@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AllowConversationResume__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Determines whether a closed or idle-timed-out conversation can be reopened and continued.</description>
+    <inlineHelpText>Turn this on to let users pick up where they left off.</inlineHelpText>
+    <label>Allow Conversation Resume</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

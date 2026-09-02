@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Choose how this agent should behave if none of its templates are a clear fit for the current record. --></help>
+    <label><!-- No Match Behavior --></label>
+    <name>NoMatchBehavior__c</name>
+    <picklistValues>
+        <masterLabel>Closet Match</masterLabel>
+        <translation><!-- Closet Match --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Fallback Message</masterLabel>
+        <translation><!-- Fallback Message --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

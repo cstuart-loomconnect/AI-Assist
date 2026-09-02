@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Choose whether past conversation history should load automatically when the record page opens, only when the chat panel is opened, or only when the user explicitly requests it. --></help>
+    <label><!-- Conversation Load Trigger --></label>
+    <name>ConversationLoadTrigger__c</name>
+    <picklistValues>
+        <masterLabel>Manual Only</masterLabel>
+        <translation><!-- Manual Only --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>On Chat Window Open</masterLabel>
+        <translation><!-- On Chat Window Open --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>On Page Load</masterLabel>
+        <translation><!-- On Page Load --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

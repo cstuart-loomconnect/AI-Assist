@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ExternalURLOverride__c</fullName>
+    <description>Overrides Target Page with an external link.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Enter a URL if this tab should link out rather than to an internal page.</inlineHelpText>
+    <label>External URL Override</label>
+    <required>false</required>
+    <type>Url</type>
+</CustomField>

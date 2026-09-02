@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ViolationType__c</fullName>
+    <description>The category of violation, copied from the triggering rule at the time it fired.</description>
+    <inlineHelpText>Set automatically based on the rule that fired.</inlineHelpText>
+    <label>Violation Type</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Unauthorised Data Access</fullName>
+                <default>false</default>
+                <label>Unauthorised Data Access</label>
+            </value>
+            <value>
+                <fullName>Unauthorised Workflow Action</fullName>
+                <default>false</default>
+                <label>Unauthorised Workflow Action</label>
+            </value>
+            <value>
+                <fullName>Usage Limit Exceeded</fullName>
+                <default>false</default>
+                <label>Usage Limit Exceeded</label>
+            </value>
+            <value>
+                <fullName>PII Masking Failure</fullName>
+                <default>false</default>
+                <label>PII Masking Failure</label>
+            </value>
+            <value>
+                <fullName>Configuration Violation</fullName>
+                <default>false</default>
+                <label>Configuration Violation</label>
+            </value>
+            <value>
+                <fullName>AI Flagged Intent</fullName>
+                <default>false</default>
+                <label>AI Flagged Intent</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Choose whether conversations should be visible only to the person who had them, or to anyone with access to the record. --></help>
+    <label><!-- Conversation Visibility --></label>
+    <name>ConversationVisibility__c</name>
+    <picklistValues>
+        <masterLabel>Global</masterLabel>
+        <translation><!-- Global --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Private</masterLabel>
+        <translation><!-- Private --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GlobalTokenBudgetPerDay__c</fullName>
+    <description>Org-wide daily token cap across all agents and conversations.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Leave blank for no cap.</inlineHelpText>
+    <label>Global Token Budget Per Day</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

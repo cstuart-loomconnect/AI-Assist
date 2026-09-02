@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>BlockRequest__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Whether triggering this rule blocks the response, or only logs it while allowing processing to continue.</description>
+    <inlineHelpText>Turn this on for anything that should never be allowed to proceed. For AI Evaluated rules, it is recommended to leave this off initially and review real firings before enabling, since AI-based detection is inherently less exact than a deterministic check.</inlineHelpText>
+    <label>Block Request</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

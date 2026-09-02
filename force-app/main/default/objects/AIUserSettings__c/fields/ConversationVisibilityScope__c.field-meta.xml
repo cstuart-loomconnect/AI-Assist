@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ConversationVisibilityScope__c</fullName>
+    <description>Determines which other users&apos; conversations this user can view, beyond their own.</description>
+    <inlineHelpText>Choose how much visibility this user has into other people&apos;s conversations. My Subordinates&apos; Conversations follows the role hierarchy. All Conversations should be reserved for admins or compliance reviewers.</inlineHelpText>
+    <label>Conversation Visibility Scope</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>My Conversations Only</fullName>
+                <default>true</default>
+                <label>My Conversations Only</label>
+            </value>
+            <value>
+                <fullName>My Subordinates&apos; Conversations</fullName>
+                <default>false</default>
+                <label>My Subordinates&apos; Conversations</label>
+            </value>
+            <value>
+                <fullName>All Conversations</fullName>
+                <default>false</default>
+                <label>All Conversations</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

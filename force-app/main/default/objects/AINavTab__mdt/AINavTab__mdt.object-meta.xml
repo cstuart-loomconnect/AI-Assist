@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Protected (managed package) parent record — one per top-level app tab. Controls navigation structure; subscriber org admins cannot view or edit these records directly.</description>
+    <label>AI Nav Tab</label>
+    <pluralLabel>AI Nav Tabs</pluralLabel>
+    <visibility>Protected</visibility>
+</CustomObject>

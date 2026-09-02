@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Set this if another system (CI pipeline, external app) needs to reference this rule directly. Keep it stable - changing it will break existing references. --></help>
+    <label><!-- Public Id --></label>
+    <name>PublicId__c</name>
+</CustomFieldTranslation>

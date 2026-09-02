@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <brand>
+        <headerColor>#4B37AE</headerColor>
+        <logo>AI_Assist_Logo</logo>
+        <logoVersion>1</logoVersion>
+        <shouldOverrideOrgTheme>true</shouldOverrideOrgTheme>
+    </brand>
+    <description>Lightning app providing access to the AI Assist chatbot embedded on supported records, letting users ask about record status, errors, and missing information, and trigger configured workflow actions</description>
+    <formFactors>Small</formFactors>
+    <formFactors>Large</formFactors>
+    <isNavAutoTempTabsDisabled>true</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>true</isNavPersonalizationDisabled>
+    <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
+    <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
+    <label>AI Assist</label>
+    <navType>Standard</navType>
+    <tabs>AIAgent__c</tabs>
+    <tabs>AIPromptTemplate__c</tabs>
+    <tabs>AIWorkflowAction__c</tabs>
+    <tabs>AIDataSource__c</tabs>
+    <tabs>AIModelConfiguration__c</tabs>
+    <tabs>AIViolationRule__c</tabs>
+    <tabs>AIPIIRegistry__c</tabs>
+    <tabs>AIConversation__c</tabs>
+    <tabs>AIFeedback__c</tabs>
+    <tabs>AIViolation__c</tabs>
+    <tabs>AIPlatformLog__c</tabs>
+    <tabs>AITermsAcknowledgment__c</tabs>
+    <tabs>AIUserSettings__c</tabs>
+    <uiType>Lightning</uiType>
+    <utilityBar>AI_Assist_UtilityBar</utilityBar>
+</CustomApplication>

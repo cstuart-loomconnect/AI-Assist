@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Set how long a conversation can sit idle before it&apos;s considered ended. Helps avoid stale open sessions consuming context unnecessarily. --></help>
+    <label><!-- Idle Timeout Minutes --></label>
+    <name>IdleTimeoutMinutes__c</name>
+</CustomFieldTranslation>

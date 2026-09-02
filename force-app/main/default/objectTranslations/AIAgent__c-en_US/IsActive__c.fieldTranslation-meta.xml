@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Turn this off to build or test an agent without exposing it to end users. --></help>
+    <label><!-- Is Active --></label>
+    <name>IsActive__c</name>
+</CustomFieldTranslation>

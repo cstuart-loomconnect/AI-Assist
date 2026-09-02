@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Write a short opening message the agent should show at the start of a new conversation. --></help>
+    <label><!-- Greeting Message --></label>
+    <name>GreetingMessage__c</name>
+</CustomFieldTranslation>

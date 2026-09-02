@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>OutputDescription__c</fullName>
+    <description>A plain-language description of what this source returns, so the AI knows how to interpret the result.</description>
+    <inlineHelpText>Describe the shape and meaning of the data this source returns, so the AI can use it correctly in its response.</inlineHelpText>
+    <label>Output Description</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>TextArea</type>
+</CustomField>

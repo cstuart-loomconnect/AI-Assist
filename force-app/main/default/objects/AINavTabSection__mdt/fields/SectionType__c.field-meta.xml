@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SectionType__c</fullName>
+    <description>What kind of section this renders as.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Choose Related List, Sub Navigation, or Component.</inlineHelpText>
+    <label>Section Type</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Related List</fullName>
+                <default>false</default>
+                <label>Related List</label>
+            </value>
+            <value>
+                <fullName>Sub Navigation</fullName>
+                <default>false</default>
+                <label>Sub Navigation</label>
+            </value>
+            <value>
+                <fullName>Component</fullName>
+                <default>false</default>
+                <label>Component</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

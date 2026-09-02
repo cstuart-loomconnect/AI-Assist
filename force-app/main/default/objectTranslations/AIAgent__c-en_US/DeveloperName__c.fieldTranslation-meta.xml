@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Use a short, unique, no-spaces identifier (e.g. mortgage_error_diagnostician) so this agent can be referenced reliably in code or config even if the display name changes. --></help>
+    <label><!-- Developer Name --></label>
+    <name>DeveloperName__c</name>
+</CustomFieldTranslation>

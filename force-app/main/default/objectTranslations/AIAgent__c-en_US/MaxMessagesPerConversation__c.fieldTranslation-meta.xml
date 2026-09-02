@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Set a limit on how long a single conversation can run, to control cost and keep sessions focused. --></help>
+    <label><!-- Max Messages Per Conversation --></label>
+    <name>MaxMessagesPerConversation__c</name>
+</CustomFieldTranslation>

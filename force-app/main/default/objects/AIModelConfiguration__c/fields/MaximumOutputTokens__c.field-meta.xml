@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MaximumOutputTokens__c</fullName>
+    <description>The maximum number of tokens the model is allowed to generate in a single response.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Set a cap on response length to control cost and keep answers focused.</inlineHelpText>
+    <label>Maximum Output Tokens</label>
+    <precision>7</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

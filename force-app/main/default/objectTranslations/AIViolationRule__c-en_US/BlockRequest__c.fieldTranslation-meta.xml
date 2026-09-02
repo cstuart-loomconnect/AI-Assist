@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Turn this on for anything that should never be allowed to proceed. For AI Evaluated rules, it is recommended to leave this off initially and review real firings before enabling, since AI-based detection is inherently less exact than a deterministic check. --></help>
+    <label><!-- Block Request --></label>
+    <name>BlockRequest__c</name>
+</CustomFieldTranslation>

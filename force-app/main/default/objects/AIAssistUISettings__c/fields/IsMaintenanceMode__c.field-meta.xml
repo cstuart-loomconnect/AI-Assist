@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsMaintenanceMode__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Shows a maintenance overlay instead of the chat interface at this hierarchy level.</description>
+    <inlineHelpText>Allows maintenance mode to be scoped narrower than org-wide, such as to a specific profile.</inlineHelpText>
+    <label>Is Maintenance Mode</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

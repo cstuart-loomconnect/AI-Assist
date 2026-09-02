@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Description__c</fullName>
+    <description>An admin-facing explanation of what this agent is for and when it should be used.</description>
+    <inlineHelpText>Explain the purpose of this agent so someone reviewing the configuration later understands its intended use without needing to read every template.</inlineHelpText>
+    <label>Description</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>TextArea</type>
+</CustomField>

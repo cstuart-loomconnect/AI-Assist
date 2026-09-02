@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TokenTrackingMethod__c</fullName>
+    <description>Determines how this agent enforces Max Tokens Per Conversation - by estimating usage from character count, tracking actual usage returned from the AI after each turn, or checking usage before a request is sent.</description>
+    <inlineHelpText>Choose how token limits should be enforced. Estimate Token Usage is fastest but approximate. Track Token Usage uses actual usage data from each response and enforces the limit between turns. Pre-Request Usage Check calls a token-count check before sending each request for the most accurate enforcement, at the cost of an extra call per turn.</inlineHelpText>
+    <label>Token Tracking Method</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Estimate Token Usage</fullName>
+                <default>false</default>
+                <label>Estimate Token Usage</label>
+            </value>
+            <value>
+                <fullName>Track Token Usage</fullName>
+                <default>false</default>
+                <label>Track Token Usage</label>
+            </value>
+            <value>
+                <fullName>Pre-Request Usage Check</fullName>
+                <default>false</default>
+                <label>Pre-Request Usage Check</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MaxTokensPerConversation__c</fullName>
+    <description>Caps the total token usage allowed across a single conversation, used to control AI cost per session.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Set a token budget for a single conversation. Leave blank for no cap.</inlineHelpText>
+    <label>Max Tokens Per Conversation</label>
+    <precision>6</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

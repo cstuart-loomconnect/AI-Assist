@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ExternalURLOverride__c</fullName>
+    <description>Section-scoped external link override.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Enter a URL if this section should link out rather than render internally.</inlineHelpText>
+    <label>External URL Override</label>
+    <required>false</required>
+    <type>Url</type>
+</CustomField>

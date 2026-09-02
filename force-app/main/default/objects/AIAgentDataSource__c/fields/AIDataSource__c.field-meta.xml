@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AIDataSource__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>The Data Source being assigned to this Agent.</description>
+    <inlineHelpText>Select the data source this Agent should be able to call.</inlineHelpText>
+    <label>AI Data Source</label>
+    <referenceTo>AIDataSource__c</referenceTo>
+    <relationshipLabel>AI Agent Data Sources</relationshipLabel>
+    <relationshipName>AIAgentDataSources</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <description>UI and interaction behavior for AI Assist, overridable at Org Default, Profile, or User level.</description>
+    <enableFeeds>false</enableFeeds>
+    <label>AI Assist UI Settings</label>
+    <visibility>Public</visibility>
+</CustomObject>

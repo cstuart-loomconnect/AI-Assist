@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SOQLTemplate__c</fullName>
+    <description>A parameterised SOQL query using bind variables, used when Source Type is SOQL.</description>
+    <inlineHelpText>Required if Source Type is SOQL. Use bind variables for any inputs — never build queries by concatenating raw text, to avoid injection risk.</inlineHelpText>
+    <label>SOQL Template</label>
+    <length>32768</length>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>5</visibleLines>
+</CustomField>

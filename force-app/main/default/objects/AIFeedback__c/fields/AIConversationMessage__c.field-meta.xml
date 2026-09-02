@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AIConversationMessage__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>The specific AI response this feedback is about.</description>
+    <inlineHelpText>Links feedback to the exact response being rated, rather than the conversation as a whole.</inlineHelpText>
+    <label>AI Conversation Message</label>
+    <referenceTo>AIConversationMessage__c</referenceTo>
+    <relationshipLabel>AI Feedbacks</relationshipLabel>
+    <relationshipName>AIFeedbacks</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

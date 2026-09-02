@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CacheResetDate__c</fullName>
+    <description>When set to today or earlier, forces a full resync on the next dispatcher run.</description>
+    <inlineHelpText>Set this to force an out-of-cycle resync, such as after a classification change in Setup.</inlineHelpText>
+    <label>Cache Reset Date</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

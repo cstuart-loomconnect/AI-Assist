@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MaxMessagesPerConversation__c</fullName>
+    <description>Caps the number of messages allowed within a single conversation before it must be closed or restarted.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Set a limit on how long a single conversation can run, to control cost and keep sessions focused.</inlineHelpText>
+    <label>Max Messages Per Conversation</label>
+    <precision>2</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

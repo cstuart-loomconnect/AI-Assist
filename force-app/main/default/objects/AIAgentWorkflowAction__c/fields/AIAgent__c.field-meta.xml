@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AIAgent__c</fullName>
+    <description>The Agent this workflow action is assigned to.</description>
+    <inlineHelpText>This assignment is deleted automatically if the Agent is deleted.</inlineHelpText>
+    <label>AI Agent</label>
+    <referenceTo>AIAgent__c</referenceTo>
+    <relationshipLabel>AI Agent Workflow Actions</relationshipLabel>
+    <relationshipName>AIAgentWorkflowActions</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

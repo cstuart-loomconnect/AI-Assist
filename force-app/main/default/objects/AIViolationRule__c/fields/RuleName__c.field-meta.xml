@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>RuleName__c</fullName>
+    <description>The display name of this rule. Name it after the specific behavior it is meant to detect, such as Bulk Export Attempt.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Use a clear rule name that describes the specific behavior being detected, such as Bulk Export Attempt.</inlineHelpText>
+    <label>Rule Name</label>
+    <length>80</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

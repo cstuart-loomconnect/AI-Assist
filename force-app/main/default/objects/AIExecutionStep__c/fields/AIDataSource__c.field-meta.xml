@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AIDataSource__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>The data source involved, if this step was a data source call.</description>
+    <inlineHelpText>Left blank if this step wasn&apos;t a data source call.</inlineHelpText>
+    <label>AI Data Source</label>
+    <referenceTo>AIDataSource__c</referenceTo>
+    <relationshipLabel>AI Execution Steps</relationshipLabel>
+    <relationshipName>AIExecutionSteps</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

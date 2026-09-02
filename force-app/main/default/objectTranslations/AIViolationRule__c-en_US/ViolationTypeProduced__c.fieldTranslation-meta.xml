@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Choose the category this rule should log a violation as. --></help>
+    <label><!-- Violation Type Produced --></label>
+    <name>ViolationTypeProduced__c</name>
+    <picklistValues>
+        <masterLabel>AI Flagged Intent</masterLabel>
+        <translation><!-- AI Flagged Intent --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Configuration Violation</masterLabel>
+        <translation><!-- Configuration Violation --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>PII Masking Failure</masterLabel>
+        <translation><!-- PII Masking Failure --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Unauthorized Data Access</masterLabel>
+        <translation><!-- Unauthorized Data Access --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Unauthorized Workflow Action</masterLabel>
+        <translation><!-- Unauthorized Workflow Action --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Usage Limit Exceeded</masterLabel>
+        <translation><!-- Usage Limit Exceeded --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

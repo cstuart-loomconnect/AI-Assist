@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsTestModeEnabled__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Restricts this agent to admin or tester access only, without being visible to general end users, while still allowing real testing of its behavior.</description>
+    <inlineHelpText>Turn this on while trialing a new or recently edited agent before rolling it out more widely.</inlineHelpText>
+    <label>Is Test Mode Enabled</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

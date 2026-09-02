@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SignalTag__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <description>The exact structured tag the AI must output if it detects this condition, parsed deterministically by Apex rather than inferred from prose.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Define a unique tag the AI should emit if it detects this condition, such as VIOLATION_BULK_EXPORT_ATTEMPT. Apex looks for this exact tag in the response — the AI&apos;s free-text explanation is never trusted directly. Must be unique across all rules.</inlineHelpText>
+    <label>Signal Tag</label>
+    <length>40</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

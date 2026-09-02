@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AIModelConfiguration__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>The model configuration this agent uses for its AI calls, including which model, temperature, and cost settings apply.</description>
+    <inlineHelpText>Select which model configuration this agent should call. Multiple agents can safely share the same configuration.</inlineHelpText>
+    <label>AI Model Configuration</label>
+    <referenceTo>AIModelConfiguration__c</referenceTo>
+    <relationshipLabel>AI Agents</relationshipLabel>
+    <relationshipName>AIAgents</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

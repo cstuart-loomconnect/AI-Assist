@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ConfirmationMessage__c</fullName>
+    <description>The message shown to the user when confirming this action, if Requires Confirmation is enabled.</description>
+    <inlineHelpText>Write a short message explaining what will happen if the user confirms, such as &quot;This will resend the document request to the applicant&apos;s email on file.&quot;</inlineHelpText>
+    <label>Confirmation Message</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>TextArea</type>
+</CustomField>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Define a unique tag the AI should emit if it detects this condition, such as VIOLATION_BULK_EXPORT_ATTEMPT. Apex looks for this exact tag in the response — the AI&apos;s free-text explanation is never trusted directly. Must be unique across all rules. --></help>
+    <label><!-- Signal Tag --></label>
+    <name>SignalTag__c</name>
+</CustomFieldTranslation>

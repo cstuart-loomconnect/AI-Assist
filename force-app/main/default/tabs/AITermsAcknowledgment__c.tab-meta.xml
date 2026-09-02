@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customObject>true</customObject>
+    <description>Signed records of user acknowledgment of the AI Assist usage terms, with typed electronic signature.</description>
+    <motif>Custom15: People</motif>
+</CustomTab>

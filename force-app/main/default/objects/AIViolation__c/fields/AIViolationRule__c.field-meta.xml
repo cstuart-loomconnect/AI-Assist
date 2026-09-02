@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AIViolationRule__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>The rule that detected this violation.</description>
+    <inlineHelpText>Links back to the specific rule and condition that triggered this record.</inlineHelpText>
+    <label>AI Violation Rule</label>
+    <referenceTo>AIViolationRule__c</referenceTo>
+    <relationshipLabel>AI Violations</relationshipLabel>
+    <relationshipName>AIViolations</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ApexClassRequired</fullName>
+    <active>true</active>
+    <errorConditionFormula>TEXT(SourceType__c) = $Label.AI_Data_Source_Source_Type_Apex &amp;&amp; ISBLANK(ApexClassName__c)</errorConditionFormula>
+    <errorDisplayField>ApexClassName__c</errorDisplayField>
+    <errorMessage>Apex Class Name is required when Source Type is Apex.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ConversationVisibility__c</fullName>
+    <description>Determines who can view a conversation besides the user who started it.</description>
+    <inlineHelpText>Choose whether conversations should be visible only to the person who had them, or to anyone with access to the record.</inlineHelpText>
+    <label>Conversation Visibility</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Private</fullName>
+                <default>false</default>
+                <label>Private</label>
+            </value>
+            <value>
+                <fullName>Global</fullName>
+                <default>false</default>
+                <label>Global</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

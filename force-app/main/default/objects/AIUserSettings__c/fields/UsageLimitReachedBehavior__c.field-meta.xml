@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>UsageLimitReachedBehavior__c</fullName>
+    <description>Determines what happens when this user hits one of their usage limits.</description>
+    <inlineHelpText>Choose how strictly usage limits should be enforced once reached.</inlineHelpText>
+    <label>Usage Limit Reached Behavior</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Block New Messages</fullName>
+                <default>false</default>
+                <label>Block New Messages</label>
+            </value>
+            <value>
+                <fullName>Block New Conversations Only</fullName>
+                <default>true</default>
+                <label>Block New Conversations Only</label>
+            </value>
+            <value>
+                <fullName>Notify Only</fullName>
+                <default>false</default>
+                <label>Notify Only</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

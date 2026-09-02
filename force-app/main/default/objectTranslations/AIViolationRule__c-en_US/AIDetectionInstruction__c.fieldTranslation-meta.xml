@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Describe the behavior this rule should detect in plain language. Be specific — this becomes part of the Agent&apos;s own instructions. --></help>
+    <label><!-- AI Detection Instruction --></label>
+    <name>AIDetectionInstruction__c</name>
+</CustomFieldTranslation>

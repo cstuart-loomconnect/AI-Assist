@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>InputSchema__c</fullName>
+    <description>A JSON schema describing the inputs this action expects, used both to inform the AI&apos;s tool call and to render a pre-filled confirmation form.</description>
+    <inlineHelpText>Define the inputs this action needs in JSON schema format. Field names must match the Flow&apos;s input variable API names, or the Apex class&apos;s expected parameter keys, exactly - otherwise the action will fail when triggered.</inlineHelpText>
+    <label>Input Schema</label>
+    <length>32768</length>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>5</visibleLines>
+</CustomField>

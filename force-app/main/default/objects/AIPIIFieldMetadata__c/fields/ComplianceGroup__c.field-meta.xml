@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ComplianceGroup__c</fullName>
+    <description>The raw classification value from the org&apos;s Data Classification settings.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Set automatically during sync, reflecting exactly what&apos;s configured in Setup.</inlineHelpText>
+    <label>Compliance Group</label>
+    <length>255</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

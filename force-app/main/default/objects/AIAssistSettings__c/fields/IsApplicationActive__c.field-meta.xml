@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsApplicationActive__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description>Master switch controlling whether AI Assist is active org-wide.</description>
+    <inlineHelpText>Turn this off to halt the entire application immediately, without deactivating every Agent individually.</inlineHelpText>
+    <label>Is Application Active</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

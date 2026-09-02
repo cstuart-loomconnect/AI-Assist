@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AIFallbackMessage__c</fullName>
+    <description>The message shown to the user when the AI call fails, times out, or the agent cannot complete the requested task.</description>
+    <inlineHelpText>Write a plain-language message the end-user should see if something goes wrong, such as a timeout or failed response. Keep it reassuring and clear about next steps.</inlineHelpText>
+    <label>AI Fallback Message</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>TextArea</type>
+</CustomField>

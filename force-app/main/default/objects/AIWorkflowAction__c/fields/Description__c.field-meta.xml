@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Description__c</fullName>
+    <description>Explains what this action does, shown to the AI when deciding whether to suggest it in response to a user&apos;s question.</description>
+    <inlineHelpText>Write a clear explanation of what this action does and when it&apos;s appropriate to use. This is what the AI reads to decide whether to suggest it, be specific.</inlineHelpText>
+    <label>Description</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>TextArea</type>
+</CustomField>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsFeedbackEnabled__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description>Whether the thumbs up/down rating prompt appears under AI responses.</description>
+    <inlineHelpText>Turn this off to hide the feedback prompt for this level.</inlineHelpText>
+    <label>Is Feedback Enabled</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

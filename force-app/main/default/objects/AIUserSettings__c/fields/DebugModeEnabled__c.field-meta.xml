@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DebugModeEnabled__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Surfaces raw request and response detail, including Execution Step data, directly in the UI for this user.</description>
+    <inlineHelpText>Intended for admins or developers testing configuration. Should not be enabled for general end users.</inlineHelpText>
+    <label>Debug Mode Enabled</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

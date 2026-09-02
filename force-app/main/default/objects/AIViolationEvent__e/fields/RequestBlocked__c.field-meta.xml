@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>RequestBlocked__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Whether the underlying request was blocked as a result.</description>
+    <inlineHelpText>Reflects the Block Request setting on the rule that fired, at the moment it fired.</inlineHelpText>
+    <isFilteringDisabled>false</isFilteringDisabled>
+    <isNameField>false</isNameField>
+    <isSortingDisabled>false</isSortingDisabled>
+    <label>Request Blocked</label>
+    <type>Checkbox</type>
+</CustomField>

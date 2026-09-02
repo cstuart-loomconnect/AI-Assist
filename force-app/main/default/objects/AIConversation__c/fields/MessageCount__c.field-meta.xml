@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MessageCount__c</fullName>
+    <description>The total number of messages exchanged in this conversation, calculated automatically from its child messages.</description>
+    <inlineHelpText>Automatically maintained via the master-detail relationship. Checked against the Agent&apos;s Max Messages Per Conversation limit.</inlineHelpText>
+    <label>Message Count</label>
+    <summaryForeignKey>AIConversationMessage__c.AIConversation__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

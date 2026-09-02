@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SignalTagRequiredForAI</fullName>
+    <active>true</active>
+    <errorConditionFormula>TEXT(DetectionMethod__c) = $Label.AI_Violation_Rule_Detection_Method_AI_Evaluated &amp;&amp; ISBLANK(SignalTag__c)</errorConditionFormula>
+    <errorDisplayField>SignalTag__c</errorDisplayField>
+    <errorMessage>Signal Tag is required when Detection Method is AI Evaluated.</errorMessage>
+</ValidationRule>

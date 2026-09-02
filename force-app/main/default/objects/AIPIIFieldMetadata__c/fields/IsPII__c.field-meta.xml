@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsPII__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Derived — true when Compliance Group contains PII.</description>
+    <inlineHelpText>This is the field the runtime masking logic actually checks when deciding what to mask.</inlineHelpText>
+    <label>Is PII</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

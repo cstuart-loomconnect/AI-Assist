@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AISystemContext__c</fullName>
+    <description>Describes the situational or record-based context this prompt template is designed for, so the AI understands why this variant was selected before it starts generating a response.</description>
+    <inlineHelpText>Describe the scenario this template is for and the record conditions that should trigger it, so both admins and the AI understand when this variant applies.</inlineHelpText>
+    <label>AI System Context</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>TextArea</type>
+</CustomField>

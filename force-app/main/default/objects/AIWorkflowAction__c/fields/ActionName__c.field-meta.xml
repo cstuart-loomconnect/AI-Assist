@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ActionName__c</fullName>
+    <description>The display name of this action, shown to the AI for tool selection and to the user as a suggested action.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Give this action a clear, action-oriented name, such as &quot;Resend Document Request.&quot;</inlineHelpText>
+    <label>Action Name</label>
+    <length>50</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

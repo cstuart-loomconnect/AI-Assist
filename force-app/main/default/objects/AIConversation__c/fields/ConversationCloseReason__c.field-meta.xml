@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ConversationCloseReason__c</fullName>
+    <description>The reason this conversation was closed, used for reporting on how sessions typically end.</description>
+    <inlineHelpText>Set automatically based on what triggered the conversation to close. Useful for spotting whether limits are being hit too often.</inlineHelpText>
+    <label>Conversation Close Reason</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>User Closed</fullName>
+                <default>false</default>
+                <label>User Closed</label>
+            </value>
+            <value>
+                <fullName>Idle Timeout</fullName>
+                <default>false</default>
+                <label>Idle Timeout</label>
+            </value>
+            <value>
+                <fullName>Message Limit Reached</fullName>
+                <default>false</default>
+                <label>Message Limit Reached</label>
+            </value>
+            <value>
+                <fullName>Token Limit Reached</fullName>
+                <default>false</default>
+                <label>Token Limit Reached</label>
+            </value>
+            <value>
+                <fullName>System Override</fullName>
+                <default>false</default>
+                <label>System Override</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

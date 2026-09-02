@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FlowAPINameRequired</fullName>
+    <active>true</active>
+    <errorConditionFormula>TEXT(ActionType__c) = $Label.AI_Workflow_Action_Action_Type_Flow &amp;&amp; ISBLANK(FlowAPIName__c)</errorConditionFormula>
+    <errorDisplayField>FlowAPIName__c</errorDisplayField>
+    <errorMessage>Flow API Name is required when Action Type is Flow.</errorMessage>
+</ValidationRule>

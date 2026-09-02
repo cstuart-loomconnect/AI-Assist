@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AIAgentPersona__c</fullName>
+    <description>A short description of the role or character this agent plays when interacting with users.</description>
+    <inlineHelpText>Describe how this agent should present itself - its role and general demeanor - in a sentence or two.</inlineHelpText>
+    <label>AI Agent Persona</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>TextArea</type>
+</CustomField>

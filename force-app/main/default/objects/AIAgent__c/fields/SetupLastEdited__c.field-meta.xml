@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SetupLastEdited__c</fullName>
+    <description>The date and time this agent&apos;s configuration was last edited in the wizard.</description>
+    <inlineHelpText>Drives the &quot;last edited&quot; display shown on the in-progress drafts list. Updated automatically.</inlineHelpText>
+    <label>Setup Last Edited</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>DateTime</type>
+</CustomField>

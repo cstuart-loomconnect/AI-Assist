@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>WorkflowActionsEnabled__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description>Whether this user can see and trigger suggested Workflow Actions, or is restricted to read-only conversation with the Agent.</description>
+    <inlineHelpText>Turn this off to limit this user to asking questions only, without the ability to trigger actions that change data.</inlineHelpText>
+    <label>Workflow Actions Enabled</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MaxResponseLength__c</fullName>
+    <description>Caps the expected length of the AI&apos;s response, in approximate words, to keep replies concise and reduce token usage.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Set a rough word limit to keep responses short and fast. Leave blank for no limit.</inlineHelpText>
+    <label>Max Response Length</label>
+    <precision>6</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

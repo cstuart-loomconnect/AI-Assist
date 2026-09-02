@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SOQLTemplateRequired</fullName>
+    <active>true</active>
+    <errorConditionFormula>TEXT(SourceType__c) = $Label.AI_Data_Source_Source_Type_SOQL &amp;&amp; ISBLANK(SOQLTemplate__c)</errorConditionFormula>
+    <errorDisplayField>SOQLTemplate__c</errorDisplayField>
+    <errorMessage>SOQL Template is required when Source Type is SOQL.</errorMessage>
+</ValidationRule>

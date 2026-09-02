@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IdleTimeoutMinutes__c</fullName>
+    <description>The number of minutes of inactivity before a conversation is automatically closed.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Set how long a conversation can sit idle before it&apos;s considered ended. Helps avoid stale open sessions consuming context unnecessarily.</inlineHelpText>
+    <label>Idle Timeout Minutes</label>
+    <precision>5</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

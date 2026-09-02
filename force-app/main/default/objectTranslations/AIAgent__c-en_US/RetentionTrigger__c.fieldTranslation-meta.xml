@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Choose what the retention period should count from. --></help>
+    <label><!-- Retention Trigger --></label>
+    <name>RetentionTrigger__c</name>
+    <picklistValues>
+        <masterLabel>Conversation Closed Date</masterLabel>
+        <translation><!-- Conversation Closed Date --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Conversation Created Date</masterLabel>
+        <translation><!-- Conversation Created Date --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Last Message Date</masterLabel>
+        <translation><!-- Last Message Date --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>StepDetail__c</fullName>
+    <description>The specifics of what happened at this step, which template was selected and why, which data source was called with what inputs, what it returned.</description>
+    <inlineHelpText>Records enough detail to reconstruct exactly what the orchestrator did at this step, for debugging or review.</inlineHelpText>
+    <label>Step Detail</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>TextArea</type>
+</CustomField>

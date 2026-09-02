@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AIDetectionInstruction__c</fullName>
+    <description>The instruction given to the AI describing what to watch for, used only when Detection Method is AI Evaluated.</description>
+    <inlineHelpText>Describe the behavior this rule should detect in plain language. Be specific — this becomes part of the Agent&apos;s own instructions.</inlineHelpText>
+    <label>AI Detection Instruction</label>
+    <length>32768</length>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>3</visibleLines>
+</CustomField>

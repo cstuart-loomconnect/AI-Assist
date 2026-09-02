@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ConversationLoadTrigger__c</fullName>
+    <description>Determines when this agent&apos;s conversation history is loaded relative to the record page.</description>
+    <inlineHelpText>Choose whether past conversation history should load automatically when the record page opens, only when the chat panel is opened, or only when the user explicitly requests it.</inlineHelpText>
+    <label>Conversation Load Trigger</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>On Page Load</fullName>
+                <default>false</default>
+                <label>On Page Load</label>
+            </value>
+            <value>
+                <fullName>On Chat Window Open</fullName>
+                <default>false</default>
+                <label>On Chat Window Open</label>
+            </value>
+            <value>
+                <fullName>Manual Only</fullName>
+                <default>false</default>
+                <label>Manual Only</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

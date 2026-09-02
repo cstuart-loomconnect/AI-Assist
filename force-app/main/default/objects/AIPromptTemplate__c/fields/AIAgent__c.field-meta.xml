@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AIAgent__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Links this Prompt Template to the AI Agent it belongs to. The Agent&apos;s standing guardrails apply automatically to every Prompt Template assigned to it.</description>
+    <inlineHelpText>Select the Agent this template is assigned to. This template will only be considered for selection when that Agent is active in a conversation, and will inherit its Agent&apos;s settings automatically</inlineHelpText>
+    <label>AI Agent</label>
+    <referenceTo>AIAgent__c</referenceTo>
+    <relationshipLabel>AI Prompt Templates</relationshipLabel>
+    <relationshipName>AIPromptTemplates</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

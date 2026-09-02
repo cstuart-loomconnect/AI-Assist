@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ModelIdentifier__c</fullName>
+    <description>The exact model string used when calling the AI provider&apos;s API.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Enter the exact model identifier required by the API call. This must match the provider&apos;s current model string exactly, or calls using this configuration will fail.</inlineHelpText>
+    <label>Model Identifier</label>
+    <length>50</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AllowInlineWorkflowActions__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description>Whether suggested Workflow Actions render as inline cards the user can confirm directly in chat.</description>
+    <inlineHelpText>Turn this off to suppress inline action suggestions at this level.</inlineHelpText>
+    <label>Allow Inline Workflow Actions</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>
