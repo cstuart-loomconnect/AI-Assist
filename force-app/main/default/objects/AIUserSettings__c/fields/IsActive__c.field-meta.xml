@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsActive__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description>Whether this user currently has an AI Assist User Type assigned. Set to false when the user&apos;s type is removed, without deleting their saved configuration.</description>
+    <inlineHelpText>Automatically maintained based on the user&apos;s AI Assist User Type. Do not edit manually.</inlineHelpText>
+    <label>Is Active</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

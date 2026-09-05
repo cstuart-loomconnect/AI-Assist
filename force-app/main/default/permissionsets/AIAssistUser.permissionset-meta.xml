@@ -340,6 +340,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>AIUserSettings__c.IsActive__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>AIUserSettings__c.MaxConcurrentConversations__c</field>
         <readable>true</readable>
     </fieldPermissions>

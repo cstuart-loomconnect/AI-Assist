@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ExceptionLogDetail__c</fullName>
+    <description>Detailed view of a single logged exception, including the class, method, exception type and message, full stack trace, and the record and user involved at the time of failure</description>
+    <inlineHelpText>Detailed view of a single logged exception, including the class, method, exception type and message, full stack trace, and the record and user involved at the time of failure</inlineHelpText>
+    <label>Exception Log Detail</label>
+    <length>32768</length>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>3</visibleLines>
+</CustomField>
