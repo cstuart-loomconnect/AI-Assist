@@ -9,8 +9,8 @@ Description: This class provides global utility methods for the AI Assist Platfo
 =================================================================
 =================================================================
 
-Version      Author                   Description
-1.0          Chandler Stuart          Initial development
+Version      Date           Author                   Description
+1.0          2026-09-06     Chandler Stuart          Initial development
 */
 
 public without sharing class AIAssistGlobalUtility {
@@ -69,7 +69,7 @@ public without sharing class AIAssistGlobalUtility {
                 Object rawValue = record.get(AIAssistApplicationConstants.DEVELOPER_NAME_SOURCE_FIELD_API_NAME);
                 if (rawValue == null) continue; // Nothing to derive a Developer Name from yet.
 
-                String developerName = String.valueOf(rawValue).trim().replaceAll('[^a-zA-Z0-9]+', '_');
+                String developerName = String.valueOf(rawValue).trim().replaceAll('[^a-zA-Z0-9]+', '_').replaceAll('^_+|_+$', '');
                 if (String.isBlank(developerName)) continue;
 
                 record.put(AIAssistApplicationConstants.DEVELOPER_NAME_FIELD_API_NAME, developerName);
