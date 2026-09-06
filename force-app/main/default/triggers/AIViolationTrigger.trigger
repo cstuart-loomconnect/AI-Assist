@@ -1,10 +1,10 @@
 /*
-Class Name: AIPlatformLogEventTrigger
+Class Name: AIViolationTrigger
 
 =================================================================
 =================================================================
 
-Description: Trigger for handling AI Platform Log Events
+Description: Trigger for handling AI Violation events related to AI Assist
 
 =================================================================
 =================================================================
@@ -12,16 +12,17 @@ Description: Trigger for handling AI Platform Log Events
 Version      Author                   Description
 1.0          Chandler Stuart          Initial development
 */
-
-trigger AIPlatformLogEventTrigger on AIPlatformLogEvent__e (after insert) {
+trigger AIViolationTrigger on AIViolation__c (after insert) {
 
     if (AIAssistSettingsService.getSettings() == null || !AIAssistSettingsService.getSettings().IsApplicationActive__c) {
         return;
     }
 
-    if (Trigger.isInsert && Trigger.isAfter) {
-        AIPlatformLogEventHandler.handleAfterInsert(Trigger.new);
+    // After Context
+    if (Trigger.isAfter) {
+        if (Trigger.isInsert) {
+            AIViolationTriggerHandler.handleAfterInsert(Trigger.new);
+        }
     }
-
 
 }

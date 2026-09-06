@@ -215,6 +215,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>AIConversation__c.RetentionCalculationBasis__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>AIConversation__c.RetentionExpiryDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -625,12 +630,27 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>AIViolationRule__c.DeveloperName__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>AIViolationRule__c.LastTriggeredDate__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>AIViolationRule__c.RuleName__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
         <field>AIViolationRule__c.SignalTag__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>AIViolationRule__c.TriggerCount__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

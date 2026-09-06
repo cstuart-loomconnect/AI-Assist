@@ -10,8 +10,8 @@ It processes the events and persists them as AIPlatformLog__c records for furthe
 =================================================================
 =================================================================
 
-Version      Date            Author                   Description
-1.0          2026-09-03      Chandler Stuart          Initial development
+Version      Author                   Description
+1.0          Chandler Stuart          Initial development
 */
 
 public without sharing class AIPlatformLogEventHandler {

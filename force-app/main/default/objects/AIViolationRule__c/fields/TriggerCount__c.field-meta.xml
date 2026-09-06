@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TriggerCount__c</fullName>
+    <defaultValue>0</defaultValue>
+    <description>The running total of times this rule has detected a violation.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Incremented automatically each time this rule produces an AI Violation record.</inlineHelpText>
+    <label>Trigger Count</label>
+    <precision>10</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

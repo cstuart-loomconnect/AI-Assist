@@ -4,16 +4,14 @@ Class Name: AIAssistUserTriggerHandler
 =================================================================
 =================================================================
 
-Description: Handler for managing User events related to AI Assist. Reacts to
-AIAssistUserType__c: blank -> set triggers InitialiseAIAssistUserQueueable, set -> blank
-triggers DeactivateAIAssistUserQueueable, and one value -> another triggers
-UpdateAIAssistUserQueueable.
+Description: Handler for managing User events related to AI Assist, performing the
+business logic that runs on the User trigger.
 
 =================================================================
 =================================================================
 
-Version      Date            Author                   Description
-1.0          2026-09-03      Chandler Stuart          Initial development
+Version      Author                   Description
+1.0          Chandler Stuart          Initial development
 */
 
 public without sharing class AIAssistUserTriggerHandler {

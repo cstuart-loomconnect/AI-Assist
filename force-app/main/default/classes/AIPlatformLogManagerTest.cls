@@ -16,8 +16,8 @@ AIPlatformLogEventHandle: Converage 94%
 AIPlatformLogEventTrigger: Coverage 100%
 AIPlatformLogManager: Coverage 90%
 
-Version      Date            Author                   Description
-1.0          2026-09-03      Chandler Stuart          Initial development
+Version      Author                   Description
+1.0          Chandler Stuart          Initial development
 */
 
 @IsTest private class AIPlatformLogManagerTest {

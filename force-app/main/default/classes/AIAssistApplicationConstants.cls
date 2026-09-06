@@ -12,8 +12,8 @@ change in one place.
 =================================================================
 =================================================================
 
-Version      Date            Author                   Description
-1.0          2026-09-03      Chandler Stuart          Initial development
+Version      Author                   Description
+1.0          Chandler Stuart          Initial development
 */
 public without sharing class AIAssistApplicationConstants {
 
@@ -66,4 +66,32 @@ public without sharing class AIAssistApplicationConstants {
     // AIDataSource__c.SourceType__c
     public static final String DATA_SOURCE_TYPE_APEX = 'Apex';
     public static final String DATA_SOURCE_TYPE_SOQL = 'SOQL';
+
+    // AIWorkflowAction__c.ActionType__c
+    public static final String WORKFLOW_ACTION_TYPE_APEX = 'Apex';
+    public static final String WORKFLOW_ACTION_TYPE_FLOW = 'Flow';
+
+    // AIAgent__c.RetentionTrigger__c
+    public static final String RETENTION_TRIGGER_CONVERSATION_CREATED_DATE = 'Conversation Created Date';
+    public static final String RETENTION_TRIGGER_CONVERSATION_CLOSED_DATE = 'Conversation Closed Date';
+    public static final String RETENTION_TRIGGER_LAST_MESSAGE_DATE = 'Last Message Date';
+
+    // AIConversation__c.Status__c
+    public static final String CONVERSATION_STATUS_ACTIVE = 'Active';
+    public static final String CONVERSATION_STATUS_CLOSED = 'Closed';
+    public static final String CONVERSATION_STATUS_ARCHIVED = 'Archived';
+
+    // AIConversation__c.ConversationCloseReason__c
+    public static final String CONVERSATION_CLOSE_REASON_IDLE_TIMEOUT = 'Idle Timeout';
+
+    // AIAgent__c.RetentionAction__c
+    public static final String RETENTION_ACTION_ARCHIVE = 'Archive';
+    public static final String RETENTION_ACTION_ANONYMIZE = 'Anonymize';
+
+    // AIPIIRegistry__c.SyncStatus__c
+    public static final String PII_SYNC_STATUS_NOT_SYNCED = 'Not Synced';
+    public static final String PII_SYNC_STATUS_QUEUED = 'Queued';
+    public static final String PII_SYNC_STATUS_IN_PROGRESS = 'In Progress';
+    public static final String PII_SYNC_STATUS_SYNCED = 'Synced';
+    public static final String PII_SYNC_STATUS_FAILED = 'Failed';
 }

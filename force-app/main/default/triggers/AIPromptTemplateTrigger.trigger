@@ -9,8 +9,8 @@ Description: Trigger for handling AI Prompt Template events related to AI Assist
 =================================================================
 =================================================================
 
-Version      Date            Author                   Description
-1.0          2026-09-05      Chandler Stuart          Initial development
+Version      Author                   Description
+1.0          Chandler Stuart          Initial development
 */
 trigger AIPromptTemplateTrigger on AIPromptTemplate__c (before insert) {
 

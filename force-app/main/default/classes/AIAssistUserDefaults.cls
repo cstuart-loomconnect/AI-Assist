@@ -12,8 +12,8 @@ apply only at creation - nothing re-applies them afterwards.
 =================================================================
 =================================================================
 
-Version      Date            Author                   Description
-1.0          2026-09-03      Chandler Stuart          Initial development
+Version      Author                   Description
+1.0          Chandler Stuart          Initial development
 */
 public without sharing class AIAssistUserDefaults {
 

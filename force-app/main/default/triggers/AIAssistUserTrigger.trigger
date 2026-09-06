@@ -9,9 +9,9 @@ Description: Trigger for handling User events related to AI Assist
 =================================================================
 =================================================================
 
-Version      Date            Author                   Description
-1.0          2026-09-03      Chandler Stuart          Initial development
-1.1          2022-09-05      Chandler Stuart          Enhancement. Added Before Insert Context
+Version      Author                   Description
+1.0          Chandler Stuart          Initial development
+1.1          Chandler Stuart          Enhancement. Added Before Insert Context
 */
 trigger AIAssistUserTrigger on User (before insert, after insert, after update) {
 

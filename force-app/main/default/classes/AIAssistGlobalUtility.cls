@@ -9,8 +9,8 @@ Description: This class provides global utility methods for the AI Assist Platfo
 =================================================================
 =================================================================
 
-Version      Date            Author                   Description
-1.0          2026-09-05      Chandler Stuart          Initial development
+Version      Author                   Description
+1.0          Chandler Stuart          Initial development
 */
 
 public without sharing class AIAssistGlobalUtility {

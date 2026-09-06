@@ -1,10 +1,10 @@
 /*
-Class Name: AIPlatformLogEventTrigger
+Class Name: AIModelConfigurationTrigger
 
 =================================================================
 =================================================================
 
-Description: Trigger for handling AI Platform Log Events
+Description: Trigger for handling AI Model Configuration events related to AI Assist
 
 =================================================================
 =================================================================
@@ -12,16 +12,19 @@ Description: Trigger for handling AI Platform Log Events
 Version      Author                   Description
 1.0          Chandler Stuart          Initial development
 */
-
-trigger AIPlatformLogEventTrigger on AIPlatformLogEvent__e (after insert) {
+trigger AIModelConfigurationTrigger on AIModelConfiguration__c (before insert, before update) {
 
     if (AIAssistSettingsService.getSettings() == null || !AIAssistSettingsService.getSettings().IsApplicationActive__c) {
         return;
     }
 
-    if (Trigger.isInsert && Trigger.isAfter) {
-        AIPlatformLogEventHandler.handleAfterInsert(Trigger.new);
+    // Before Context
+    if (Trigger.isBefore) {
+        if (Trigger.isInsert) {
+            AIModelConfigurationTriggerHandler.handleBeforeInsert(Trigger.new);
+        } else if (Trigger.isUpdate) {
+            AIModelConfigurationTriggerHandler.handleBeforeUpdate(Trigger.new);
+        }
     }
-
 
 }

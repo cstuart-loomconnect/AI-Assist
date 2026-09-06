@@ -11,8 +11,8 @@ The logs are published as platform events and can be handled by triggers to stor
 =================================================================
 =================================================================
 
-Version      Date            Author                   Description
-1.0          2026-09-03      Chandler Stuart          Initial development
+Version      Author                   Description
+1.0          Chandler Stuart          Initial development
 */
 
 public without sharing class AIPlatformLogManager {
@@ -180,6 +180,71 @@ public without sharing class AIPlatformLogManager {
         entry.ExceptionType__c = 'DML Delete Failure';
         entry.ExceptionMessage__c = failedCount + ' of ' + (succeededCount + failedCount)
                                     + ' record(s) failed to delete (' + succeededCount + ' succeeded): '
+                                    + errorLines[0];
+        entry.ExceptionLogDetail__c = 'Failed record Ids: ' + (failedRecordIds.isEmpty() ? 'n/a' : String.join(failedRecordIds, ', '))
+                                + '\n\n' + String.join(errorLines, '\n');
+        entry.RelatedRecordId__c = failedRecordIds.isEmpty() ? null : failedRecordIds[0];
+
+        EventBus.publish(entry);
+    }
+
+    public static void logExceptions(List<Database.UpsertResult> upsertResults, String className, String methodName) {
+
+        // Validate Input Parameters
+        if (String.isBlank(className) || String.isBlank(methodName) || upsertResults == null || upsertResults.isEmpty()) {
+            System.debug('Invalid parameters provided for logging upsert results. Check className, methodName, and upsert result list.');
+            return;
+        }
+
+        // Check AIAssistSettings__c.DisableExceptionLogging__c is true, if so, skip logging
+        if (AIAssistSettingsService.isExceptionLoggingDisabled()) {
+            System.debug('Exception logging is disabled. Skipping log entry for upsert results.');
+            return;
+        }
+
+        // Check if we can publish events without hitting limits
+        if (!isPublishable()) {
+            System.debug('Cannot publish events due to DML limits. Skipping log entry for upsert results.');
+            return;
+        }
+
+        Integer failedCount = 0;
+        Integer succeededCount = 0;
+        List<Id> failedRecordIds = new List<Id>();
+        List<String> errorLines = new List<String>();
+
+        for (Database.UpsertResult ur : upsertResults) {
+
+            if (ur == null) continue;
+            if (ur.isSuccess()) { succeededCount++; continue; }
+
+            failedCount++;
+
+            if (ur.getId() != null) { failedRecordIds.add(ur.getId()); }
+
+            for (Database.Error err : ur.getErrors()) {
+                errorLines.add( (ur.getId() != null ? ur.getId() + ' - ' : '')
+                                + err.getStatusCode() + ': ' + err.getMessage()
+                                + (err.getFields() != null && !err.getFields().isEmpty()
+                                ? ' [fields: ' + String.join(err.getFields(), ', ') + ']' : '')
+                );
+            }
+        }
+
+        // Nothing failed - nothing to log
+        if (failedCount == 0) {
+            System.debug('All ' + succeededCount + ' upsert results succeeded. Skipping log entry.');
+            return;
+        }
+
+        AIPlatformLogEvent__e entry = new AIPlatformLogEvent__e();
+        entry.ClassName__c = className;
+        entry.MethodName__c = methodName;
+        entry.OccurredAt__c = System.now();
+        entry.UserId__c = UserInfo.getUserId();
+        entry.ExceptionType__c = 'DML Upsert Failure';
+        entry.ExceptionMessage__c = failedCount + ' of ' + (succeededCount + failedCount)
+                                    + ' record(s) failed to upsert (' + succeededCount + ' succeeded): '
                                     + errorLines[0];
         entry.ExceptionLogDetail__c = 'Failed record Ids: ' + (failedRecordIds.isEmpty() ? 'n/a' : String.join(failedRecordIds, ', '))
                                 + '\n\n' + String.join(errorLines, '\n');

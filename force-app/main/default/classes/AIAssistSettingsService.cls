@@ -11,8 +11,8 @@ The settings are cached to improve performance and reduce the number of queries 
 =================================================================
 =================================================================
 
-Version      Date            Author                   Description
-1.0          2026-09-03      Chandler Stuart          Initial development
+Version      Author                   Description
+1.0          Chandler Stuart          Initial development
 */
 
 public without sharing class AIAssistSettingsService {
