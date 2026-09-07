@@ -9,16 +9,13 @@ Description: Trigger for handling User events related to AI Assist
 =================================================================
 =================================================================
 
-Version      Author                   Description
-1.0          Chandler Stuart          Initial development
-1.1          Chandler Stuart          Enhancement. Added Before Insert Context
+Version      Date           Author                   Description
+1.0          2026-09-06     Chandler Stuart          Initial development
 */
 trigger AIAssistUserTrigger on User (before insert, after insert, after update) {
 
-    if (AIAssistSettingsService.getSettings() == null || !AIAssistSettingsService.getSettings().IsApplicationActive__c) {
-        return;
-    }
-
+    if (AIAssistSettings__c.getInstance() == null || !AIAssistSettings__c.getInstance().IsApplicationActive__c) return;
+    
     // Before Context
     if (Trigger.isBefore) {
         if (Trigger.isInsert) {
