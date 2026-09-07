@@ -14,12 +14,10 @@ matching AI Assist permission set.
 Applicable Classes:
 
 AIAssistUserTrigger: Coverage 100%
-AIAssistUserTriggerHandler: Coverage 90%
+AIAssistUserTriggerHandler: Coverage 88%
 
 Version      Date           Author                   Description
 1.0          2026-09-06     Chandler Stuart          Initial development
-1.1          2026-09-07     Chandler Stuart          Reduced to core scenarios; removed bulk insert coverage
-1.2          2026-09-07     Chandler Stuart          Inlined permission set queries into each scenario
 */
 
 @IsTest private class AIAssistUserTriggerTest {
