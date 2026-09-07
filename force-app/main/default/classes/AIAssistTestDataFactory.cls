@@ -46,4 +46,56 @@ Version      Date           Author                   Description
 
         return users;
     }
+
+    public static List<AIAgent__c> createAIAgents(Integer numberOfAgents, Boolean shouldDoInsert) {
+
+        List<AIAgent__c> agents = new List<AIAgent__c>();
+
+        for (Integer i = 0; i < numberOfAgents; i++) {
+            agents.add(
+                new AIAgent__c(
+                    Name = 'AI Assist Test Agent ' + DateTime.now().getTime() + i
+                )
+            );
+        }
+
+        if (shouldDoInsert && !agents.isEmpty()) { insert agents; }
+
+        return agents;
+    }
+
+    public static List<AIConversation__c> createAIConversations(Id agentId, Integer numberOfConversations, Boolean shouldDoInsert) {
+
+        List<AIConversation__c> conversations = new List<AIConversation__c>();
+
+        for (Integer i = 0; i < numberOfConversations; i++) {
+            conversations.add(new AIConversation__c(
+                AIAgent__c = agentId,
+                Status__c = 'Active',
+                Channel__c = 'Utility Bar'
+            ));
+        }
+
+        if (shouldDoInsert && !conversations.isEmpty()) { insert conversations; }
+
+        return conversations;
+    }
+
+    public static List<AIConversationMessage__c> createAIConversationMessages(Id conversationId, Decimal tokenCount, Integer numberOfMessages, Boolean shouldDoInsert) {
+
+        List<AIConversationMessage__c> messages = new List<AIConversationMessage__c>();
+
+        for (Integer i = 0; i < numberOfMessages; i++) {
+            messages.add(new AIConversationMessage__c(
+                AIConversation__c = conversationId,
+                Sender__c = 'User',
+                MessageBody__c = 'Test message ' + i,
+                TokenCount__c = tokenCount
+            ));
+        }
+
+        if (shouldDoInsert && !messages.isEmpty()) { insert messages; }
+
+        return messages;
+    }
 }

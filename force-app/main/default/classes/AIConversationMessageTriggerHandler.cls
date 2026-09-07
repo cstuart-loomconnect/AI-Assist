@@ -25,7 +25,14 @@ public without sharing class AIConversationMessageTriggerHandler {
 
                 isAfterInsertHandlerRunning = true;
 
-                updateConversationTokenUsage(newMessages);
+                List<AIConversationMessage__c> messagesWithTokenUsage = new List<AIConversationMessage__c>();
+
+                for (AIConversationMessage__c message : newMessages) {
+                    if (message.AIConversation__c == null || message.TokenCount__c == null) continue;
+                    messagesWithTokenUsage.add(message);
+                }
+
+                if (!messagesWithTokenUsage.isEmpty()) { updateConversationTokenUsage(messagesWithTokenUsage); }
 
             }
 
@@ -41,8 +48,6 @@ public without sharing class AIConversationMessageTriggerHandler {
             Map<Id, Decimal> tokensAddedByConversationId = new Map<Id, Decimal>();
 
             for (AIConversationMessage__c message : messages) {
-
-                if (message.AIConversation__c == null || message.TokenCount__c == null) continue;
 
                 Decimal tokensAdded = tokensAddedByConversationId.get(message.AIConversation__c);
                 tokensAddedByConversationId.put(message.AIConversation__c, (tokensAdded == null ? 0 : tokensAdded) + message.TokenCount__c);
