@@ -15,7 +15,6 @@ AIAgentTriggerHandler: Coverage 100%
 
 Version      Date           Author                   Description
 1.0          2026-09-07     Chandler Stuart          Initial development
-1.1          2026-09-07     Chandler Stuart          Reduced to core creation scenario plus an exception scenario
 */
 
 @IsTest private class AIAgentTriggerTest {
