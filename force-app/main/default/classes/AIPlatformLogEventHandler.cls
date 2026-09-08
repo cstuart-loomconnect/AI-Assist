@@ -34,6 +34,7 @@ public without sharing class AIPlatformLogEventHandler {
                 log.ExceptionType__c = event.ExceptionType__c;
                 log.ExceptionMessage__c = event.ExceptionMessage__c;
                 log.StackTrace__c = event.StackTrace__c;
+                log.ExceptionLogDetail__c = event.ExceptionLogDetail__c;
                 log.RelatedRecordId__c = event.RelatedRecordId__c;
                 logs.add(log);
             }

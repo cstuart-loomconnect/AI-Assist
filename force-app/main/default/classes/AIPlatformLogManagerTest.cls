@@ -107,12 +107,12 @@ Version      Author                   Description
             AIPlatformLogManager.logCustomMessage('Custom warning', 'Additional detail text', 'CustomClass', 'customMethod', fakeRecordId);
         Test.stopTest();
 
-        List<AIPlatformLog__c> logs = [SELECT ExceptionType__c, ExceptionMessage__c, StackTrace__c, RelatedRecordId__c FROM AIPlatformLog__c];
+        List<AIPlatformLog__c> logs = [SELECT ExceptionType__c, ExceptionMessage__c, ExceptionLogDetail__c, RelatedRecordId__c FROM AIPlatformLog__c];
 
         Assert.areEqual(1, logs.size(), 'Expected exactly one log record to be inserted for the custom message.');
         Assert.areEqual('Custom Message', logs[0].ExceptionType__c);
         Assert.areEqual('Custom warning', logs[0].ExceptionMessage__c);
-        Assert.areEqual('Additional detail text', logs[0].StackTrace__c);
+        Assert.areEqual('Additional detail text', logs[0].ExceptionLogDetail__c);
         Assert.areEqual(String.valueOf(fakeRecordId), logs[0].RelatedRecordId__c);
 
     }

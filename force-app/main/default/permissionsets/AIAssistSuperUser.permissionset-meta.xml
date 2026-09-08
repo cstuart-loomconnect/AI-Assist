@@ -75,6 +75,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>AIAgent__c.DeveloperName__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>AIAgent__c.GreetingMessage__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -111,6 +116,16 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>AIAgent__c.ObjectType__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>AIAgent__c.PublicId__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>AIAgent__c.RetentionAction__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -201,6 +216,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>AIConversation__c.MessageCount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>AIConversation__c.PublicId__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -431,6 +451,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>AIPlatformLog__c.ClassName__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>AIPlatformLog__c.ExceptionLogDetail__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -751,6 +776,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>AIWorkflowAction__c.TargetObject__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>User.AIAssistUserType__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
