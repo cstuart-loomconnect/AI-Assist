@@ -1,0 +1,37 @@
+TRIGGERS (Trigger / Handler / Test)
+
+[x] AIAgentTrigger / [x] AIAgentTriggerHandler / [x] AIAgentTriggerTest
+[o] AIConversationTrigger / [x] AIConversationTriggerHandler / [ ] AIConversationTriggerHandlerTest
+[o] AIConversationMessageTrigger / [x] AIConversationMessageTriggerHandler / [ ] AIConversationMessageTriggerHandlerTest
+[o] AIDataSourceTrigger / [x] AIDataSourceTriggerHandler / [ ] AIDataSourceTriggerHandlerTest
+[o] AIModelConfigurationTrigger / [x] AIModelConfigurationTriggerHandler / [ ] AIModelConfigurationTriggerHandlerTest
+[o] AIPlatformLogEventTrigger / [x] AIPlatformLogEventHandler / [ ] AIPlatformLogEventHandlerTest
+[o] AIPromptTemplateTrigger / [x] AIPromptTemplateTriggerHandler / [ ] AIPromptTemplateTriggerHandlerTest
+[o] AITermsAcknowledgmentTrigger / [x] AITermsAcknowledgmentTriggerHandler / [ ] AITermsAcknowledgmentTriggerHandlerTest
+[o] AIViolationTrigger / [x] AIViolationTriggerHandler / [ ] AIViolationTriggerHandlerTest
+[o] AIViolationRuleTrigger / [x] AIViolationRuleTriggerHandler / [ ] AIViolationRuleTriggerHandlerTest
+[o] AIWorkflowActionTrigger / [x] AIWorkflowActionTriggerHandler / [ ] AIWorkflowActionTriggerHandlerTest
+
+NON-TRIGGER CLASSES (Class / Test)
+[x] AIPlatformLogManager / [x] AIPlatformLogManagerTest
+[o] AIAssistTestDataFactory / [ ] (test data utility, not itself tested)
+[ ] AIAssistApplicationConstants / [ ] (constants only, not tested)
+[ ] AIAssistUserDefaults / [ ] AIAssistUserDefaultsTest
+[ ] AIAssistSettingsService / [ ] AIAssistSettingsServiceTest
+[ ] AIPiiRegistryDispatcher / [ ] AIPiiRegistryDispatcherTest
+[ ] AIPiiRegistryWorker / [ ] AIPiiRegistryWorkerTest
+[ ] AIConversationRetentionBatch / [ ] AIConversationRetentionBatchTest
+[ ] AIConversationIdleTimeoutBatch / [ ] AIConversationIdleTimeoutBatchTest
+[ ] IAIDataSourceExecutor / [ ] (interface, not tested)
+[ ] IAIWorkflowActionExecutor / [ ] (interface, not tested)
+
+BUILD COMPLETE
+
+---------- User ----------
+[x] AIAssistUserTrigger 
+[x] AIAssistUserTriggerHandler
+[x] AIAssistUserTriggerTest
+
+---------- Utilities ----------
+[x] AIAssistGlobalUtility
+[x] AIAssistGlobalUtilityTest

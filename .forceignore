@@ -18,5 +18,5 @@ node_modules/
 **/transactionSecurityPolicies/**
 
 # CustomIndex components failing deploy with a platform-side "unexpected error"
-force-app/main/default/customindex/AIConversation__c.PublicId__c.indx-meta.xml
+# force-app/main/default/customindex/AIConversation__c.PublicId__c.indx-meta.xml
 force-app/main/default/customindex/AIViolation__c.PublicId__c.indx-meta.xml
