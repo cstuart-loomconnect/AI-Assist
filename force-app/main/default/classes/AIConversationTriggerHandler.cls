@@ -10,8 +10,8 @@ performing the business logic that runs on the AI Conversation trigger.
 =================================================================
 =================================================================
 
-Version      Author                   Description
-1.0          Chandler Stuart          Initial development
+Version      Date           Author                   Description
+1.0          2026-09-08     Chandler Stuart          Initial development
 */
 
 public without sharing class AIConversationTriggerHandler {
@@ -72,7 +72,7 @@ public without sharing class AIConversationTriggerHandler {
         }
     }
 
-    // Sets RetentionExpiryDate__c from the related Agent's Conversation Retention Days. Resolves which basis applies per record: a not-yet-inserted conversation (no Id yet) uses Conversation Created Date; one with ConversationClosedTimestamp__c set (passed in only once it's just closed) uses Conversation Closed Date. The remaining Retention Trigger value, Last Message Date, has no event to calculate from here yet.
+    // Sets RetentionExpiryDate__c from the related Agent's Conversation Retention Days and Retention Trigger. A not-yet-inserted conversation (no Id yet) is handled for a Conversation Created Date trigger; one with ConversationClosedTimestamp__c set (passed in only once it's just closed) is handled for a Conversation Closed Date trigger. The remaining Retention Trigger value, Last Message Date, has no event to calculate from here yet.
     private static void calculateRetentionExpiryDate(List<AIConversation__c> conversations) {
         try {
 
@@ -96,10 +96,8 @@ public without sharing class AIConversationTriggerHandler {
 
                 if (agent.RetentionTrigger__c == AIAssistApplicationConstants.RETENTION_TRIGGER_CONVERSATION_CREATED_DATE && conversation.Id == null) {
                     conversation.RetentionExpiryDate__c = Date.today().addDays(retentionDays);
-                    conversation.RetentionCalculationBasis__c = AIAssistApplicationConstants.RETENTION_TRIGGER_CONVERSATION_CREATED_DATE;
                 } else if (agent.RetentionTrigger__c == AIAssistApplicationConstants.RETENTION_TRIGGER_CONVERSATION_CLOSED_DATE && conversation.ConversationClosedTimestamp__c != null) {
                     conversation.RetentionExpiryDate__c = conversation.ConversationClosedTimestamp__c.date().addDays(retentionDays);
-                    conversation.RetentionCalculationBasis__c = AIAssistApplicationConstants.RETENTION_TRIGGER_CONVERSATION_CLOSED_DATE;
                 }
 
             }

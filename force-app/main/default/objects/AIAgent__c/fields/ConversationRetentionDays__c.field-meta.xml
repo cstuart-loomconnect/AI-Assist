@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>ConversationRetentionDays__c</fullName>
-    <description>The number of days a completed conversation and its messages are retained before being eligible for deletion or archival.</description>
+    <description>The number of days a completed conversation and its messages are retained before being eligible for deletion.</description>
     <externalId>false</externalId>
     <inlineHelpText>Set how long conversation history should be kept for this agent. Leave blank to retain indefinitely - do so deliberately given this may include customer-related content.</inlineHelpText>
     <label>Conversation Retention Days</label>

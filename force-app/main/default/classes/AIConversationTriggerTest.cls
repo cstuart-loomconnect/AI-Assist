@@ -11,7 +11,7 @@ Description: Testing utility for the AI Conversation Trigger.
 Applicable Classes:
 
 AIConversationTrigger: Coverage 100%
-AIConversationTriggerHandler: Coverage 100%
+AIConversationTriggerHandler: Coverage 87%
 
 Version      Date           Author                   Description
 1.0          2026-09-07     Chandler Stuart          Initial development
@@ -41,14 +41,13 @@ Version      Date           Author                   Description
             AIAssistTestDataFactory.createAIConversations(agent.Id, 2, true);
         Test.stopTest();
 
-        List<AIConversation__c> inserted = [SELECT PublicId__c, RetentionExpiryDate__c, RetentionCalculationBasis__c FROM AIConversation__c WHERE AIAgent__c = :agent.Id];
+        List<AIConversation__c> inserted = [SELECT PublicId__c, RetentionExpiryDate__c FROM AIConversation__c WHERE AIAgent__c = :agent.Id];
 
         Assert.areEqual(2, inserted.size(), 'Both bulk-inserted conversations should be created.');
 
         for (AIConversation__c conversation : inserted) {
             Assert.isNotNull(conversation.PublicId__c, 'PublicId__c should be generated on insert.');
             Assert.areEqual(Date.today().addDays(30), conversation.RetentionExpiryDate__c, 'RetentionExpiryDate__c should be calculated from today using the Agent\'s retention days.');
-            Assert.areEqual(AIAssistApplicationConstants.RETENTION_TRIGGER_CONVERSATION_CREATED_DATE, conversation.RetentionCalculationBasis__c, 'RetentionCalculationBasis__c should reflect the Created Date trigger.');
         }
     }
 
@@ -70,14 +69,13 @@ Version      Date           Author                   Description
             update conversationsToClose;
         Test.stopTest();
 
-        List<AIConversation__c> closed = [SELECT ConversationClosedTimestamp__c, RetentionExpiryDate__c, RetentionCalculationBasis__c FROM AIConversation__c WHERE AIAgent__c = :agent.Id];
+        List<AIConversation__c> closed = [SELECT ConversationClosedTimestamp__c, RetentionExpiryDate__c FROM AIConversation__c WHERE AIAgent__c = :agent.Id];
 
         Assert.areEqual(2, closed.size(), 'Both bulk-closed conversations should be updated.');
 
         for (AIConversation__c conversation : closed) {
             Assert.isNotNull(conversation.ConversationClosedTimestamp__c, 'ConversationClosedTimestamp__c should be stamped when a conversation newly closes.');
             Assert.areEqual(conversation.ConversationClosedTimestamp__c.date().addDays(14), conversation.RetentionExpiryDate__c, 'RetentionExpiryDate__c should be calculated from the close date using the Agent\'s retention days.');
-            Assert.areEqual(AIAssistApplicationConstants.RETENTION_TRIGGER_CONVERSATION_CLOSED_DATE, conversation.RetentionCalculationBasis__c, 'RetentionCalculationBasis__c should reflect the Closed Date trigger.');
         }
     }
 }

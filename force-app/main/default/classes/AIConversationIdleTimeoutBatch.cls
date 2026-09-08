@@ -11,8 +11,8 @@ AIConversationMessage__c on the conversation, or its own CreatedDate if it has n
 =================================================================
 =================================================================
 
-Version      Author                   Description
-1.0          Chandler Stuart          Initial development
+Version      Date           Author                   Description
+1.0          2026-09-08     Chandler Stuart          Initial development
 */
 
 public without sharing class AIConversationIdleTimeoutBatch implements Database.Batchable<SObject>, Schedulable {
@@ -22,12 +22,7 @@ public without sharing class AIConversationIdleTimeoutBatch implements Database.
     }
 
     public Database.QueryLocator start(Database.BatchableContext context) {
-        return Database.getQueryLocator([
-            SELECT Id, AIAgent__c, CreatedDate
-            FROM AIConversation__c
-            WHERE Status__c = :AIAssistApplicationConstants.CONVERSATION_STATUS_ACTIVE
-            AND AIAgent__c != null
-        ]);
+        return Database.getQueryLocator([ SELECT Id, AIAgent__c, CreatedDate FROM AIConversation__c WHERE Status__c =:AIAssistApplicationConstants.CONVERSATION_STATUS_ACTIVE AND AIAgent__c != null ]);
     }
 
     public void execute(Database.BatchableContext context, List<AIConversation__c> scope) {
@@ -57,11 +52,7 @@ public without sharing class AIConversationIdleTimeoutBatch implements Database.
                 Long idleMinutes = (Datetime.now().getTime() - lastActivity.getTime()) / (1000 * 60);
                 if (idleMinutes < Integer.valueOf(agent.IdleTimeoutMinutes__c)) continue; // Still within the allowed idle window.
 
-                conversationsToClose.add(new AIConversation__c(
-                    Id = conversation.Id,
-                    Status__c = AIAssistApplicationConstants.CONVERSATION_STATUS_CLOSED,
-                    ConversationCloseReason__c = AIAssistApplicationConstants.CONVERSATION_CLOSE_REASON_IDLE_TIMEOUT
-                ));
+                conversationsToClose.add(new AIConversation__c( Id = conversation.Id, Status__c = AIAssistApplicationConstants.CONVERSATION_STATUS_CLOSED, ConversationCloseReason__c = AIAssistApplicationConstants.CONVERSATION_CLOSE_REASON_IDLE_TIMEOUT ));
 
             }
 

@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Status__c</fullName>
     <description>The current state of this conversation.</description>
-    <inlineHelpText>Reflects whether this conversation is still open, has ended, or has been archived per the Agent&apos;s retention rules.</inlineHelpText>
+    <inlineHelpText>Reflects whether this conversation is still open or has ended.</inlineHelpText>
     <label>Status</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
@@ -24,6 +24,7 @@
             <value>
                 <fullName>Archived</fullName>
                 <default>false</default>
+                <isActive>false</isActive>
                 <label>Archived</label>
             </value>
         </valueSetDefinition>

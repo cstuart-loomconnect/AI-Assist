@@ -64,6 +64,19 @@ Version      Date           Author                   Description
         return agents;
     }
 
+    public static List<AIAgent__c> createAIAgents(Integer numberOfAgents, Decimal idleTimeoutMinutes, Boolean shouldDoInsert) {
+
+        List<AIAgent__c> agents = createAIAgents(numberOfAgents, false);
+
+        for (AIAgent__c agent : agents) {
+            agent.IdleTimeoutMinutes__c = idleTimeoutMinutes;
+        }
+
+        if (shouldDoInsert && !agents.isEmpty()) { insert agents; }
+
+        return agents;
+    }
+
     public static List<AIConversation__c> createAIConversations(Id agentId, Integer numberOfConversations, Boolean shouldDoInsert) {
 
         List<AIConversation__c> conversations = new List<AIConversation__c>();
@@ -74,6 +87,19 @@ Version      Date           Author                   Description
                 Status__c = 'Active',
                 Channel__c = 'Utility Bar'
             ));
+        }
+
+        if (shouldDoInsert && !conversations.isEmpty()) { insert conversations; }
+
+        return conversations;
+    }
+
+    public static List<AIConversation__c> createAIConversations(Id agentId, Integer numberOfConversations, Date retentionExpiryDate, Boolean shouldDoInsert) {
+
+        List<AIConversation__c> conversations = createAIConversations(agentId, numberOfConversations, false);
+
+        for (AIConversation__c conversation : conversations) {
+            conversation.RetentionExpiryDate__c = retentionExpiryDate;
         }
 
         if (shouldDoInsert && !conversations.isEmpty()) { insert conversations; }

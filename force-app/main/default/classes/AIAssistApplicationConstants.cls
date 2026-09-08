@@ -79,14 +79,9 @@ public without sharing class AIAssistApplicationConstants {
     // AIConversation__c.Status__c
     public static final String CONVERSATION_STATUS_ACTIVE = 'Active';
     public static final String CONVERSATION_STATUS_CLOSED = 'Closed';
-    public static final String CONVERSATION_STATUS_ARCHIVED = 'Archived';
 
     // AIConversation__c.ConversationCloseReason__c
     public static final String CONVERSATION_CLOSE_REASON_IDLE_TIMEOUT = 'Idle Timeout';
-
-    // AIAgent__c.RetentionAction__c
-    public static final String RETENTION_ACTION_ARCHIVE = 'Archive';
-    public static final String RETENTION_ACTION_ANONYMIZE = 'Anonymize';
 
     // AIPIIRegistry__c.SyncStatus__c
     public static final String PII_SYNC_STATUS_NOT_SYNCED = 'Not Synced';

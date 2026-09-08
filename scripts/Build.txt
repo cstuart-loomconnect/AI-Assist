@@ -1,8 +1,5 @@
 TRIGGERS (Trigger / Handler / Test)
 
-[x] AIAgentTrigger / [x] AIAgentTriggerHandler / [x] AIAgentTriggerTest
-[o] AIConversationTrigger / [x] AIConversationTriggerHandler / [ ] AIConversationTriggerHandlerTest
-[o] AIConversationMessageTrigger / [x] AIConversationMessageTriggerHandler / [ ] AIConversationMessageTriggerHandlerTest
 [o] AIDataSourceTrigger / [x] AIDataSourceTriggerHandler / [ ] AIDataSourceTriggerHandlerTest
 [o] AIModelConfigurationTrigger / [x] AIModelConfigurationTriggerHandler / [ ] AIModelConfigurationTriggerHandlerTest
 [o] AIPlatformLogEventTrigger / [x] AIPlatformLogEventHandler / [ ] AIPlatformLogEventHandlerTest
@@ -20,8 +17,7 @@ NON-TRIGGER CLASSES (Class / Test)
 [ ] AIAssistSettingsService / [ ] AIAssistSettingsServiceTest
 [ ] AIPiiRegistryDispatcher / [ ] AIPiiRegistryDispatcherTest
 [ ] AIPiiRegistryWorker / [ ] AIPiiRegistryWorkerTest
-[ ] AIConversationRetentionBatch / [ ] AIConversationRetentionBatchTest
-[ ] AIConversationIdleTimeoutBatch / [ ] AIConversationIdleTimeoutBatchTest
+[ ] AIConversationIdleTimeoutBatch / [x] AIConversationIdleTimeoutBatchTest
 [ ] IAIDataSourceExecutor / [ ] (interface, not tested)
 [ ] IAIWorkflowActionExecutor / [ ] (interface, not tested)
 
@@ -35,3 +31,22 @@ BUILD COMPLETE
 ---------- Utilities ----------
 [x] AIAssistGlobalUtility
 [x] AIAssistGlobalUtilityTest
+
+---------- AIAgent__c ----------
+[x] AIAgentTrigger 
+[x] AIAgentTriggerHandler
+[x] AIAgentTriggerTest
+
+---------- AIConversation__c ----------
+[x] AIConversationTrigger
+[x] AIConversationTriggerHandler
+[x] AIConversationTriggerHandlerTest
+
+---------- AIConversationMessage__c ----------
+[x] AIConversationMessageTrigger
+[x] AIConversationMessageTriggerHandler
+[x] AIConversationMessageTriggerHandlerTest
+
+---------- AI Conversation Classes ----------
+[x] AIConversationRetentionBatch
+[x] AIConversationRetentionBatchTest
