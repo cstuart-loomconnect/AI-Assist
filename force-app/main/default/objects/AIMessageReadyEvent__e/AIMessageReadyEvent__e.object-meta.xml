@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Published by AiMessageProcessingQueueable once an AI Agent's reply AIConversationMessage__c has been committed, so the chat LWC's empApi subscription knows to fetch and render it. Published after commit (not immediately) since subscribers need the message record to actually exist and be queryable when they receive this event.</description>
+    <eventType>HighVolume</eventType>
+    <label>AI Message Ready Event</label>
+    <pluralLabel>AI Message Ready Events</pluralLabel>
+    <publishBehavior>PublishAfterCommit</publishBehavior>
+</CustomObject>

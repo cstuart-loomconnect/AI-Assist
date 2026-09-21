@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Keyword-matching rules used by AIPiiFieldTypeClassifier to derive a field&apos;s PII type from its API name, label, or data type - admin-configurable in Setup so new field-name shapes can be added without a deployment.</description>
+    <label>AI PII Field Type Rule</label>
+    <pluralLabel>AI PII Field Type Rules</pluralLabel>
+    <visibility>Protected</visibility>
+</CustomObject>

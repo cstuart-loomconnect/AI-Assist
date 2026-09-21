@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MappingJson__c</fullName>
+    <description>Every real-value-to-fake-value pair for this conversation, serialized as a single JSON object.</description>
+    <inlineHelpText>Written and read only by AIPiiMappingService. Never queried or edited directly - the content is only meaningful as a full JSON object.</inlineHelpText>
+    <label>Mapping JSON</label>
+    <length>131072</length>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>3</visibleLines>
+</CustomField>

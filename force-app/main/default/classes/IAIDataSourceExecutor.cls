@@ -11,8 +11,8 @@ that data source, scoped to AIDataSource__c.TargetObject__c.
 =================================================================
 =================================================================
 
-Version      Author                   Description
-1.0          Chandler Stuart          Initial development
+Version      Date           Author                   Description
+1.0          2026-09-09     Chandler Stuart          Initial development
 */
 
 public interface IAIDataSourceExecutor {

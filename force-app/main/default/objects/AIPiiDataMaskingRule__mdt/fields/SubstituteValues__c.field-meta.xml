@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SubstituteValues__c</fullName>
+    <businessStatus>Active</businessStatus>
+    <description>Only used when Strategy__c is SubstituteFromList. Comma-separated list of realistic dummy values to substitute in place of the real one, e.g. a list of fake first names.</description>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>Comma-separated dummy values to pick from at random, e.g. &quot;Alex,Jordan,Sam,Taylor&quot;. Only applies when Strategy is Substitute From List.</inlineHelpText>
+    <label>Substitute Values</label>
+    <length>32768</length>
+    <type>LongTextArea</type>
+    <visibleLines>5</visibleLines>
+</CustomField>

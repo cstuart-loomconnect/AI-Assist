@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MaskingRule__c</fullName>
+    <businessStatus>Active</businessStatus>
+    <description>The AI PII Data Masking Rule used to generate a fake value for real data of this Field Type. Required - every Field Type must have exactly one Masking Rule. Currently read only by AIPiiPseudonymizationService, which only ever uses the SubstituteFromList strategy.</description>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <label>Masking Rule</label>
+    <referenceTo>AIPiiDataMaskingRule__mdt</referenceTo>
+    <relationshipLabel>AI PII Field Types</relationshipLabel>
+    <relationshipName>FieldTypes</relationshipName>
+    <required>true</required>
+    <type>MetadataRelationship</type>
+    <unique>false</unique>
+</CustomField>

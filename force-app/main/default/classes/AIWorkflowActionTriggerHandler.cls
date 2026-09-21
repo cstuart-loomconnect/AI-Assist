@@ -10,8 +10,8 @@ performing the business logic that runs on the AI Workflow Action trigger.
 =================================================================
 =================================================================
 
-Version      Author                   Description
-1.0          Chandler Stuart          Initial development
+Version      Date               Author                   Description
+1.0          2026-09-06         Chandler Stuart          Initial development
 */
 
 public without sharing class AIWorkflowActionTriggerHandler {
@@ -22,21 +22,18 @@ public without sharing class AIWorkflowActionTriggerHandler {
     public static void handleBeforeInsert(List<AIWorkflowAction__c> newActions) {
         try {
 
-            if (!isBeforeInsertHandlerRunning) {
+            if (isBeforeInsertHandlerRunning) return;
+            isBeforeInsertHandlerRunning = true;
 
-                isBeforeInsertHandlerRunning = true;
+            AIAssistGlobalUtility.generatePublicId(newActions);
 
-                AIAssistGlobalUtility.generatePublicId(newActions);
+            List<AIWorkflowAction__c> apexActions = new List<AIWorkflowAction__c>(); // Records where Action Type is Apex and need their Apex Class Name validated.
 
-                List<AIWorkflowAction__c> apexActions = new List<AIWorkflowAction__c>(); // Records where Action Type is Apex and need their Apex Class Name validated.
-
-                for (AIWorkflowAction__c action : newActions) {
-                    if (action.ActionType__c == AIAssistApplicationConstants.WORKFLOW_ACTION_TYPE_APEX) { apexActions.add(action); }
-                }
-
-                if (!apexActions.isEmpty()) { validateApexClassImplementsExecutor(apexActions); }
-
+            for (AIWorkflowAction__c action : newActions) {
+                if (action.ActionType__c == AIAssistApplicationConstants.WORKFLOW_ACTION_TYPE_APEX) { apexActions.add(action); }
             }
+
+            if (!apexActions.isEmpty()) { validateApexClassImplementsExecutor(apexActions); }
 
         } catch (Exception e) {
             AIPlatformLogManager.logException(e, 'AIWorkflowActionTriggerHandler', 'handleBeforeInsert');
@@ -46,29 +43,26 @@ public without sharing class AIWorkflowActionTriggerHandler {
     public static void handleBeforeUpdate(Map<Id, AIWorkflowAction__c> oldActionsById, Map<Id, AIWorkflowAction__c> newActionsById) {
         try {
 
-            if (!isBeforeUpdateHandlerRunning) {
+            if (isBeforeUpdateHandlerRunning) return;
+            isBeforeUpdateHandlerRunning = true;
 
-                isBeforeUpdateHandlerRunning = true;
+            if (newActionsById == null || newActionsById.isEmpty() || oldActionsById == null) return;
 
-                if (newActionsById == null || newActionsById.isEmpty() || oldActionsById == null) return;
+            List<AIWorkflowAction__c> apexActionsToValidate = new List<AIWorkflowAction__c>(); // Records where Action Type is Apex and either Action Type or Apex Class Name changed.
 
-                List<AIWorkflowAction__c> apexActionsToValidate = new List<AIWorkflowAction__c>(); // Records where Action Type is Apex and either Action Type or Apex Class Name changed.
+            for (AIWorkflowAction__c newAction : newActionsById.values()) {
 
-                for (AIWorkflowAction__c newAction : newActionsById.values()) {
+                AIWorkflowAction__c oldAction = oldActionsById.get(newAction.Id);
+                if (oldAction == null) continue;
 
-                    AIWorkflowAction__c oldAction = oldActionsById.get(newAction.Id);
-                    if (oldAction == null) continue;
+                if (newAction.ActionType__c != AIAssistApplicationConstants.WORKFLOW_ACTION_TYPE_APEX) continue;
+                if (oldAction.ActionType__c == newAction.ActionType__c && oldAction.ApexClassName__c == newAction.ApexClassName__c) continue; // Neither field changed, no need to re-validate.
 
-                    if (newAction.ActionType__c != AIAssistApplicationConstants.WORKFLOW_ACTION_TYPE_APEX) continue;
-                    if (oldAction.ActionType__c == newAction.ActionType__c && oldAction.ApexClassName__c == newAction.ApexClassName__c) continue; // Neither field changed, no need to re-validate.
-
-                    apexActionsToValidate.add(newAction);
-
-                }
-
-                if (!apexActionsToValidate.isEmpty()) { validateApexClassImplementsExecutor(apexActionsToValidate); }
+                apexActionsToValidate.add(newAction);
 
             }
+
+            if (!apexActionsToValidate.isEmpty()) { validateApexClassImplementsExecutor(apexActionsToValidate); }
 
         } catch (Exception e) {
             AIPlatformLogManager.logException(e, 'AIWorkflowActionTriggerHandler', 'handleBeforeUpdate');

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsSuccess__c</fullName>
+    <description>Whether AiMessageProcessingQueueable finished this turn successfully. False means ErrorMessage__c is populated and no reply message exists.</description>
+    <label>Is Success</label>
+    <type>Checkbox</type>
+    <defaultValue>true</defaultValue>
+</CustomField>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AIConversation__c</fullName>
+    <description>The conversation this mapping belongs to.</description>
+    <inlineHelpText>This mapping is deleted automatically if the parent conversation is deleted, and inherits its sharing and visibility.</inlineHelpText>
+    <label>AI Conversation</label>
+    <referenceTo>AIConversation__c</referenceTo>
+    <relationshipLabel>AI PII Mappings</relationshipLabel>
+    <relationshipName>AIPIIMappings</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

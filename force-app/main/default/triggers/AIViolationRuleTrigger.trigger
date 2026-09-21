@@ -9,14 +9,12 @@ Description: Trigger for handling AI Violation Rule events related to AI Assist
 =================================================================
 =================================================================
 
-Version      Author                   Description
-1.0          Chandler Stuart          Initial development
+Version      Date               Author                   Description
+1.0          2026-09-06         Chandler Stuart          Initial development
 */
 trigger AIViolationRuleTrigger on AIViolationRule__c (before insert, before update) {
 
-    if (AIAssistSettingsService.getSettings() == null || !AIAssistSettingsService.getSettings().IsApplicationActive__c) {
-        return;
-    }
+    if (AIAssistSettings__c.getInstance() == null || !AIAssistSettings__c.getInstance().IsApplicationActive__c) return;
 
     // Before Context
     if (Trigger.isBefore) {

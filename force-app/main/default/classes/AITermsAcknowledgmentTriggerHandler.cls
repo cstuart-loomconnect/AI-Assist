@@ -10,8 +10,8 @@ performing the business logic that runs on the AI Terms Acknowledgment trigger.
 =================================================================
 =================================================================
 
-Version      Author                   Description
-1.0          Chandler Stuart          Initial development
+Version      Date               Author                   Description
+1.0          2026-09-06         Chandler Stuart          Initial development
 */
 
 public without sharing class AITermsAcknowledgmentTriggerHandler {
@@ -21,13 +21,10 @@ public without sharing class AITermsAcknowledgmentTriggerHandler {
     public static void handleAfterInsert(List<AITermsAcknowledgment__c> newAcknowledgments) {
         try {
 
-            if (!isAfterInsertHandlerRunning) {
+            if (isAfterInsertHandlerRunning) return;
+            isAfterInsertHandlerRunning = true;
 
-                isAfterInsertHandlerRunning = true;
-
-                updateUserSettingsTermsAcknowledgment(newAcknowledgments);
-
-            }
+            updateUserSettingsTermsAcknowledgment(newAcknowledgments);
 
         } catch (Exception e) {
             AIPlatformLogManager.logException(e, 'AITermsAcknowledgmentTriggerHandler', 'handleAfterInsert');

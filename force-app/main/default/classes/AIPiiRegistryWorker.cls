@@ -9,6 +9,8 @@ Queries the Tooling API's FieldDefinition object for that object's fields, upser
 AIPIIFieldMetadata__c row per field (matched on FieldKey__c), and updates the parent
 registry's SyncStatus__c / LastSynced__c. One future call is made per object - callers must
 respect the org's @future call ceiling when dispatching multiple objects in one transaction.
+The Tooling API version called is read from AIAssistSettings__c.ToolingAPIVersion__c so it
+can be bumped after an org API version upgrade without a code change.
 
 =================================================================
 =================================================================
@@ -19,23 +21,34 @@ Version      Author                   Description
 
 public without sharing class AIPiiRegistryWorker {
 
+    // Test-only override so Platform Limit exhaustion can be simulated deterministically, since the real Limits values always start fresh in a future method's own transaction.
+    @TestVisible private static Boolean isTestCalloutLimitReached = false;
+
     @future(callout=true)
     public static void refreshPIIRegistry(Id registryId) {
         try {
 
             AIPIIRegistry__c registry = [SELECT Id, ObjectAPIName__c, MaxFieldsToQuery__c FROM AIPIIRegistry__c WHERE Id =:registryId LIMIT 1];
 
-            update new AIPIIRegistry__c(
-                Id = registry.Id,
-                SyncStatus__c = AIAssistApplicationConstants.PII_SYNC_STATUS_IN_PROGRESS
-            );
+            // No DML happens before the callout below - Salesforce blocks a callout once any DML has been issued in the same transaction ("uncommitted work pending"), so the In Progress transition is skipped and the registry goes straight from Queued to its final Synced/Failed state.
+
+            // Defend against ever reaching this point with no callout headroom left in the transaction - fail fast with a clear message rather than letting the callout throw.
+            if (isTestCalloutLimitReached || Limits.getCallouts() >= Limits.getLimitCallouts()) {
+                throw new CalloutException('No callouts remaining in this transaction - skipping Tooling API sync for ' + registry.ObjectAPIName__c + '.');
+            }
+
+            // Always bound the query, even when MaxFieldsToQuery__c is blank, so a sync can never pull an unbounded number of fields for one object.
+            Integer maxFieldsToQuery = registry.MaxFieldsToQuery__c != null ? Integer.valueOf(registry.MaxFieldsToQuery__c) : AIAssistApplicationConstants.DEFAULT_MAX_PII_FIELDS_TO_QUERY;
+
+            String toolingAPIVersion = AIAssistSettingsService.getSettings().ToolingAPIVersion__c;
+            if (String.isBlank(toolingAPIVersion)) { toolingAPIVersion = AIAssistApplicationConstants.DEFAULT_TOOLING_API_VERSION; }
 
             // Query the Tooling API's FieldDefinition object for every field on the given object. FieldDefinition isn't queryable through standard SOQL, so this goes through a REST callout to the org's own Tooling API instead.
             String query = 'SELECT QualifiedApiName, Label, DataType, ComplianceGroup FROM FieldDefinition WHERE EntityDefinition.QualifiedApiName = \'' + String.escapeSingleQuotes(registry.ObjectAPIName__c) + '\''
-                            + (registry.MaxFieldsToQuery__c != null ? ' LIMIT ' + Integer.valueOf(registry.MaxFieldsToQuery__c) : '');
+                            + ' LIMIT ' + maxFieldsToQuery;
 
             HttpRequest request = new HttpRequest();
-            request.setEndpoint(Url.getOrgDomainUrl().toExternalForm() + '/services/data/v62.0/tooling/query/?q=' + EncodingUtil.urlEncode(query, 'UTF-8'));
+            request.setEndpoint(Url.getOrgDomainUrl().toExternalForm() + '/services/data/v' + toolingAPIVersion + '/tooling/query/?q=' + EncodingUtil.urlEncode(query, 'UTF-8'));
             request.setMethod('GET');
             request.setHeader('Authorization', 'Bearer ' + UserInfo.getSessionId());
 
@@ -61,15 +74,18 @@ public without sharing class AIPiiRegistryWorker {
                     if (String.isBlank(fieldApiName)) continue;
 
                     String complianceGroup = (String) fieldDefinition.get('ComplianceGroup');
+                    String fieldLabel = (String) fieldDefinition.get('Label');
+                    String dataType = (String) fieldDefinition.get('DataType');
 
                     fieldMetadataToUpsert.add(new AIPIIFieldMetadata__c(
                         PIIRegistry__c = registry.Id,
                         FieldKey__c = registry.ObjectAPIName__c + '.' + fieldApiName,
                         FieldAPIName__c = fieldApiName,
-                        FieldLabel__c = (String) fieldDefinition.get('Label'),
-                        DataType__c = (String) fieldDefinition.get('DataType'),
+                        FieldLabel__c = fieldLabel,
+                        DataType__c = dataType,
                         ComplianceGroup__c = complianceGroup,
-                        IsPII__c = String.isNotBlank(complianceGroup) // Derived - true whenever a Compliance Group classification is present.
+                        IsPII__c = String.isNotBlank(complianceGroup), // Derived - true whenever a Compliance Group classification is present.
+                        PIIFieldType__c = AIPiiFieldTypeClassifier.classify(fieldApiName, fieldLabel, dataType, complianceGroup)
                     ));
                 }
 

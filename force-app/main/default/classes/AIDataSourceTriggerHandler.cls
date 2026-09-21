@@ -10,8 +10,8 @@ the business logic that runs on the AI Data Source trigger.
 =================================================================
 =================================================================
 
-Version      Author                   Description
-1.0          Chandler Stuart          Initial development
+Version      Date               Author                   Description
+1.0          2026-09-09         Chandler Stuart          Initial development
 */
 
 public without sharing class AIDataSourceTriggerHandler {
@@ -22,23 +22,20 @@ public without sharing class AIDataSourceTriggerHandler {
     public static void handleBeforeInsert(List<AIDataSource__c> newDataSources) {
         try {
 
-            if (!isBeforeInsertHandlerRunning) {
+            if (isBeforeInsertHandlerRunning) return;
+            isBeforeInsertHandlerRunning = true;
 
-                isBeforeInsertHandlerRunning = true;
+            AIAssistGlobalUtility.generatePublicId(newDataSources);
 
-                AIAssistGlobalUtility.generatePublicId(newDataSources);
+            List<AIDataSource__c> apexDataSources = new List<AIDataSource__c>(); // Records where Source Type is Apex and need their Apex Class Name validated.
 
-                List<AIDataSource__c> apexDataSources = new List<AIDataSource__c>(); // Records where Source Type is Apex and need their Apex Class Name validated.
-
-                for (AIDataSource__c dataSource : newDataSources) {
-                    if (String.isNotBlank(dataSource.SourceType__c) && dataSource.SourceType__c.equalsIgnoreCase(AIAssistApplicationConstants.DATA_SOURCE_TYPE_APEX)) { 
-                        apexDataSources.add(dataSource); 
-                    }
+            for (AIDataSource__c dataSource : newDataSources) {
+                if (String.isNotBlank(dataSource.SourceType__c) && dataSource.SourceType__c.equalsIgnoreCase(AIAssistApplicationConstants.DATA_SOURCE_TYPE_APEX)) {
+                    apexDataSources.add(dataSource);
                 }
-
-                if (!apexDataSources.isEmpty()) { validateApexClassImplementsExecutor(apexDataSources); }
-
             }
+
+            if (!apexDataSources.isEmpty()) { validateApexClassImplementsExecutor(apexDataSources); }
 
         } catch (Exception e) {
             AIPlatformLogManager.logException(e, 'AIDataSourceTriggerHandler', 'handleBeforeInsert');
@@ -48,51 +45,47 @@ public without sharing class AIDataSourceTriggerHandler {
     public static void handleBeforeUpdate(Map<Id, AIDataSource__c> oldDataSourcesById, Map<Id, AIDataSource__c> newDataSourcesById) {
         try {
 
-            if (!isBeforeUpdateHandlerRunning) {
+            if (isBeforeUpdateHandlerRunning) return;
+            isBeforeUpdateHandlerRunning = true;
 
-                isBeforeUpdateHandlerRunning = true;
+            if (newDataSourcesById == null || newDataSourcesById.isEmpty() || oldDataSourcesById == null) return;
 
-                if (newDataSourcesById == null || newDataSourcesById.isEmpty() || oldDataSourcesById == null) return;
+            List<AIDataSource__c> apexDataSourcesToValidate = new List<AIDataSource__c>(); // Records where Source Type is Apex and either Source Type or Apex Class Name changed.
 
-                List<AIDataSource__c> apexDataSourcesToValidate = new List<AIDataSource__c>(); // Records where Source Type is Apex and either Source Type or Apex Class Name changed.
+            for (AIDataSource__c newDataSource : newDataSourcesById.values()) {
 
-                for (AIDataSource__c newDataSource : newDataSourcesById.values()) {
+                AIDataSource__c oldDataSource = oldDataSourcesById.get(newDataSource.Id);
+                if (oldDataSource == null) continue;
 
-                    AIDataSource__c oldDataSource = oldDataSourcesById.get(newDataSource.Id);
-                    if (oldDataSource == null) continue;
+                if (String.isBlank(newDataSource.SourceType__c) || !newDataSource.SourceType__c.equalsIgnoreCase(AIAssistApplicationConstants.DATA_SOURCE_TYPE_APEX)) continue;
+                if (oldDataSource.SourceType__c == newDataSource.SourceType__c && oldDataSource.ApexClassName__c == newDataSource.ApexClassName__c) continue; // Neither field changed, no need to re-validate.
 
-                    if (String.isBlank(newDataSource.SourceType__c) || newDataSource.SourceType__c.equalsIgnoreCase(AIAssistApplicationConstants.DATA_SOURCE_TYPE_APEX)) continue;
-                    if (oldDataSource.SourceType__c.equalsIgnoreCase(newDataSource.SourceType__c) && oldDataSource.ApexClassName__c.equalsIgnoreCase(newDataSource.ApexClassName__c)) continue; // Neither field changed, no need to re-validate.
-
-                    apexDataSourcesToValidate.add(newDataSource);
-
-                }
-
-                if (!apexDataSourcesToValidate.isEmpty()) { validateApexClassImplementsExecutor(apexDataSourcesToValidate); }
+                apexDataSourcesToValidate.add(newDataSource);
 
             }
+
+            if (!apexDataSourcesToValidate.isEmpty()) { validateApexClassImplementsExecutor(apexDataSourcesToValidate); }
 
         } catch (Exception e) {
             AIPlatformLogManager.logException(e, 'AIDataSourceTriggerHandler', 'handleBeforeUpdate');
         }
     }
 
+    // Adds a validation error to any record whose ApexClassName__c doesn't resolve to a class implementing IAIDataSourceExecutor. Callers must only pass records where Source Type is Apex. Class names are validated once per distinct value to avoid repeating Type.forName/instantiation for records sharing the same Apex Class Name.
     private static void validateApexClassImplementsExecutor(List<AIDataSource__c> dataSources) {
+        try {
 
-        if (dataSources == null || dataSources.isEmpty()) return;
+            if (dataSources == null || dataSources.isEmpty()) return;
 
-        Set<String> validatedClassNames = new Set<String>();
-        Map<String, String> classNameToErrorMessage = new Map<String, String>();
+            Map<String, String> classNameToErrorMessage = new Map<String, String>();
 
-        for (AIDataSource__c dataSource : dataSources) {
+            for (AIDataSource__c dataSource : dataSources) {
 
-            try {
+                if (String.isBlank(dataSource.ApexClassName__c)) continue;
 
                 String className = dataSource.ApexClassName__c.trim();
 
-                if (String.isBlank(className)) continue;
-
-                if (!validatedClassNames.contains(className)) {
+                if (!classNameToErrorMessage.containsKey(className)) {
 
                     String errorMessage;
                     Type apexType = Type.forName(className);
@@ -100,29 +93,24 @@ public without sharing class AIDataSourceTriggerHandler {
                     if (apexType == null) {
                         errorMessage = 'Apex Class Name "' + className + '" could not be found.';
                     } else {
-                        Object instance;
                         try {
-                            instance = apexType.newInstance();
+                            Object instance = apexType.newInstance();
                             if (!(instance instanceof IAIDataSourceExecutor)) { errorMessage = 'Apex Class Name "' + className + '" must implement the IAIDataSourceExecutor interface.'; }
                         } catch (Exception e) {
                             errorMessage = 'Apex Class Name "' + className + '" could not be instantiated. It must be a public, no-argument constructable class.';
                         }
                     }
 
-                    if (errorMessage != null) classNameToErrorMessage.put(className, errorMessage);
-
-                    validatedClassNames.add(className);
+                    classNameToErrorMessage.put(className, errorMessage);
                 }
 
-                if (classNameToErrorMessage.containsKey(className)) {
-                    dataSource.ApexClassName__c.addError(classNameToErrorMessage.get(className));
-                }
+                String errorMessage = classNameToErrorMessage.get(className);
+                if (errorMessage != null) { dataSource.ApexClassName__c.addError(errorMessage); }
 
-            } catch (Exception e) {
-                // Isolate failure to this record only; continue validating the rest.
-                AIPlatformLogManager.logException(e, 'AIDataSourceTriggerHandler', 'validateApexClassImplementsExecutor');
-                dataSource.ApexClassName__c.addError('An unexpected error occurred while validating the Apex Class Name. Please contact your administrator.');
             }
+
+        } catch (Exception e) {
+            AIPlatformLogManager.logException(e, 'AIDataSourceTriggerHandler', 'validateApexClassImplementsExecutor');
         }
     }
 }

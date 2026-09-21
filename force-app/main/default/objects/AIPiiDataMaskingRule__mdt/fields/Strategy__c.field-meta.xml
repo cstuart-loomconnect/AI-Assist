@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Strategy__c</fullName>
+    <businessStatus>Active</businessStatus>
+    <description>Which set of fields on this record is actually used to scramble data. RandomizeByPattern uses ReplacementPattern__c, Redact__c and ReplacementCharacterCount__c. SubstituteFromList uses SubstituteValues__c.</description>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>RandomizeByPattern: replace characters matching a regex pattern with random characters of the same type (digit/letter). SubstituteFromList: replace the whole value with a random pick from a comma-separated list of dummy data.</inlineHelpText>
+    <label>Strategy</label>
+    <required>true</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>RandomizeByPattern</fullName>
+                <default>true</default>
+                <label>Randomize By Pattern</label>
+            </value>
+            <value>
+                <fullName>SubstituteFromList</fullName>
+                <default>false</default>
+                <label>Substitute From List</label>
+            </value>
+            <value>
+                <fullName>PatternReplace</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>PatternReplace</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

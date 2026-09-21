@@ -159,7 +159,7 @@
         <label>AI Agent Name</label>
         <type>Text</type>
     </nameField>
-    <pluralLabel>🤖 AI Agents</pluralLabel>
+    <pluralLabel>AI Agents</pluralLabel>
     <searchLayouts></searchLayouts>
     <sharingModel>Read</sharingModel>
     <visibility>Public</visibility>

@@ -17,6 +17,12 @@ node_modules/
 **/fragment_space/**
 **/transactionSecurityPolicies/**
 
-# CustomIndex components failing deploy with a platform-side "unexpected error"
-# force-app/main/default/customindex/AIConversation__c.PublicId__c.indx-meta.xml
-# force-app/main/default/customindex/AIViolation__c.PublicId__c.indx-meta.xml
+# Deleted custom metadata types - stale local metadata, do not retrieve
+force-app/main/default/objects/AIPiiComplianceGroupMapping__mdt/**
+force-app/main/default/objects/AIPiiFieldTypeRule__mdt/**
+
+# AI PII custom metadata records - seeded via scripts/apex/07_pii_compliance_metadata_records.apex,
+# kept out of source so record data doesn't get committed to the repo
+force-app/main/default/customMetadata/AIPiiComplianceGroup.*.md-meta.xml
+force-app/main/default/customMetadata/AIPiiDataMaskingRule.*.md-meta.xml
+force-app/main/default/customMetadata/AIPiiFieldType.*.md-meta.xml

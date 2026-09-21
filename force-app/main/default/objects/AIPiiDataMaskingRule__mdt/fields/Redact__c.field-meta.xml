@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Redact__c</fullName>
+    <businessStatus>Active</businessStatus>
+    <defaultValue>false</defaultValue>
+    <description>Only used when Strategy__c is RandomizeByPattern. When checked, every character matching ReplacementPattern__c is randomized. When unchecked, only ReplacementCharacterCount__c of the matching characters (counting from the end of the value) are randomized, leaving the rest of the real value untouched.</description>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>Check to randomize every matching character. Leave unchecked to randomize only the last ReplacementCharacterCount__c matching characters. Only applies when Strategy is Randomize By Pattern.</inlineHelpText>
+    <label>Redact</label>
+    <type>Checkbox</type>
+</CustomField>

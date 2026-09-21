@@ -9,22 +9,18 @@ Description: Trigger for handling AI Model Configuration events related to AI As
 =================================================================
 =================================================================
 
-Version      Author                   Description
-1.0          Chandler Stuart          Initial development
+Version      Date           Author                   Description
+1.0          2026-09-09     Chandler Stuart          Initial development
 */
-trigger AIModelConfigurationTrigger on AIModelConfiguration__c (before insert, before update) {
+trigger AIModelConfigurationTrigger on AIModelConfiguration__c (before insert) {
 
-    if (AIAssistSettingsService.getSettings() == null || !AIAssistSettingsService.getSettings().IsApplicationActive__c) {
-        return;
-    }
+    if (AIAssistSettings__c.getInstance() == null || !AIAssistSettings__c.getInstance().IsApplicationActive__c) return;
 
     // Before Context
     if (Trigger.isBefore) {
         if (Trigger.isInsert) {
             AIModelConfigurationTriggerHandler.handleBeforeInsert(Trigger.new);
-        } else if (Trigger.isUpdate) {
-            AIModelConfigurationTriggerHandler.handleBeforeUpdate(Trigger.new);
-        }
+        } 
     }
 
 }

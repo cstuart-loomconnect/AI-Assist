@@ -159,7 +159,7 @@
         <label>AI Violation Rule Name</label>
         <type>Text</type>
     </nameField>
-    <pluralLabel>📏 AI Violation Rules</pluralLabel>
+    <pluralLabel>AI Violation Rules</pluralLabel>
     <searchLayouts></searchLayouts>
     <sharingModel>ControlledByParent</sharingModel>
     <visibility>Public</visibility>

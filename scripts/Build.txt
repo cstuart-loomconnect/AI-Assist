@@ -1,25 +1,9 @@
 TRIGGERS (Trigger / Handler / Test)
 
-[o] AIDataSourceTrigger / [x] AIDataSourceTriggerHandler / [ ] AIDataSourceTriggerHandlerTest
-[o] AIModelConfigurationTrigger / [x] AIModelConfigurationTriggerHandler / [ ] AIModelConfigurationTriggerHandlerTest
-[o] AIPlatformLogEventTrigger / [x] AIPlatformLogEventHandler / [ ] AIPlatformLogEventHandlerTest
-[o] AIPromptTemplateTrigger / [x] AIPromptTemplateTriggerHandler / [ ] AIPromptTemplateTriggerHandlerTest
-[o] AITermsAcknowledgmentTrigger / [x] AITermsAcknowledgmentTriggerHandler / [ ] AITermsAcknowledgmentTriggerHandlerTest
-[o] AIViolationTrigger / [x] AIViolationTriggerHandler / [ ] AIViolationTriggerHandlerTest
-[o] AIViolationRuleTrigger / [x] AIViolationRuleTriggerHandler / [ ] AIViolationRuleTriggerHandlerTest
-[o] AIWorkflowActionTrigger / [x] AIWorkflowActionTriggerHandler / [ ] AIWorkflowActionTriggerHandlerTest
-
 NON-TRIGGER CLASSES (Class / Test)
-[x] AIPlatformLogManager / [x] AIPlatformLogManagerTest
-[o] AIAssistTestDataFactory / [ ] (test data utility, not itself tested)
-[ ] AIAssistApplicationConstants / [ ] (constants only, not tested)
-[ ] AIAssistUserDefaults / [ ] AIAssistUserDefaultsTest
-[ ] AIAssistSettingsService / [ ] AIAssistSettingsServiceTest
-[ ] AIPiiRegistryDispatcher / [ ] AIPiiRegistryDispatcherTest
-[ ] AIPiiRegistryWorker / [ ] AIPiiRegistryWorkerTest
-[ ] AIConversationIdleTimeoutBatch / [x] AIConversationIdleTimeoutBatchTest
-[ ] IAIDataSourceExecutor / [ ] (interface, not tested)
-[ ] IAIWorkflowActionExecutor / [ ] (interface, not tested)
+
+[x] AISOQLManager / [x] AISOQLManagerTest
+[x] AIDataSourceDispatcher / [x] AIDataSourceDispatcherTest
 
 BUILD COMPLETE
 
@@ -27,10 +11,34 @@ BUILD COMPLETE
 [x] AIAssistUserTrigger 
 [x] AIAssistUserTriggerHandler
 [x] AIAssistUserTriggerTest
+[x] AIAssistUserDefaults
+[x] AIAssistUserDefaultsTest
 
 ---------- Utilities ----------
 [x] AIAssistGlobalUtility
 [x] AIAssistGlobalUtilityTest
+[x] AIAssistTestDataFactory
+[x] AIAssistApplicationConstants
+[x] AIAssistSettingsService
+[x] AIAssistSettingsServiceTest
+
+---------- PII ----------
+[x] AIPiiRegistryDispatcher
+[x] AIPiiRegistryDispatcherTest
+[x] AIPiiRegistryWorker
+[x] AIPiiRegistryWorkerTest
+[x] AIPiiFieldRegistry
+[x] AIPiiFieldRegistryTest
+[x] AIPiiFieldTypeClassifier
+[x] AIPiiFieldTypeClassifierTest
+[x] AIpiiMappingService
+[x] AIPiiMappingServiceTest
+[x] AIPiiPseudonymizationService
+[x] AIPiiPseudonymizationServiceTest
+
+---------- AIPlatformLog__c ----------
+[x] AIPlatformLogManager
+[x] AIPlatformLogManagerTest
 
 ---------- AIAgent__c ----------
 [x] AIAgentTrigger 
@@ -50,3 +58,58 @@ BUILD COMPLETE
 ---------- AI Conversation Classes ----------
 [x] AIConversationRetentionBatch
 [x] AIConversationRetentionBatchTest
+[x] AIConversationIdleTimeoutBatch
+[x] AIConversationIdleTimeoutBatchTest
+
+---------- AIDataSource__c ----------
+[x] AIDataSourceTrigger 
+[x] AIDataSourceTriggerHandler
+[x] AIDataSourceTriggerHandlerTest
+
+---------- AI Data Source Execution Classes ----------
+[x] AiSoqlTemplateRunner
+[x] AiSoqlTemplateRunnerTest
+[x] AiDataSourceResultProcessor
+[x] AiDataSourceResultProcessorTest
+[x] AiDataSourceDispatcher
+[x] AiDataSourceDispatcherTest
+
+---------- Interface Classes ----------
+[x] IAIDataSourceExecutor
+
+---------- AIPlatformLog__c / __e ----------
+[x] AIPlatformLogManager
+[x] AIPlatformLogManagerTest
+[x] AIPlatformLogEventTrigger
+[x] AIPlatformLogEventHandler 
+
+---------- AIModelConfiguration__c ----------
+[x] AIModelConfigurationTrigger 
+[x] AIModelConfigurationTriggerHandler 
+[x] AIModelConfigurationTriggerHandlerTest
+
+---------- AIPromtTemplate__c ----------
+[x] AIPromptTemplateTrigger
+[x] AIPromptTemplateTriggerHandler
+[x] AIPromptTemplateTriggerHandlerTest
+
+---------- AITermsAcknowledgment__c ----------
+[x] AITermsAcknowledgmentTrigger
+[x] AITermsAcknowledgmentTriggerHandler
+[x] AITermsAcknowledgmentTriggerHandlerTest
+
+---------- AIViolation__c ----------
+[x] AIViolationTrigger
+[x] AIViolationTriggerHandler
+[x] AIViolationTriggerHandlerTest
+
+---------- AIViolationRule__c ----------
+[x] AIViolationRuleTrigger
+[x] AIViolationRuleTriggerHandler
+[x] AIViolationRuleTriggerHandlerTest
+
+---------- AIWorkflowAction__c ----------
+[x] AIWorkflowActionTrigger
+[x] AIWorkflowActionTriggerHandler
+[x] AIWorkflowActionTriggerHandlerTest
+[x] IAIWorkflowActionExecutor

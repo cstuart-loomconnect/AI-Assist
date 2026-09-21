@@ -10,8 +10,8 @@ the business logic that runs on the AI Violation trigger.
 =================================================================
 =================================================================
 
-Version      Author                   Description
-1.0          Chandler Stuart          Initial development
+Version      Date               Author                   Description
+1.0          2026-09-06         Chandler Stuart          Initial development
 */
 
 public without sharing class AIViolationTriggerHandler {
@@ -21,13 +21,10 @@ public without sharing class AIViolationTriggerHandler {
     public static void handleAfterInsert(List<AIViolation__c> newViolations) {
         try {
 
-            if (!isAfterInsertHandlerRunning) {
+            if (isAfterInsertHandlerRunning) return;
+            isAfterInsertHandlerRunning = true;
 
-                isAfterInsertHandlerRunning = true;
-
-                updateViolationRuleTriggerStats(newViolations);
-
-            }
+            updateViolationRuleTriggerStats(newViolations);
 
         } catch (Exception e) {
             AIPlatformLogManager.logException(e, 'AIViolationTriggerHandler', 'handleAfterInsert');

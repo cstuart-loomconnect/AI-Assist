@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Defines how to generate a fake value for real PII data of a given AI PII Field Type - either by substituting the whole value from a comma-separated list of dummy values, or by randomizing characters that match a regex pattern. Linked from AI PII Field Type via a required one-to-one lookup (every Field Type must have exactly one Masking Rule). Currently read only by AIPiiPseudonymizationService, which only ever uses the SubstituteFromList strategy - a pseudonymized value must always be fully reversible back to the real one, and RandomizeByPattern can't guarantee that. The RandomizeByPattern strategy (and Redact__c/ReplacementPattern__c/ReplacementCharacterCount__c) is reserved for a future one-way data-scrambling consumer that doesn't need reversibility.</description>
+    <label>AI PII Data Masking Rule</label>
+    <pluralLabel>AI PII Data Masking Rules</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

@@ -11,13 +11,12 @@ The tests cover various scenarios, including logging exceptions, handling invali
 =================================================================
 Applicable Classes:
 
-AIAssistSettingsService: Coverage 100%
-AIPlatformLogEventHandle: Converage 94%
+AIPlatformLogEventHandler: Converage 95%
 AIPlatformLogEventTrigger: Coverage 100%
-AIPlatformLogManager: Coverage 90%
+AIPlatformLogManager: Coverage 26%
 
-Version      Author                   Description
-1.0          Chandler Stuart          Initial development
+Version      Date           Author                   Description
+1.0          2026-09-09     Chandler Stuart          Initial development
 */
 
 @IsTest private class AIPlatformLogManagerTest {

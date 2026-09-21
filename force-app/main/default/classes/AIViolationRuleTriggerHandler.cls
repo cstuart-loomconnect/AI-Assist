@@ -10,8 +10,8 @@ performing the business logic that runs on the AI Violation Rule trigger.
 =================================================================
 =================================================================
 
-Version      Author                   Description
-1.0          Chandler Stuart          Initial development
+Version      Date               Author                   Description
+1.0          2026-09-06         Chandler Stuart          Initial development
 */
 
 public without sharing class AIViolationRuleTriggerHandler {
@@ -22,22 +22,19 @@ public without sharing class AIViolationRuleTriggerHandler {
     public static void handleBeforeInsert(List<AIViolationRule__c> newRules) {
         try {
 
-            if (!isBeforeInsertHandlerRunning) {
+            if (isBeforeInsertHandlerRunning) return;
+            isBeforeInsertHandlerRunning = true;
 
-                isBeforeInsertHandlerRunning = true;
+            AIAssistGlobalUtility.generatePublicId(newRules);
+            AIAssistGlobalUtility.generateDeveloperName(newRules);
 
-                AIAssistGlobalUtility.generatePublicId(newRules);
-                AIAssistGlobalUtility.generateDeveloperName(newRules);
+            List<AIViolationRule__c> activeRulesToValidate = new List<AIViolationRule__c>(); // Only active rules need a unique Signal Tag.
 
-                List<AIViolationRule__c> activeRulesToValidate = new List<AIViolationRule__c>(); // Only active rules need a unique Signal Tag.
-
-                for (AIViolationRule__c rule : newRules) {
-                    if (rule.Active__c) { activeRulesToValidate.add(rule); }
-                }
-
-                if (!activeRulesToValidate.isEmpty()) { validateSignalTagUniqueness(activeRulesToValidate); }
-
+            for (AIViolationRule__c rule : newRules) {
+                if (rule.Active__c) { activeRulesToValidate.add(rule); }
             }
+
+            if (!activeRulesToValidate.isEmpty()) { validateSignalTagUniqueness(activeRulesToValidate); }
 
         } catch (Exception e) {
             AIPlatformLogManager.logException(e, 'AIViolationRuleTriggerHandler', 'handleBeforeInsert');
@@ -47,32 +44,29 @@ public without sharing class AIViolationRuleTriggerHandler {
     public static void handleBeforeUpdate(Map<Id, AIViolationRule__c> oldRulesById, Map<Id, AIViolationRule__c> newRulesById) {
         try {
 
-            if (!isBeforeUpdateHandlerRunning) {
+            if (isBeforeUpdateHandlerRunning) return;
+            isBeforeUpdateHandlerRunning = true;
 
-                isBeforeUpdateHandlerRunning = true;
+            if (newRulesById == null || newRulesById.isEmpty() || oldRulesById == null) return;
 
-                if (newRulesById == null || newRulesById.isEmpty() || oldRulesById == null) return;
+            List<AIViolationRule__c> activeRulesToValidate = new List<AIViolationRule__c>(); // Active rules whose Signal Tag or Active status changed and need re-validating.
 
-                List<AIViolationRule__c> activeRulesToValidate = new List<AIViolationRule__c>(); // Active rules whose Signal Tag or Active status changed and need re-validating.
+            for (AIViolationRule__c newRule : newRulesById.values()) {
 
-                for (AIViolationRule__c newRule : newRulesById.values()) {
+                AIViolationRule__c oldRule = oldRulesById.get(newRule.Id);
+                if (oldRule == null) continue;
 
-                    AIViolationRule__c oldRule = oldRulesById.get(newRule.Id);
-                    if (oldRule == null) continue;
+                if (!newRule.Active__c) continue; // Only active rules need a unique Signal Tag.
 
-                    if (!newRule.Active__c) continue; // Only active rules need a unique Signal Tag.
+                Boolean isSignalTagUnchanged = String.isBlank(oldRule.SignalTag__c) ? String.isBlank(newRule.SignalTag__c) : oldRule.SignalTag__c.equalsIgnoreCase(newRule.SignalTag__c);
 
-                    Boolean isSignalTagUnchanged = String.isBlank(oldRule.SignalTag__c) ? String.isBlank(newRule.SignalTag__c) : oldRule.SignalTag__c.equalsIgnoreCase(newRule.SignalTag__c);
+                if (oldRule.Active__c == newRule.Active__c && isSignalTagUnchanged) continue; // Neither field changed, no need to re-validate.
 
-                    if (oldRule.Active__c == newRule.Active__c && isSignalTagUnchanged) continue; // Neither field changed, no need to re-validate.
-
-                    activeRulesToValidate.add(newRule);
-
-                }
-
-                if (!activeRulesToValidate.isEmpty()) { validateSignalTagUniqueness(activeRulesToValidate); }
+                activeRulesToValidate.add(newRule);
 
             }
+
+            if (!activeRulesToValidate.isEmpty()) { validateSignalTagUniqueness(activeRulesToValidate); }
 
         } catch (Exception e) {
             AIPlatformLogManager.logException(e, 'AIViolationRuleTriggerHandler', 'handleBeforeUpdate');

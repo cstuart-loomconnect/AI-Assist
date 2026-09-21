@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Keyword__c</fullName>
+    <businessStatus>Active</businessStatus>
+    <description>Comma-separated list of normalized shapes (letters/digits only, no spaces or case) that all mean the same PII field type, e.g. &quot;creditcard,cardnumber&quot;.</description>
+    <externalId>false</externalId>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>Comma-separated keywords to match, e.g. &quot;email&quot; or &quot;bankaccount,routingnumber,iban,sortcode&quot;.</inlineHelpText>
+    <label>Keyword</label>
+    <length>255</length>
+    <required>true</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

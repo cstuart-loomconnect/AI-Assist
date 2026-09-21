@@ -12,6 +12,18 @@
         <enabled>true</enabled>
         <name>AINavTab__mdt</name>
     </customMetadataTypeAccesses>
+    <customMetadataTypeAccesses>
+        <enabled>true</enabled>
+        <name>AIPiiComplianceGroup__mdt</name>
+    </customMetadataTypeAccesses>
+    <customMetadataTypeAccesses>
+        <enabled>true</enabled>
+        <name>AIPiiDataMaskingRule__mdt</name>
+    </customMetadataTypeAccesses>
+    <customMetadataTypeAccesses>
+        <enabled>true</enabled>
+        <name>AIPiiFieldType__mdt</name>
+    </customMetadataTypeAccesses>
     <description>Full access to every AI Assist object and record for operational support and troubleshooting. Excludes the system-managed Public Id and Developer Name fields, which are populated by automation only.</description>
     <fieldPermissions>
         <editable>true</editable>
@@ -355,6 +367,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>AIModelConfiguration__c.RetryAttempts__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>AIModelConfiguration__c.Temperature__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -391,6 +408,16 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>AIPIIFieldMetadata__c.LastSynced__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>AIPIIFieldMetadata__c.PIIFieldType__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>AIPIIMapping__c.MappingJson__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -876,6 +903,16 @@
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
+        <object>AIPIIMapping__c</object>
+        <viewAllFields>false</viewAllFields>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
         <object>AIPIIRegistry__c</object>
         <viewAllFields>false</viewAllFields>
         <viewAllRecords>true</viewAllRecords>
@@ -887,6 +924,16 @@
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
         <object>AIPlatformLogEvent__e</object>
+        <viewAllFields>false</viewAllFields>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>AIMessageReadyEvent__e</object>
         <viewAllFields>false</viewAllFields>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>

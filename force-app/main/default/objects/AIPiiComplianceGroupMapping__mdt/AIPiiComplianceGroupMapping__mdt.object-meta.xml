@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Maps Salesforce&apos;s native Data Classification &quot;Compliance Categorization&quot; (FieldDefinition.ComplianceGroup) to a specific PII field type. Used by AIPiiFieldTypeClassifier as a fallback when no keyword rule matches a field&apos;s name or label, so a field an admin has already tagged in Setup&apos;s Data Classification is recognized without needing a matching keyword.</description>
+    <label>AI PII Compliance Group Mapping</label>
+    <pluralLabel>AI PII Compliance Group Mappings</pluralLabel>
+    <visibility>Protected</visibility>
+</CustomObject>

@@ -9,14 +9,12 @@ Description: Trigger for handling AI Terms Acknowledgment events related to AI A
 =================================================================
 =================================================================
 
-Version      Author                   Description
-1.0          Chandler Stuart          Initial development
+Version      Date               Author                   Description
+1.0          2026-09-06         Chandler Stuart          Initial development
 */
 trigger AITermsAcknowledgmentTrigger on AITermsAcknowledgment__c (after insert) {
 
-    if (AIAssistSettingsService.getSettings() == null || !AIAssistSettingsService.getSettings().IsApplicationActive__c) {
-        return;
-    }
+    if (AIAssistSettings__c.getInstance() == null || !AIAssistSettings__c.getInstance().IsApplicationActive__c) return;
 
     // After Context
     if (Trigger.isAfter) {

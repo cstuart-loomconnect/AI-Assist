@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ComplianceGroup__c</fullName>
+    <businessStatus>Active</businessStatus>
+    <description>The AI PII Compliance Group this Field Type is tagged under, e.g. &quot;Health Information&quot;. Optional - only needed if this Field Type should also be reachable via the Compliance Group fallback (see IsComplianceGroupFallback__c).</description>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <label>Compliance Group</label>
+    <referenceTo>AIPiiComplianceGroup__mdt</referenceTo>
+    <relationshipLabel>AI PII Field Types</relationshipLabel>
+    <relationshipName>FieldTypes</relationshipName>
+    <required>false</required>
+    <type>MetadataRelationship</type>
+    <unique>false</unique>
+</CustomField>

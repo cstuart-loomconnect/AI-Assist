@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>RetryAttempts__c</fullName>
+    <description>How many times to retry a callout to this model after a retryable failure (timeout, 429, 5xx) before giving up.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Set how many additional attempts to make after a failed call to this model before giving up.</inlineHelpText>
+    <label>Retry Attempts</label>
+    <precision>2</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

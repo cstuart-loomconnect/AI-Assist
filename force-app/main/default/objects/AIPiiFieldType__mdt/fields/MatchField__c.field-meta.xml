@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MatchField__c</fullName>
+    <businessStatus>Active</businessStatus>
+    <description>Which signal the keyword is matched against.</description>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>NameOrLabelContains: keyword appears anywhere in the field&apos;s API name or label. ApiNameExact: the field&apos;s API name equals the keyword exactly (e.g. the standard &quot;Name&quot; field). DataTypeContains: keyword appears in the field&apos;s data type (e.g. Salesforce&apos;s built-in Address compound type).</inlineHelpText>
+    <label>Match Field</label>
+    <required>true</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>NameOrLabelContains</fullName>
+                <default>true</default>
+                <label>Name Or Label Contains</label>
+            </value>
+            <value>
+                <fullName>ApiNameExact</fullName>
+                <default>false</default>
+                <label>Api Name Exact</label>
+            </value>
+            <value>
+                <fullName>DataTypeContains</fullName>
+                <default>false</default>
+                <label>Data Type Contains</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

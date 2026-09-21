@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ReplacementCharacterCount__c</fullName>
+    <businessStatus>Active</businessStatus>
+    <description>Only used when Strategy__c is RandomizeByPattern and Redact__c is unchecked. Number of characters matched by ReplacementPattern__c, counting from the end of the value, to randomize - e.g. 4 to scramble only the last 4 digits of a card number and leave the rest as real digits.</description>
+    <externalId>false</externalId>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>Number of matching characters (from the end of the value) to randomize. Only applies when Strategy is Randomize By Pattern and Redact is unchecked.</inlineHelpText>
+    <label>Replacement Character Count</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>
