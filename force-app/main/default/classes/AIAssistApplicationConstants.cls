@@ -147,4 +147,8 @@ public without sharing class AIAssistApplicationConstants {
     public static final Integer DATA_SOURCE_RESULT_MAX_PARENT_DEPTH = 4;
     public static final Integer DATA_SOURCE_RESULT_MAX_CHILD_DEPTH = 3;
     public static final String DATA_SOURCE_RESULT_REDACTED_ERROR_VALUE = '***REDACTED-ERROR***';
+
+    // AiMessageProcessingQueueable
+    public static final Integer MESSAGE_PROCESSING_MAX_MESSAGE_HISTORY = 50;
+    public static final String MESSAGE_PROCESSING_GENERIC_FAILURE_MESSAGE = 'Something went wrong generating a response. Please try again.';
 }

@@ -95,17 +95,19 @@ public without sharing class AIPiiRegistryWorker {
                 }
             }
 
-            update new AIPIIRegistry__c(
+            Database.SaveResult registrySyncedResult = Database.update(new AIPIIRegistry__c(
                 Id = registry.Id,
                 SyncStatus__c = AIAssistApplicationConstants.PII_SYNC_STATUS_SYNCED,
                 LastSynced__c = Datetime.now(),
                 CacheResetDate__c = null // Clear so a past-due reset doesn't re-trigger every run once synced.
-            );
+            ), false);
+            AIPlatformLogManager.logExceptions(new List<Database.SaveResult>{ registrySyncedResult }, 'AIPiiRegistryWorker', 'refreshPIIRegistry');
 
         } catch (Exception e) {
             AIPlatformLogManager.logException(e, 'AIPiiRegistryWorker', 'refreshPIIRegistry');
             try {
-                update new AIPIIRegistry__c(Id = registryId, SyncStatus__c = AIAssistApplicationConstants.PII_SYNC_STATUS_FAILED);
+                Database.SaveResult registryFailedResult = Database.update(new AIPIIRegistry__c(Id = registryId, SyncStatus__c = AIAssistApplicationConstants.PII_SYNC_STATUS_FAILED), false);
+                AIPlatformLogManager.logExceptions(new List<Database.SaveResult>{ registryFailedResult }, 'AIPiiRegistryWorker', 'refreshPIIRegistry');
             } catch (Exception innerException) {
                 AIPlatformLogManager.logException(innerException, 'AIPiiRegistryWorker', 'refreshPIIRegistry');
             }
