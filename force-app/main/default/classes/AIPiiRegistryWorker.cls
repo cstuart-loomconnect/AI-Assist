@@ -33,19 +33,16 @@ public without sharing class AIPiiRegistryWorker {
             // No DML happens before the callout below - Salesforce blocks a callout once any DML has been issued in the same transaction ("uncommitted work pending"), so the In Progress transition is skipped and the registry goes straight from Queued to its final Synced/Failed state.
 
             // Defend against ever reaching this point with no callout headroom left in the transaction - fail fast with a clear message rather than letting the callout throw.
-            if (isTestCalloutLimitReached || Limits.getCallouts() >= Limits.getLimitCallouts()) {
-                throw new CalloutException('No callouts remaining in this transaction - skipping Tooling API sync for ' + registry.ObjectAPIName__c + '.');
-            }
+            if (isTestCalloutLimitReached || Limits.getCallouts() >= Limits.getLimitCallouts()) throw new CalloutException('No callouts remaining in this transaction - skipping Tooling API sync for ' + registry.ObjectAPIName__c + '.');
 
             // Always bound the query, even when MaxFieldsToQuery__c is blank, so a sync can never pull an unbounded number of fields for one object.
             Integer maxFieldsToQuery = registry.MaxFieldsToQuery__c != null ? Integer.valueOf(registry.MaxFieldsToQuery__c) : AIAssistApplicationConstants.DEFAULT_MAX_PII_FIELDS_TO_QUERY;
 
             String toolingAPIVersion = AIAssistSettingsService.getSettings().ToolingAPIVersion__c;
-            if (String.isBlank(toolingAPIVersion)) { toolingAPIVersion = AIAssistApplicationConstants.DEFAULT_TOOLING_API_VERSION; }
+            if (String.isBlank(toolingAPIVersion)) toolingAPIVersion = AIAssistApplicationConstants.DEFAULT_TOOLING_API_VERSION; 
 
             // Query the Tooling API's FieldDefinition object for every field on the given object. FieldDefinition isn't queryable through standard SOQL, so this goes through a REST callout to the org's own Tooling API instead.
-            String query = 'SELECT QualifiedApiName, Label, DataType, ComplianceGroup FROM FieldDefinition WHERE EntityDefinition.QualifiedApiName = \'' + String.escapeSingleQuotes(registry.ObjectAPIName__c) + '\''
-                            + ' LIMIT ' + maxFieldsToQuery;
+            String query = 'SELECT QualifiedApiName, Label, DataType, ComplianceGroup FROM FieldDefinition WHERE EntityDefinition.QualifiedApiName = \'' + String.escapeSingleQuotes(registry.ObjectAPIName__c) + '\''  + ' LIMIT ' + maxFieldsToQuery;
 
             HttpRequest request = new HttpRequest();
             request.setEndpoint(Url.getOrgDomainUrl().toExternalForm() + '/services/data/v' + toolingAPIVersion + '/tooling/query/?q=' + EncodingUtil.urlEncode(query, 'UTF-8'));
@@ -54,9 +51,7 @@ public without sharing class AIPiiRegistryWorker {
 
             HttpResponse response = new Http().send(request);
 
-            if (response.getStatusCode() != 200) {
-                throw new CalloutException('Tooling API query failed with status ' + response.getStatusCode() + ': ' + response.getBody());
-            }
+            if (response.getStatusCode() != 200) throw new CalloutException('Tooling API query failed with status ' + response.getStatusCode() + ': ' + response.getBody());
 
             Map<String, Object> parsedResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
             List<Object> fieldDefinitions = (List<Object>) parsedResponse.get('records');
