@@ -91,7 +91,7 @@ Version      Date               Author                   Description
         insert new Contact(LastName = 'Test Contact', AccountId = parentAccount.Id);
 
         Contact queriedContact = [SELECT Id, Name, Account.Name FROM Contact WHERE AccountId = :parentAccount.Id LIMIT 1];
-        Account queriedAccountWithChildren = [SELECT Id, Name, (SELECT Id, Name FROM Contacts) FROM Account WHERE Id = :parentAccount.Id];
+        Account queriedAccountWithChildren = [SELECT Id, Name, (SELECT Id, Name, LastName FROM Contacts) FROM Account WHERE Id = :parentAccount.Id];
 
         Test.startTest();
             List<Object> parentResults = AiDataSourceResultProcessor.process(new List<SObject>{ queriedContact }, null);

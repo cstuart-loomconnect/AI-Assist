@@ -186,7 +186,7 @@ public without sharing class AiDataSourceResultProcessor {
 
             if (accessLevel == System.AccessLevel.SYSTEM_MODE) return true;
 
-            Schema.SObjectField fieldToken = describeResult.fields.getMap().get(fieldApiName);
+            Schema.SObjectField fieldToken = resolveFieldToken(describeResult, fieldApiName);
 
             if (fieldToken == null) return false;
 
@@ -196,5 +196,19 @@ public without sharing class AiDataSourceResultProcessor {
             AIPlatformLogManager.logException(ex, 'AiDataSourceResultProcessor', 'isFieldAccessible');
             return false;
         }
+    }
+
+    // A populated parent relationship (e.g. "Account" on Contact) shows up in getPopulatedFieldsAsMap() under its relationship name, not its lookup field's API name (e.g. "AccountId") -
+    // fall back to matching on relationship name so parent traversal is checked against the lookup field's own FLS rather than being treated as an unresolvable field.
+    private static Schema.SObjectField resolveFieldToken(Schema.DescribeSObjectResult describeResult, String fieldApiName) {
+
+        Schema.SObjectField fieldToken = describeResult.fields.getMap().get(fieldApiName);
+        if (fieldToken != null) return fieldToken;
+
+        for (Schema.SObjectField candidateFieldToken : describeResult.fields.getMap().values()) {
+            if (fieldApiName.equalsIgnoreCase(candidateFieldToken.getDescribe().getRelationshipName())) return candidateFieldToken;
+        }
+
+        return null;
     }
 }

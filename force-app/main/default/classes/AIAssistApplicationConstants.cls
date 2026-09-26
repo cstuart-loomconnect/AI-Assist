@@ -111,6 +111,9 @@ public without sharing class AIAssistApplicationConstants {
     // AIPiiRegistryWorker - used when AIAssistSettings__c.ToolingAPIVersion__c is blank.
     public static final String DEFAULT_TOOLING_API_VERSION = '62.0';
 
+    // AI provider response handlers - used when AIAssistSettings__c.AIProviderSuccessStatusCodes__c is blank or has no valid codes.
+    public static final Set<Integer> DEFAULT_AI_PROVIDER_SUCCESS_STATUS_CODES = new Set<Integer>{ 200 };
+
     // AIPiiRegistryWorker - bounds the Tooling API query when AIPIIRegistry__c.MaxFieldsToQuery__c is blank. Matches that field's own precision ceiling (999) so a sync is always bounded either way.
     public static final Integer DEFAULT_MAX_PII_FIELDS_TO_QUERY = 999;
 
@@ -151,4 +154,37 @@ public without sharing class AIAssistApplicationConstants {
     // AiMessageProcessingQueueable
     public static final Integer MESSAGE_PROCESSING_MAX_MESSAGE_HISTORY = 50;
     public static final String MESSAGE_PROCESSING_GENERIC_FAILURE_MESSAGE = 'Something went wrong generating a response. Please try again.';
+
+    // AIAnthropicResponseHandler - field/value names in Anthropic's Messages API response shape.
+    public static final String ANTHROPIC_FIELD_CONTENT = 'content';
+    public static final String ANTHROPIC_FIELD_BLOCK_TYPE = 'type';
+    public static final String ANTHROPIC_BLOCK_TYPE_TEXT = 'text';
+    public static final String ANTHROPIC_FIELD_TEXT = 'text';
+    public static final String ANTHROPIC_BLOCK_TYPE_TOOL_USE = 'tool_use';
+    public static final String ANTHROPIC_BLOCK_TYPE_TOOL_RESULT = 'tool_result';
+    public static final String ANTHROPIC_FIELD_TOOL_USE_ID = 'id';
+    public static final String ANTHROPIC_FIELD_TOOL_NAME = 'name';
+    public static final String ANTHROPIC_FIELD_TOOL_USE_INPUT = 'input';
+    public static final String ANTHROPIC_FIELD_TOOL_RESULT_ID = 'tool_use_id';
+
+    public static final String ANTHROPIC_FIELD_USAGE = 'usage';
+    public static final String ANTHROPIC_FIELD_USAGE_INPUT_TOKENS = 'input_tokens';
+    public static final String ANTHROPIC_FIELD_USAGE_OUTPUT_TOKENS = 'output_tokens';
+    public static final String ANTHROPIC_FIELD_ERROR = 'error';
+    public static final String ANTHROPIC_FIELD_ERROR_MESSAGE = 'message';
+    public static final String ANTHROPIC_FIELD_ERROR_TYPE = 'type';
+
+    public static final String ANTHROPIC_ROLE_KEY = 'role';
+    public static final String ANTHROPIC_ROLE_USER = 'user';
+    public static final String ANTHROPIC_ROLE_ASSISTANT = 'assistant';
+
+    // AIAnthropicRequestBuilder - field names in Anthropic's Messages API request shape. Tool name reuses ANTHROPIC_FIELD_TOOL_NAME above.
+    public static final String ANTHROPIC_FIELD_MODEL = 'model';
+    public static final String ANTHROPIC_FIELD_MAX_TOKENS = 'max_tokens';
+    public static final String ANTHROPIC_FIELD_MESSAGES = 'messages';
+    public static final String ANTHROPIC_FIELD_TEMPERATURE = 'temperature';
+    public static final String ANTHROPIC_FIELD_SYSTEM = 'system';
+    public static final String ANTHROPIC_FIELD_TOOLS = 'tools';
+    public static final String ANTHROPIC_FIELD_TOOL_DESCRIPTION = 'description';
+    public static final String ANTHROPIC_FIELD_TOOL_INPUT_SCHEMA = 'input_schema';
 }

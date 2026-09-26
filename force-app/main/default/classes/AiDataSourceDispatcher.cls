@@ -15,6 +15,7 @@ only class of the three that knows about the AIDataSource__c object itself.
 
 Version      Date           Author                   Description
 1.0          2026-09-21     Chandler Stuart          Initial development
+1.1          2026-09-26     Chandler Stuart          Catches rethrow without logging - AIAgentManager.invokeTool logs the failure once. Wrapped exceptions keep the original as their cause.
 */
 
 public without sharing class AiDataSourceDispatcher {
@@ -50,8 +51,7 @@ public without sharing class AiDataSourceDispatcher {
             return AiDataSourceResultProcessor.process(rawResults, effectiveAccessLevel);
 
         } catch (Exception ex) {
-            AIPlatformLogManager.logException(ex, 'AiDataSourceDispatcher', 'execute');
-            throw ex instanceof AIDataSourceExecutorException ? ex : new AIDataSourceExecutorException('Failed to execute AI Data Source: ' + ex.getMessage());
+            throw ex instanceof AIDataSourceExecutorException ? ex : new AIDataSourceExecutorException('Failed to execute AI Data Source: ' + ex.getMessage(), ex);
         }
     }
 
@@ -68,8 +68,7 @@ public without sharing class AiDataSourceDispatcher {
             throw new AIDataSourceExecutorException('Unsupported Source Type "' + dataSource.SourceType__c + '" for AI Data Source "' + dataSource.DeveloperName__c + '".');
 
         } catch (Exception ex) {
-            AIPlatformLogManager.logException(ex, 'AiDataSourceDispatcher', 'runDataSource');
-            throw ex instanceof AIDataSourceExecutorException ? ex : new AIDataSourceExecutorException('Failed to run AI Data Source: ' + ex.getMessage());
+            throw ex instanceof AIDataSourceExecutorException ? ex : new AIDataSourceExecutorException('Failed to run AI Data Source: ' + ex.getMessage(), ex);
         }
     }
 
@@ -86,8 +85,7 @@ public without sharing class AiDataSourceDispatcher {
             return AiSoqlTemplateRunner.run(dataSource.SOQLTemplate__c, bindValues, accessLevel);
 
         } catch (Exception ex) {
-            AIPlatformLogManager.logException(ex, 'AiDataSourceDispatcher', 'runSoqlDataSource');
-            throw ex instanceof AIDataSourceExecutorException ? ex : new AIDataSourceExecutorException('Failed to run SOQL AI Data Source: ' + ex.getMessage());
+            throw ex instanceof AIDataSourceExecutorException ? ex : new AIDataSourceExecutorException('Failed to run SOQL AI Data Source: ' + ex.getMessage(), ex);
         }
     }
 
@@ -107,8 +105,7 @@ public without sharing class AiDataSourceDispatcher {
             return ((IAIDataSourceExecutor) executorInstance).execute(recordId, inputParameters == null ? new Map<String, Object>() : inputParameters);
 
         } catch (Exception ex) {
-            AIPlatformLogManager.logException(ex, 'AiDataSourceDispatcher', 'runApexDataSource');
-            throw ex instanceof AIDataSourceExecutorException ? ex : new AIDataSourceExecutorException('Failed to run Apex AI Data Source: ' + ex.getMessage());
+            throw ex instanceof AIDataSourceExecutorException ? ex : new AIDataSourceExecutorException('Failed to run Apex AI Data Source: ' + ex.getMessage(), ex);
         }
     }
 

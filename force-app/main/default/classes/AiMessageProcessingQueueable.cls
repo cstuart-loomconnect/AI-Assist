@@ -1,0 +1,222 @@
+/*
+Class Name: AiMessageProcessingQueueable
+
+=================================================================
+=================================================================
+
+Description: The async worker that does the heavy lifting for one message, run outside the
+user's original transaction so the chat UI isn't blocked on a live callout.
+
+Flow:
+[1] Load everything for the turn - Agent, active Prompt Template, message history, available Data Source/Workflow Action tools.
+[2] Call AIAgentManager.executeAiMessage for the result - it only ever makes the callout(s) and returns an AgentResult, never touching the database or the event bus itself.
+[3] Hand that AgentResult to AIConversationMessageService.handleAgentResult, which evaluates it and performs whichever update follows: complete the turn, publish AIMessageCalloutEvent__e for another attempt, or fail the turn.
+
+A failure before a result is even produced (e.g. a loader throwing) is caught and logged rather
+than allowed to propagate, since nothing else is watching this transaction - the chat UI instead
+learns via an IsSuccess__c = false event from AIConversationMessageService.processInvalidAIMessage.
+
+=================================================================
+=================================================================
+
+Version      Date           Author                   Description
+1.0          2026-09-21     Chandler Stuart          Initial development
+1.1          2026-09-26     Chandler Stuart          Required loaders rethrow (unlogged) to execute() instead of returning empty records, so one failure produces one log entry.
+
+*/
+
+public without sharing class AiMessageProcessingQueueable implements Queueable, Database.AllowsCallouts {
+
+    public class AiMessageProcessingQueueableException extends Exception {}
+
+    private static final Integer FIRST_ATTEMPT_NUMBER = 1;
+
+    private Id triggeringMessageId;
+    private Integer attemptNumber;
+
+    // Only the Id is stored, since Queueable arguments must be serializable and an SObject reference would go stale by execute time.
+    public AiMessageProcessingQueueable(Id triggeringMessageId) {
+        this(triggeringMessageId, FIRST_ATTEMPT_NUMBER);
+    }
+
+    // Used by AIMessageCalloutEventHandler to re-run a turn that needed a retry, starting at whatever attempt number the event carries.
+    public AiMessageProcessingQueueable(Id triggeringMessageId, Integer attemptNumber) {
+        this.triggeringMessageId = triggeringMessageId;
+        this.attemptNumber = attemptNumber;
+    }
+
+    // Entry point run by the platform's async executor; see the class header Flow for the load -> orchestrate -> evaluate steps.
+    public void execute(QueueableContext context) {
+
+        Id conversationId;
+
+        try {
+
+            AIConversationMessage__c triggeringMessage = loadTriggeringMessage(triggeringMessageId);
+            if (triggeringMessage == null) return; // Message may have been deleted since being enqueued - nothing to process.
+
+            AIConversation__c conversation = loadConversation(triggeringMessage.AIConversation__c);
+            conversationId = conversation.Id; // Captured early so the catch block can still publish a failure event referencing this conversation.
+
+            AIAgent__c agent = loadAgent(conversation.AIAgent__c);
+            AIModelConfiguration__c modelConfiguration = loadModelConfiguration(agent.AIModelConfiguration__c);
+            AIPromptTemplate__c promptTemplate = loadActivePromptTemplate(agent.Id);
+            List<AIConversationMessage__c> messageHistory = loadMessageHistory(conversation.Id);
+            List<AIDataSource__c> availableDataSources = loadAvailableDataSources(agent.Id);
+            List<AIWorkflowAction__c> availableWorkflowActions = loadAvailableWorkflowActions(agent.Id);
+
+            AIAgentManager.AgentResult result = AIAgentManager.executeAiMessage(agent, modelConfiguration, promptTemplate, conversation, triggeringMessage, messageHistory, availableDataSources, availableWorkflowActions, attemptNumber);
+
+            AIConversationMessageService.handleAgentResult(conversation.Id, triggeringMessage.Id, result, attemptNumber);
+
+        } catch (Exception ex) {
+            AIPlatformLogManager.logException(ex, 'AiMessageProcessingQueueable', 'execute');
+            AIConversationMessageService.processInvalidAIMessage(conversationId, AIAssistApplicationConstants.MESSAGE_PROCESSING_GENERIC_FAILURE_MESSAGE);
+        }
+    }
+
+    // [1] Re-queries the message that triggered this job, since the object passed to the constructor isn't serialized across the async boundary.
+    private static AIConversationMessage__c loadTriggeringMessage(Id messageId) {
+        try {
+
+            if (messageId == null || messageId.getSobjectType() != AIConversationMessage__c.SObjectType) return null;
+
+            List<AIConversationMessage__c> messages = [ SELECT Id, MessageBody__c, AIConversation__c FROM AIConversationMessage__c WHERE Id =:messageId LIMIT 1 ];
+
+            return messages.isEmpty() ? null : messages[0];
+
+        } catch (Exception ex) {
+            AIPlatformLogManager.logException(ex, 'AiMessageProcessingQueueable', 'loadTriggeringMessage');
+            return null; // Treated by execute as nothing to process - an empty record would cascade into a second, misleading error from loadConversation.
+        }
+    }
+
+    // [2] Loads the parent conversation for the triggering message; throws since the orchestrator can't run without it.
+    private static AIConversation__c loadConversation(Id conversationId) {
+        try {
+
+            if (conversationId == null || conversationId.getSobjectType() != AIConversation__c.SObjectType) throw new AiMessageProcessingQueueableException('Invalid AI Conversation Id: ' + conversationId);
+
+            List<AIConversation__c> conversations = [ SELECT Id, AIAgent__c, RelatedObjectAPIName__c, RelatedRecordId__c FROM AIConversation__c WHERE Id = :conversationId LIMIT 1 ];
+            if (conversations.isEmpty()) throw new AiMessageProcessingQueueableException('AI Conversation not found for Id: ' + conversationId);
+            return conversations[0];
+
+        } catch (Exception ex) {
+            throw ex; // Required for the turn - rethrown for execute() to log once, rather than returning an empty record that cascades into further errors in the loaders after this one.
+        }
+    }
+
+    // [3] Loads the agent configured on the conversation, including its tool-calling iteration cap.
+    private static AIAgent__c loadAgent(Id agentId) {
+        try {
+
+            if (agentId == null || agentId.getSobjectType() != AIAgent__c.SObjectType) throw new AiMessageProcessingQueueableException('Invalid AI Agent Id: ' + agentId);
+
+            List<AIAgent__c> agents = [ SELECT Id, DeveloperName__c, AIModelConfiguration__c, MaxToolCallingIterations__c FROM AIAgent__c WHERE Id = :agentId LIMIT 1 ];
+            if (agents.isEmpty()) throw new AiMessageProcessingQueueableException('AI Agent not found for Id: ' + agentId);
+            return agents[0];
+
+        } catch (Exception ex) {
+            throw ex; // Required for the turn - rethrown for execute() to log once, rather than returning an empty record that cascades into further errors in the loaders after this one.
+        }
+    }
+
+    // [4] Loads the LLM/provider settings the agent calls out with; a missing assignment is a setup error, not a transient failure.
+    private static AIModelConfiguration__c loadModelConfiguration(Id modelConfigurationId) {
+        try {
+
+            if (modelConfigurationId == null || modelConfigurationId.getSobjectType() != AIModelConfiguration__c.SObjectType) throw new AiMessageProcessingQueueableException('AI Agent has no AI Model Configuration assigned.');
+
+            List<AIModelConfiguration__c> configurations = [ SELECT Id, DeveloperName__c, AIProvider__c, ModelIdentifier__c, NamedCredential__c, ApiPath__c, ApiVersionHeaderName__c, ApiVersionHeaderValue__c, MaximumOutputTokens__c, Temperature__c, SystemTimeoutSeconds__c, RetryAttempts__c
+                                                               FROM AIModelConfiguration__c
+                                                               WHERE Id = :modelConfigurationId
+                                                               LIMIT 1 ];
+
+            if (configurations.isEmpty()) throw new AiMessageProcessingQueueableException('AI Model Configuration not found for Id: ' + modelConfigurationId);
+            return configurations[0];
+
+        } catch (Exception ex) {
+            throw ex; // Required for the turn - rethrown for execute() to log once, rather than returning an empty record that cascades into further errors in the loaders after this one.
+        }
+    }
+
+    // [5] No active Prompt Template is not an error - AIAgentManager runs fine with none, it just means no system prompt is assembled.
+    private static AIPromptTemplate__c loadActivePromptTemplate(Id agentId) {
+        try {
+
+            if (agentId == null || agentId.getSobjectType() != AIAgent__c.SObjectType) return null;
+
+            List<AIPromptTemplate__c> templates = [ SELECT Id, DeveloperName__c, AISystemContext__c, AIPrompt__c, AITone__c, AIExclusionRules__c
+                                                     FROM AIPromptTemplate__c
+                                                     WHERE AIAgent__c = :agentId AND IsActive__c = true
+                                                     LIMIT 1 ];
+            return templates.isEmpty() ? null : templates[0];
+
+        } catch (Exception ex) {
+            AIPlatformLogManager.logException(ex, 'AiMessageProcessingQueueable', 'loadActivePromptTemplate');
+            return new AIPromptTemplate__c();
+        }
+    }
+
+    // [6] Loads prior turns for context, oldest first, capped to keep the prompt within a reasonable token budget.
+    private static List<AIConversationMessage__c> loadMessageHistory(Id conversationId) {
+        try {
+
+            if (conversationId == null || conversationId.getSobjectType() != AIConversation__c.SObjectType) return new List<AIConversationMessage__c>();
+
+            return [ SELECT Id, Sender__c, MessageBody__c
+                     FROM AIConversationMessage__c
+                     WHERE AIConversation__c = :conversationId
+                     ORDER BY CreatedDate ASC
+                     LIMIT :AIAssistApplicationConstants.MESSAGE_PROCESSING_MAX_MESSAGE_HISTORY ];
+
+        } catch (Exception ex) {
+            AIPlatformLogManager.logException(ex, 'AiMessageProcessingQueueable', 'loadMessageHistory');
+            return new List<AIConversationMessage__c>();
+        }
+    }
+
+    // [7] Resolves the Data Source tools currently enabled for the agent via the active AIAgentDataSource__c junction links.
+    private static List<AIDataSource__c> loadAvailableDataSources(Id agentId) {
+        try {
+
+            if (agentId == null || agentId.getSobjectType() != AIAgent__c.SObjectType) return new List<AIDataSource__c>();
+
+            Set<Id> dataSourceIds = new Set<Id>();
+            for (AIAgentDataSource__c link : [ SELECT AIDataSource__c FROM AIAgentDataSource__c WHERE AIAgent__c = :agentId AND IsActive__c = true ]) {
+                dataSourceIds.add(link.AIDataSource__c);
+            }
+            if (dataSourceIds.isEmpty()) return new List<AIDataSource__c>();
+
+            return [ SELECT Id, DeveloperName__c, Description__c, OutputDescription__c, InputSchema__c
+                     FROM AIDataSource__c
+                     WHERE Id IN :dataSourceIds AND IsActive__c = true ];
+
+        } catch (Exception ex) {
+            AIPlatformLogManager.logException(ex, 'AiMessageProcessingQueueable', 'loadAvailableDataSources');
+            return new List<AIDataSource__c>();
+        }
+    }
+
+    // [8] Resolves the Workflow Action tools currently enabled for the agent via the active AIAgentWorkflowAction__c junction links.
+    private static List<AIWorkflowAction__c> loadAvailableWorkflowActions(Id agentId) {
+        try {
+
+            if (agentId == null || agentId.getSobjectType() != AIAgent__c.SObjectType) return new List<AIWorkflowAction__c>();
+
+            Set<Id> workflowActionIds = new Set<Id>();
+            for (AIAgentWorkflowAction__c link : [ SELECT AIWorkflowAction__c FROM AIAgentWorkflowAction__c WHERE AIAgent__c = :agentId AND IsActive__c = true ]) {
+                workflowActionIds.add(link.AIWorkflowAction__c);
+            }
+            if (workflowActionIds.isEmpty()) return new List<AIWorkflowAction__c>();
+
+            return [ SELECT Id, DeveloperName__c, Description__c, OutputDescription__c, InputSchema__c
+                     FROM AIWorkflowAction__c
+                     WHERE Id IN :workflowActionIds AND IsActive__c = true ];
+
+        } catch (Exception ex) {
+            AIPlatformLogManager.logException(ex, 'AiMessageProcessingQueueable', 'loadAvailableWorkflowActions');
+            return new List<AIWorkflowAction__c>();
+        }
+    }
+}

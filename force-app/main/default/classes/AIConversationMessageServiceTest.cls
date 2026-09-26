@@ -1,0 +1,273 @@
+/*
+Class Name: AIConversationMessageServiceTest
+
+=================================================================
+=================================================================
+
+Description: Testing utility for AIConversationMessageService.
+
+=================================================================
+=================================================================
+Applicable Classes:
+
+AIConversationMessageService: Coverage 100%
+
+Version      Date               Author                   Description
+1.0          2026-09-22         Chandler Stuart          Initial development
+*/
+
+@IsTest private class AIConversationMessageServiceTest {
+
+    // testScenario1: A happy-path sendMessage call with no existing conversation, no channel restriction, and no usage limits creates a new Active conversation and inserts the user's message with an estimated TokenCount__c.
+    // testScenario2: Input validation and business-rule failures - a null Agent Id, a blank message body, an inactive Agent, and a disallowed channel - each throw AIConversationMessageServiceException rather than sending.
+    // testScenario3: When SingleActiveConversationPer_Record__c is on, sendMessage reuses the existing Active conversation for the same Agent/related record/owner instead of creating a new one.
+    // testScenario4: When the reusable conversation has already hit the Agent's MaxMessagesPerConversation__c or MaxTokensPerConversation__c cap, sendMessage closes it out with the matching reason and starts a fresh conversation instead of continuing it.
+    // testScenario5: UsageLimitReachedBehavior__c is honored - Block New Conversations Only blocks a brand-new conversation once MaxConcurrentConversations__c or MaxConversationsPer24Hours__c is reached, Block New Messages blocks everything once MaxTokensPer24Hours__c is reached, and Notify Only never blocks even over those same limits.
+    // testScenario6: closeConversation sets Status__c to Closed with the given reason, defaults to User Closed when no reason is supplied, and throws when no Conversation Id is given.
+
+    @TestSetup static void setup() {
+
+        AIAssistSettings__c settings = AIAssistSettings__c.getOrgDefaults();
+        settings.IsApplicationActive__c = true;
+        settings.DisableExceptionLogging__c = false;
+        upsert settings;
+    }
+
+    @IsTest static void testScenario1() {
+
+        AIAgent__c agent = AIAssistTestDataFactory.createAIAgents(1, false)[0];
+        agent.IsActive__c = true;
+        insert agent;
+
+        Test.startTest();
+            AIConversationMessage__c result = AIConversationMessageService.sendMessage(agent.Id, 'Hello there', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, 'Account', null);
+        Test.stopTest();
+
+        Assert.isNotNull(result.Id, 'The user message should have been inserted.');
+        Assert.areEqual(AIAssistApplicationConstants.SENDER_USER, result.Sender__c, 'Sender should be User.');
+        Assert.areEqual(Math.ceil('Hello there'.length() / 4.0), result.TokenCount__c, 'TokenCount__c should reflect the ~4 chars-per-token estimate.');
+
+        AIConversation__c conversation = [SELECT Id, Status__c, Channel__c, AIAgent__c FROM AIConversation__c WHERE AIAgent__c = :agent.Id LIMIT 1];
+        Assert.areEqual(AIAssistApplicationConstants.CONVERSATION_STATUS_ACTIVE, conversation.Status__c, 'A new conversation should be Active.');
+        Assert.areEqual(result.AIConversation__c, conversation.Id, 'The message should belong to the newly created conversation.');
+    }
+
+    @IsTest static void testScenario2() {
+
+        AIAgent__c activeAgent = AIAssistTestDataFactory.createAIAgents(1, false)[0];
+        activeAgent.IsActive__c = true;
+        insert activeAgent;
+
+        AIAgent__c inactiveAgent = AIAssistTestDataFactory.createAIAgents(1, false)[0];
+        inactiveAgent.IsActive__c = false;
+        insert inactiveAgent;
+
+        AIUserSettings__c userSettings = AIAssistTestDataFactory.createAIUserSettings(UserInfo.getUserId(), false);
+        userSettings.IsActive__c = true;
+        userSettings.AllowedChannels__c = AIAssistApplicationConstants.CHANNEL_MOBILE;
+        insert userSettings;
+
+        Test.startTest();
+
+            try {
+                AIConversationMessageService.sendMessage(null, 'Hello', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+                Assert.fail('A null Agent Id should have thrown.');
+            } catch (AIConversationMessageService.AIConversationMessageServiceException ex) {
+                Assert.isTrue(ex.getMessage().contains('Agent Id is required'), 'Error should explain the Agent Id is missing.');
+            }
+
+            try {
+                AIConversationMessageService.sendMessage(activeAgent.Id, '', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+                Assert.fail('A blank message body should have thrown.');
+            } catch (AIConversationMessageService.AIConversationMessageServiceException ex) {
+                Assert.isTrue(ex.getMessage().contains('message body is required'), 'Error should explain the message body is missing.');
+            }
+
+            try {
+                AIConversationMessageService.sendMessage(inactiveAgent.Id, 'Hello', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+                Assert.fail('An inactive Agent should have thrown.');
+            } catch (AIConversationMessageService.AIConversationMessageServiceException ex) {
+                Assert.isTrue(ex.getMessage().contains('is not active'), 'Error should explain the Agent is inactive.');
+            }
+
+            try {
+                AIConversationMessageService.sendMessage(activeAgent.Id, 'Hello', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+                Assert.fail('A channel not on the allow-list should have thrown.');
+            } catch (AIConversationMessageService.AIConversationMessageServiceException ex) {
+                Assert.isTrue(ex.getMessage().contains('is not enabled'), 'Error should explain the channel is not enabled.');
+            }
+
+        Test.stopTest();
+    }
+
+    @IsTest static void testScenario3() {
+
+        AIAgent__c agent = AIAssistTestDataFactory.createAIAgents(1, false)[0];
+        agent.IsActive__c = true;
+        agent.SingleActiveConversationPer_Record__c = true;
+        insert agent;
+
+        Id relatedRecordId = AIAssistTestDataFactory.createAccounts(1, true)[0].Id;
+
+        AIConversation__c existingConversation = new AIConversation__c(
+            AIAgent__c = agent.Id,
+            Status__c = AIAssistApplicationConstants.CONVERSATION_STATUS_ACTIVE,
+            Channel__c = AIAssistApplicationConstants.CHANNEL_UTILITY_BAR,
+            RelatedObjectAPIName__c = 'Account',
+            RelatedRecordId__c = String.valueOf(relatedRecordId)
+        );
+        insert existingConversation;
+
+        Test.startTest();
+            AIConversationMessage__c result = AIConversationMessageService.sendMessage(agent.Id, 'Follow-up message', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, 'Account', relatedRecordId);
+        Test.stopTest();
+
+        Assert.areEqual(existingConversation.Id, result.AIConversation__c, 'The message should be appended to the existing Active conversation for this record.');
+        Assert.areEqual(1, [SELECT COUNT() FROM AIConversation__c WHERE AIAgent__c = :agent.Id], 'No new conversation should have been created.');
+    }
+
+    @IsTest static void testScenario4() {
+
+        AIAgent__c agent = AIAssistTestDataFactory.createAIAgents(1, false)[0];
+        agent.IsActive__c = true;
+        agent.SingleActiveConversationPer_Record__c = true;
+        agent.MaxMessagesPerConversation__c = 2;
+        insert agent;
+
+        Id relatedRecordId = AIAssistTestDataFactory.createAccounts(1, true)[0].Id;
+
+        AIConversation__c existingConversation = new AIConversation__c(
+            AIAgent__c = agent.Id,
+            Status__c = AIAssistApplicationConstants.CONVERSATION_STATUS_ACTIVE,
+            Channel__c = AIAssistApplicationConstants.CHANNEL_UTILITY_BAR,
+            RelatedObjectAPIName__c = 'Account',
+            RelatedRecordId__c = String.valueOf(relatedRecordId)
+        );
+        insert existingConversation;
+
+        AIAssistTestDataFactory.createAIConversationMessages(existingConversation.Id, 10, 2, true); // Hits the MaxMessagesPerConversation__c cap of 2.
+
+        Test.startTest();
+            AIConversationMessage__c result = AIConversationMessageService.sendMessage(agent.Id, 'One more message', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, 'Account', relatedRecordId);
+        Test.stopTest();
+
+        AIConversation__c closedConversation = [SELECT Status__c, ConversationCloseReason__c FROM AIConversation__c WHERE Id = :existingConversation.Id];
+        Assert.areEqual(AIAssistApplicationConstants.CONVERSATION_STATUS_CLOSED, closedConversation.Status__c, 'The over-the-cap conversation should have been closed.');
+        Assert.areEqual(AIAssistApplicationConstants.CONVERSATION_CLOSE_REASON_MESSAGE_LIMIT_REACHED, closedConversation.ConversationCloseReason__c, 'Close reason should reflect the message limit.');
+        Assert.areNotEqual(existingConversation.Id, result.AIConversation__c, 'A new conversation should have been started instead of continuing the closed one.');
+
+        // Same behavior for the token cap, on a second related record so it exercises its own reusable conversation.
+        agent.MaxMessagesPerConversation__c = null;
+        agent.MaxTokensPerConversation__c = 5;
+        update agent;
+
+        Id secondRelatedRecordId = AIAssistTestDataFactory.createAccounts(1, true)[0].Id;
+
+        AIConversation__c existingTokenConversation = new AIConversation__c(
+            AIAgent__c = agent.Id,
+            Status__c = AIAssistApplicationConstants.CONVERSATION_STATUS_ACTIVE,
+            Channel__c = AIAssistApplicationConstants.CHANNEL_UTILITY_BAR,
+            RelatedObjectAPIName__c = 'Account',
+            RelatedRecordId__c = String.valueOf(secondRelatedRecordId),
+            ConversationTokenUsage__c = 10 // Set directly rather than via a child message insert - the AIConversationMessageTriggerHandler's recursion guard is a static that stays tripped for the rest of this test method, so a second insert here wouldn't roll up anyway. Hits the MaxTokensPerConversation__c cap of 5.
+        );
+        insert existingTokenConversation;
+
+        AIConversationMessage__c tokenCapResult = AIConversationMessageService.sendMessage(agent.Id, 'One more message', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, 'Account', secondRelatedRecordId);
+
+        AIConversation__c closedTokenConversation = [SELECT Status__c, ConversationCloseReason__c FROM AIConversation__c WHERE Id = :existingTokenConversation.Id];
+        Assert.areEqual(AIAssistApplicationConstants.CONVERSATION_STATUS_CLOSED, closedTokenConversation.Status__c, 'The over-the-cap conversation should have been closed.');
+        Assert.areEqual(AIAssistApplicationConstants.CONVERSATION_CLOSE_REASON_TOKEN_LIMIT_REACHED, closedTokenConversation.ConversationCloseReason__c, 'Close reason should reflect the token limit.');
+        Assert.areNotEqual(existingTokenConversation.Id, tokenCapResult.AIConversation__c, 'A new conversation should have been started instead of continuing the closed one.');
+    }
+
+    @IsTest static void testScenario5() {
+
+        AIAgent__c agent = AIAssistTestDataFactory.createAIAgents(1, false)[0];
+        agent.IsActive__c = true;
+        insert agent;
+
+        AIUserSettings__c userSettings = AIAssistTestDataFactory.createAIUserSettings(UserInfo.getUserId(), false);
+        userSettings.IsActive__c = true;
+        userSettings.UsageLimitReachedBehavior__c = AIAssistApplicationConstants.USAGE_LIMIT_BLOCK_NEW_CONVERSATIONS_ONLY;
+        userSettings.MaxConcurrentConversations__c = 1;
+        userSettings.MaxConversationsPer24Hours__c = 1;
+        userSettings.MaxTokensPer24Hours__c = 1;
+        insert userSettings;
+
+        // Puts the user at their concurrent/24-hour conversation limits, and over their 24-hour token limit, before any of the calls below.
+        AIConversation__c existingConversation = AIAssistTestDataFactory.createAIConversations(agent.Id, 1, true)[0];
+        AIAssistTestDataFactory.createAIConversationMessages(existingConversation.Id, 10, 1, true);
+
+        Test.startTest();
+
+            try {
+                AIConversationMessageService.sendMessage(agent.Id, 'Trying to start another conversation', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+                Assert.fail('Block New Conversations Only should block a brand-new conversation once the concurrent limit is reached.');
+            } catch (AIConversationMessageService.AIConversationMessageServiceException ex) {
+                Assert.isTrue(ex.getMessage().contains('concurrent conversations'), 'Error should explain the concurrent conversation limit.');
+            }
+
+            userSettings.MaxConcurrentConversations__c = null; // Isolates the 24-hour new-conversation cap from the concurrent-conversation cap above.
+            update userSettings;
+
+            try {
+                AIConversationMessageService.sendMessage(agent.Id, 'Trying to start another conversation', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+                Assert.fail('Block New Conversations Only should block a brand-new conversation once the 24-hour conversation cap is reached.');
+            } catch (AIConversationMessageService.AIConversationMessageServiceException ex) {
+                Assert.isTrue(ex.getMessage().contains('new conversations per 24 hours'), 'Error should explain the 24-hour new-conversation limit.');
+            }
+
+            userSettings.UsageLimitReachedBehavior__c = AIAssistApplicationConstants.USAGE_LIMIT_BLOCK_NEW_MESSAGES;
+            userSettings.MaxConversationsPer24Hours__c = null; // Isolates the 24-hour token cap, which blocks everything - even continuing the existing conversation.
+            update userSettings;
+
+            try {
+                AIConversationMessageService.sendMessage(agent.Id, 'Appending to the existing conversation', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+                Assert.fail('Block New Messages should block everything once the 24-hour token cap is reached.');
+            } catch (AIConversationMessageService.AIConversationMessageServiceException ex) {
+                Assert.isTrue(ex.getMessage().contains('tokens per 24 hours'), 'Error should explain the 24-hour token limit.');
+            }
+
+            userSettings.UsageLimitReachedBehavior__c = AIAssistApplicationConstants.USAGE_LIMIT_NOTIFY_ONLY;
+            update userSettings;
+
+            AIConversationMessage__c result = AIConversationMessageService.sendMessage(agent.Id, 'Notify only should never block', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+            Assert.isNotNull(result.Id, 'Notify Only should never block sending, even over the same limits.');
+
+        Test.stopTest();
+    }
+
+    @IsTest static void testScenario6() {
+
+        AIAgent__c agent = AIAssistTestDataFactory.createAIAgents(1, false)[0];
+        agent.IsActive__c = true;
+        insert agent;
+
+        AIConversation__c conversation = AIAssistTestDataFactory.createAIConversations(agent.Id, 1, true)[0];
+
+        Test.startTest();
+
+            AIConversationMessageService.closeConversation(conversation.Id, AIAssistApplicationConstants.CONVERSATION_CLOSE_REASON_SYSTEM_OVERRIDE);
+
+            AIConversation__c conversationWithNoReason = AIAssistTestDataFactory.createAIConversations(agent.Id, 1, true)[0];
+            AIConversationMessageService.closeConversation(conversationWithNoReason.Id, null);
+
+            try {
+                AIConversationMessageService.closeConversation(null, null);
+                Assert.fail('A null Conversation Id should have thrown.');
+            } catch (AIConversationMessageService.AIConversationMessageServiceException ex) {
+                Assert.isTrue(ex.getMessage().contains('Conversation Id is required'), 'Error should explain the Conversation Id is missing.');
+            }
+
+        Test.stopTest();
+
+        Map<Id, AIConversation__c> conversationsById = new Map<Id, AIConversation__c>([SELECT Status__c, ConversationCloseReason__c FROM AIConversation__c WHERE Id IN (:conversation.Id, :conversationWithNoReason.Id)]);
+
+        Assert.areEqual(AIAssistApplicationConstants.CONVERSATION_STATUS_CLOSED, conversationsById.get(conversation.Id).Status__c, 'Conversation should be Closed.');
+        Assert.areEqual(AIAssistApplicationConstants.CONVERSATION_CLOSE_REASON_SYSTEM_OVERRIDE, conversationsById.get(conversation.Id).ConversationCloseReason__c, 'Should use the given close reason.');
+
+        Assert.areEqual(AIAssistApplicationConstants.CONVERSATION_STATUS_CLOSED, conversationsById.get(conversationWithNoReason.Id).Status__c, 'Conversation should be Closed.');
+        Assert.areEqual(AIAssistApplicationConstants.CONVERSATION_CLOSE_REASON_USER_CLOSED, conversationsById.get(conversationWithNoReason.Id).ConversationCloseReason__c, 'Should default to User Closed when no reason is supplied.');
+    }
+}

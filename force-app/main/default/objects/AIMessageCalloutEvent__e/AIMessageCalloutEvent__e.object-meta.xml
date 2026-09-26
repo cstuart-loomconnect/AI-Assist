@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <deploymentStatus>Deployed</deploymentStatus>
-    <description>Published when an AI provider callout needs a retry with a fresh set of governor limits. Carries only the two Ids needed to redo the turn from scratch - AIMessageCalloutEventHandler enqueues AiMessageProcessingQueueable, which reloads the Agent/Model Configuration/Prompt Template/message history/tools from AIConversationMessageId__c and calls AiAgentOrchestrator.executeAiMessage again. No request/response state is carried on the event itself.</description>
+    <description>Published when an AI provider callout needs a retry with a fresh set of governor limits. Carries only the two Ids needed to redo the turn from scratch - AIMessageCalloutEventHandler enqueues AiMessageProcessingQueueable, which reloads the Agent/Model Configuration/Prompt Template/message history/tools from AIConversationMessageId__c and calls AIAgentManager.executeAiMessage again. No request/response state is carried on the event itself.</description>
     <eventType>HighVolume</eventType>
     <label>AI Message Callout Event</label>
     <pluralLabel>AI Message Callout Events</pluralLabel>

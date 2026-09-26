@@ -23,7 +23,7 @@ Version      Date               Author                   Description
 
     @IsTest static void testScenario1() {
 
-        User user = AIAssistTestDataFactory.createStandardUsers('Standard', 1, true)[0];
+        User user = AIAssistTestDataFactory.createStandardUsers(AIAssistApplicationConstants.USER_TYPE_STANDARD, 1, true)[0];
 
         Test.startTest();
             AIUserSettings__c settings = AIAssistUserDefaults.build(user);
@@ -44,7 +44,7 @@ Version      Date               Author                   Description
 
     @IsTest static void testScenario2() {
 
-        User user = AIAssistTestDataFactory.createStandardUsers('Standard', 1, true)[0];
+        User user = AIAssistTestDataFactory.createStandardUsers(AIAssistApplicationConstants.USER_TYPE_STANDARD, 1, true)[0];
 
         Test.startTest();
             AIUserSettings__c settings = AIAssistUserDefaults.build(user);

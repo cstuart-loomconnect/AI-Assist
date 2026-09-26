@@ -39,7 +39,7 @@ public without sharing class AIPiiFieldTypeClassifier {
     public static String classify(String fieldApiName, String fieldLabel, String dataType, String complianceGroup) {
         try {
 
-            if (String.isBlank(fieldApiName) || String.isBlank(fieldLabel) || String.isBlank(dataType) || String.isBlank(complianceGroup)) return '';
+            if (String.isBlank(fieldApiName) || String.isBlank(fieldLabel) || String.isBlank(dataType) || String.isBlank(complianceGroup)) return null;
 
             // Stripped down to bare letters/digits (no spaces, underscores, hyphens, or case) so "Social_Security_Number", "SSN Number", "ssn-number" and "SocialSecurityNumber" all normalize to the same shape for matching.
             String normalisedFieldName = fieldApiName.toLowerCase().replaceAll('[^a-z0-9]', '') + ' ' + fieldLabel.toLowerCase().replaceAll('[^a-z0-9]', '');
