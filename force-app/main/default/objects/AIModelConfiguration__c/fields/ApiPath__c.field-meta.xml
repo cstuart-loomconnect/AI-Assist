@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ApiPath__c</fullName>
+    <description>The path appended to the Named Credential&apos;s base URL to reach this model&apos;s API endpoint, e.g. /v1/messages.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Enter the endpoint path for this model&apos;s API call, e.g. /v1/messages for Anthropic or /v1/chat/completions for OpenAI. Required for calls using this configuration to succeed.</inlineHelpText>
+    <label>Api Path</label>
+    <length>100</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MaxToolCallingIterations__c</fullName>
+    <description>Caps how many callout/tool-call round trips AiAgentOrchestrator will make in a single turn before giving up, so a model that keeps requesting tools can&apos;t loop indefinitely. Agents configured with more tools, or tools that often chain together, may need a higher ceiling than a simple single-lookup agent.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Set a ceiling on tool-calling round trips per turn for this Agent.</inlineHelpText>
+    <label>Max Tool Calling Iterations</label>
+    <precision>2</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

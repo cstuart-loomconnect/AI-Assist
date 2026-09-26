@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ApiVersionHeaderName__c</fullName>
+    <description>The name of the HTTP header this provider expects for its API version, if any, e.g. anthropic-version. Left blank when the provider needs no such header (e.g. OpenAI).</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Enter the API version header name this provider expects, if any. Leave blank if this provider does not use one.</inlineHelpText>
+    <label>Api Version Header Name</label>
+    <length>50</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
