@@ -14,6 +14,7 @@ AIPiiPseudonymizationService: Coverage 100%
 
 Version      Date               Author                   Description
 1.0          2026-09-15         Chandler Stuart          Initial development
+1.1          2026-09-27         Chandler Stuart          Added testScenario8 - fake values unique per conversation.
 */
 
 @IsTest private class AIPiiPseudonymizationServiceTest {
@@ -25,6 +26,7 @@ Version      Date               Author                   Description
     // testScenario5: A blank real value passes through unchanged without being classified or mapped.
     // testScenario6: Every PII field type generates a value from its own Masking Rule's substitute list and round-trips through restoreRealValue.
     // testScenario7: A field type with a RandomizeByPattern Masking Rule, or with no active Masking Rule at all, falls back to a generic redacted value instead of leaking real PII - and that fallback still round-trips.
+    // testScenario8: Distinct real values in one conversation never share a fake value - once the substitute list is used up, the next value falls back to a unique redacted value, and every value still restores to its own real value.
 
     @TestSetup static void setup() {
 
@@ -192,5 +194,27 @@ Version      Date               Author                   Description
 
         Assert.areEqual('some confidential value', AIPiiPseudonymizationService.restoreRealValue(conversationId, randomizeByPatternFieldFakeValue), 'The fallback value should still round-trip back to its real value via the stored mapping.');
         Assert.areEqual('123-45-6789', AIPiiPseudonymizationService.restoreRealValue(conversationId, noRuleFieldFakeValue), 'The fallback value should still round-trip back to its real value via the stored mapping.');
+    }
+    @IsTest static void testScenario8() {
+
+        Id conversationId = createConversationId();
+
+        AIPiiPseudonymizationService.maskingRuleByFieldType = new Map<String, AIPiiDataMaskingRule__mdt>{
+            AIAssistApplicationConstants.PII_FIELD_TYPE_EMAIL => substituteFromListRule('alex.rivera@example.com,jordan.chen@example.com')
+        };
+
+        Test.startTest();
+            String firstFakeValue = AIPiiPseudonymizationService.pseudonymize(conversationId, 'Contact', 'Email', 'elena@realcompany.com');
+            String secondFakeValue = AIPiiPseudonymizationService.pseudonymize(conversationId, 'Contact', 'Email', 'hannah@realcompany.com');
+            String thirdFakeValue = AIPiiPseudonymizationService.pseudonymize(conversationId, 'Contact', 'Email', 'marcus@realcompany.com');
+        Test.stopTest();
+
+        Assert.areNotEqual(firstFakeValue, secondFakeValue, 'Two real values in one conversation should never share a fake value.');
+        Assert.areEqual(new Set<String>{ 'alex.rivera@example.com', 'jordan.chen@example.com' }, new Set<String>{ firstFakeValue, secondFakeValue }, 'Both substitutes should be used before falling back.');
+        Assert.isTrue(thirdFakeValue.startsWith('REDACTED-'), 'Once every substitute is used, the next value should fall back to a redacted value.');
+
+        Assert.areEqual('elena@realcompany.com', AIPiiPseudonymizationService.restoreRealValue(conversationId, firstFakeValue));
+        Assert.areEqual('hannah@realcompany.com', AIPiiPseudonymizationService.restoreRealValue(conversationId, secondFakeValue));
+        Assert.areEqual('marcus@realcompany.com', AIPiiPseudonymizationService.restoreRealValue(conversationId, thirdFakeValue));
     }
 }

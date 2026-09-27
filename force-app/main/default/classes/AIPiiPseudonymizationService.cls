@@ -10,11 +10,16 @@ Description: Masks PII before it reaches an LLM and restores it after, using AIP
 Only SubstituteFromList is safe - other cases (RandomizeByPattern, missing rule, empty list)
 fall back to a generic redacted value and log the misconfiguration.
 
+Every fake value is unique within a conversation - a substitute already paired with another real value
+(or equal to a real value) is skipped, since two real values sharing one fake value can't be restored
+correctly. Once a rule's list is used up, the conversation falls back to the unique redacted value.
+
 =================================================================
 =================================================================
 
 Version      Author                   Description
 1.0          Chandler Stuart          Initial development
+1.1          Chandler Stuart          Substitutes already used in the conversation are skipped, so two real values never share a fake value.
 
 */
 
@@ -34,7 +39,7 @@ public without sharing class AIPiiPseudonymizationService {
             String existingFakeValue = AIPiiMappingService.getFakeValueForRealValue(conversationId, realValue);
             if (String.isNotBlank(existingFakeValue)) return existingFakeValue;
 
-            String fakeValue = generateFakeValue(fieldType);
+            String fakeValue = generateFakeValue(conversationId, fieldType);
 
             // Remember the real-to-fake pairing so it can be reversed later and reused for repeated values in this conversation
             AIPiiMappingService.addMapping(conversationId, realValue, fakeValue);
@@ -61,26 +66,33 @@ public without sharing class AIPiiPseudonymizationService {
         }
     }
 
-    // Only SubstituteFromList is trusted to produce a fake value; any other strategy or a misconfigured/empty rule falls back to a generic redacted value.
-    private static String generateFakeValue(String fieldType) {
+    // Only SubstituteFromList is trusted to produce a fake value; any other strategy, a misconfigured/empty rule, or a list with every value already used in this conversation falls back to a generic redacted value.
+    private static String generateFakeValue(Id conversationId, String fieldType) {
         try {
 
             AIPiiDataMaskingRule__mdt rule = getMaskingRuleByFieldType().get(fieldType);
 
             if (rule != null && rule.Active__c && rule.Strategy__c == AIAssistApplicationConstants.PII_MASKING_STRATEGY_SUBSTITUTE_FROM_LIST) {
 
-                String fakeValue = pickSubstituteValue(rule.SubstituteValues__c);
+                // Both sides of every existing pairing - reusing a fake value, or picking one that's another record's real value, would make restoring ambiguous.
+                Map<String, String> fakeValueByRealValue = AIPiiMappingService.getMapping(conversationId);
+                Set<String> valuesInUse = new Set<String>(fakeValueByRealValue.values());
+                valuesInUse.addAll(fakeValueByRealValue.keySet());
+
+                String fakeValue = pickSubstituteValue(rule.SubstituteValues__c, valuesInUse);
                 if (fakeValue != null) return fakeValue;
 
-            }
+                AIPlatformLogManager.logCustomMessage( 'Every substitute value for PII field type "' + fieldType + '" is already used in this conversation - falling back to a generic redacted value. Add more values to the Masking Rule.', null, 'AIPiiPseudonymizationService', 'generateFakeValue', conversationId );
 
-            AIPlatformLogManager.logCustomMessage( 'No usable Substitute From List masking rule for PII field type "' + fieldType + '" - falling back to a generic redacted value.', null, 'AIPiiPseudonymizationService', 'generateFakeValue', null );
+            } else {
+                AIPlatformLogManager.logCustomMessage( 'No usable Substitute From List masking rule for PII field type "' + fieldType + '" - falling back to a generic redacted value.', null, 'AIPiiPseudonymizationService', 'generateFakeValue', null );
+            }
 
             // A random suffix keeps each fallback unique so distinct real values never collide on the same fake value.
             return 'REDACTED-' + randomDigits(10);
 
         } catch (Exception ex) {
-            AIPlatformLogManager.logException(ex, 'AIPiiPseudonymizationService', 'restoreRealValue');
+            AIPlatformLogManager.logException(ex, 'AIPiiPseudonymizationService', 'generateFakeValue');
             return '';
         }
     }
@@ -120,12 +132,13 @@ public without sharing class AIPiiPseudonymizationService {
         return digits;
     }
 
-    // Random pick from a Masking Rule's SubstituteValues__c. Returns null if the list is empty.
-    private static String pickSubstituteValue(String substituteValuesCsv) {
+    // Random pick from a Masking Rule's SubstituteValues__c, skipping any value in valuesInUse. Returns null if nothing is left to pick.
+    private static String pickSubstituteValue(String substituteValuesCsv, Set<String> valuesInUse) {
 
         List<String> substituteValues = new List<String>();
         for (String candidate : String.isBlank(substituteValuesCsv) ? new List<String>() : substituteValuesCsv.split(',')) {
-            if (String.isNotBlank(candidate)) substituteValues.add(candidate.trim());
+            if (String.isBlank(candidate) || valuesInUse.contains(candidate.trim())) continue;
+            substituteValues.add(candidate.trim());
         }
 
         return substituteValues.isEmpty() ? null : substituteValues[randomInt(substituteValues.size())];
