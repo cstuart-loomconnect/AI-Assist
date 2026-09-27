@@ -13,9 +13,14 @@ The logs are published as platform events and can be handled by triggers to stor
 
 Version      Date           Author                   Description
 1.0          2026-09-09     Chandler Stuart          Initial development
+1.1          2026-09-27     Chandler Stuart          Text fields truncated before publishing - a message over 255 characters made the publish fail and the log was silently lost. A failed publish is now written to the debug log.
 */
 
 public without sharing class AIPlatformLogManager {
+
+    // AIPlatformLogEvent__e / AIPlatformLog__c field lengths - Text(255) and Long Text Area(32768).
+    private static final Integer SHORT_TEXT_LENGTH = 255;
+    private static final Integer LONG_TEXT_LENGTH = 32768;
 
     public static void logException(Exception e, String className, String methodName) {
 
@@ -59,10 +64,7 @@ public without sharing class AIPlatformLogManager {
 
         if (entry == null) return;
 
-        Database.DMLOptions dmlOptions = new Database.DMLOptions();
-        dmlOptions.allowFieldTruncation = true;
-
-        EventBus.publish(entry);
+        publish(entry);
     }
 
     public static void logExceptions(List<Database.SaveResult> saveResults, String className, String methodName) {
@@ -127,7 +129,7 @@ public without sharing class AIPlatformLogManager {
         entry.ExceptionLogDetail__c = String.join(errorLines, '\n');
         entry.RelatedRecordId__c = failedRecordIds.isEmpty() ? null : failedRecordIds[0];
 
-        EventBus.publish(entry);
+        publish(entry);
     }
 
     public static void logExceptions(List<Database.DeleteResult> deleteResults, String className, String methodName) {
@@ -192,7 +194,7 @@ public without sharing class AIPlatformLogManager {
         entry.ExceptionLogDetail__c = String.join(errorLines, '\n');
         entry.RelatedRecordId__c = failedRecordIds.isEmpty() ? null : failedRecordIds[0];
 
-        EventBus.publish(entry);
+        publish(entry);
     }
 
     public static void logExceptions(List<Database.UpsertResult> upsertResults, String className, String methodName) {
@@ -257,7 +259,7 @@ public without sharing class AIPlatformLogManager {
         entry.ExceptionLogDetail__c = String.join(errorLines, '\n');
         entry.RelatedRecordId__c = failedRecordIds.isEmpty() ? null : failedRecordIds[0];
 
-        EventBus.publish(entry);
+        publish(entry);
     }
 
     public static void logCustomMessage(String message, String logDetail, String className, String methodName, Id recordId) {
@@ -292,10 +294,29 @@ public without sharing class AIPlatformLogManager {
 
         if (entry == null) return;
 
-        Database.DMLOptions dmlOptions = new Database.DMLOptions();
-        dmlOptions.allowFieldTruncation = true;
+        publish(entry);
+    }
 
-        EventBus.publish(entry);
+    // Trims every text field to its length before publishing - an over-length value (e.g. a long AI provider error) makes the publish fail, and the entry would otherwise be lost silently. The full message is kept in ExceptionLogDetail__c.
+    private static void publish(AIPlatformLogEvent__e entry) {
+
+        entry.ClassName__c = truncate(entry.ClassName__c, SHORT_TEXT_LENGTH);
+        entry.MethodName__c = truncate(entry.MethodName__c, SHORT_TEXT_LENGTH);
+        entry.ExceptionType__c = truncate(entry.ExceptionType__c, SHORT_TEXT_LENGTH);
+        entry.ExceptionMessage__c = truncate(entry.ExceptionMessage__c, SHORT_TEXT_LENGTH);
+        entry.StackTrace__c = truncate(entry.StackTrace__c, LONG_TEXT_LENGTH);
+        entry.ExceptionLogDetail__c = truncate(entry.ExceptionLogDetail__c, LONG_TEXT_LENGTH);
+
+        Database.SaveResult publishResult = EventBus.publish(entry);
+
+        // Nowhere left to log it - the debug log is the only trace of a failed publish.
+        if (!publishResult.isSuccess()) {
+            System.debug(LoggingLevel.ERROR, 'Failed to publish AI Platform Log Event: ' + publishResult.getErrors()[0].getMessage() + ' - ' + entry.ClassName__c + '.' + entry.MethodName__c + ': ' + entry.ExceptionMessage__c);
+        }
+    }
+
+    private static String truncate(String value, Integer maxLength) {
+        return (value == null || value.length() <= maxLength) ? value : value.left(maxLength);
     }
 
     private static Boolean isPublishable() {

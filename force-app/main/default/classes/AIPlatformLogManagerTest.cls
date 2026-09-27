@@ -17,6 +17,7 @@ AIPlatformLogManager: Coverage 26%
 
 Version      Date           Author                   Description
 1.0          2026-09-09     Chandler Stuart          Initial development
+1.1          2026-09-27     Chandler Stuart          Added testScenario7 - over-length exception message.
 */
 
 @IsTest private class AIPlatformLogManagerTest {
@@ -27,6 +28,7 @@ Version      Date           Author                   Description
     // testScenario4: Test logging an exception when DisablePlatformLogs__c is true and verify that no log record is inserted.
     // testScenario5: Test logging a custom message and verify that the log record is inserted correctly with the provided details.
     // testScenario6: Test logging an exception when IsApplicationActive__c is false and verify that no log record is inserted.
+    // testScenario7: Test logging an exception whose message is over 255 characters and verify the log is still inserted, with the message truncated and kept in full in ExceptionLogDetail__c.
 
     private class TestLoggingException extends Exception {}
 
@@ -132,6 +134,24 @@ Version      Date           Author                   Description
 
         Assert.areEqual(0, [SELECT COUNT() FROM AIPlatformLog__c], 'No record should be inserted when DisableExceptionLogging__c is true.');
 
+
+    }
+    @IsTest static void testScenario7() {
+
+        String longMessage = 'AI provider returned HTTP 400: '.rightPad(300, 'x');
+
+        Test.startTest();
+
+            try { throw new TestLoggingException(longMessage); }
+            catch (Exception e) { AIPlatformLogManager.logException(e, 'SomeClass', 'someMethod'); }
+
+        Test.stopTest();
+
+        List<AIPlatformLog__c> logs = [SELECT ExceptionMessage__c, ExceptionLogDetail__c FROM AIPlatformLog__c];
+
+        Assert.areEqual(1, logs.size(), 'An over-length message should still be logged, not silently dropped.');
+        Assert.areEqual(longMessage.left(255), logs[0].ExceptionMessage__c, 'The message should be truncated to the field length.');
+        Assert.isTrue(logs[0].ExceptionLogDetail__c.contains(longMessage), 'The full message should be kept in ExceptionLogDetail__c.');
 
     }
 }
