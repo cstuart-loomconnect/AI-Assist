@@ -10,6 +10,13 @@ Improvements that don't fix a failure.
 [ ] Remove the AIAgentManager static block that preloads AIAssistSettingsService - the service already caches on first use.
 [ ] Tool-calling loop exits - when the provider ignores allowToolCalls on the last iteration, the turn fails as "Reached the maximum tool-calling iterations", which logs the wrong reason.
 
+---------- Chat window support (see Conversation_Chat_Window.txt) ----------
+[ ] Record AIExecutionStep__c rows as the turn runs (PII masking, each Data Source call, the provider callout) - the chat window's step card and Sources chips read them, but nothing writes them yet.
+[ ] Enforce AIViolationRule__c before a message is sent and refuse with the rule's reason - the chat window already renders a "Blocked by a company rule" refusal.
+[ ] Keep the provider request / response (PII-masked) for debug-mode users - the debug trace can then offer request.json / response.json.
+[ ] Cancel a turn from the chat window's Stop button (abort the queued job, or mark the turn cancelled so the reply isn't saved).
+[ ] Usage windows use LAST_N_DAYS:1 (yesterday + today) for the "Per 24 Hours" limits - switch to a true rolling 24 hours.
+
 ---------- Cost ----------
 [ ] Anthropic prompt caching - every iteration and every retry re-sends the same system prompt, tools and history.
 

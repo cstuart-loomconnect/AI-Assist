@@ -20,6 +20,8 @@ BUILD COMPLETE
 [x] AIAssistSettingsServiceTest
 [x] AIGovernorLimits
 [x] AIGovernorLimitsTest
+[x] AITokenUsageService (global / conversation / Agent / user token usage - summed from ConversationTokenUsage__c)
+[x] AITokenUsageServiceTest
 
 ---------- PII ----------
 [x] AIPiiRegistryDispatcher
@@ -136,3 +138,30 @@ BUILD COMPLETE
 [x] AIOpenAiRequestBuilderTest
 [x] AIOpenAiResponseHandler
 [x] AIOpenAiResponseHandlerTest
+
+---------- Conversation Chat Window (see Conversation_Chat_Window.txt) ----------
+[x] AIChatController (every @AuraEnabled method behind the aiAssistChat LWC)
+[x] AIChatControllerTest
+[x] AIChatCommand__mdt (slash commands)
+
+---------- LWCs - review order ([o] = not yet checked) ----------
+[o] aiChatStyles
+[o] aiChatUtils
+[o] aiChatHeader
+[o] aiChatContextBar
+[o] aiChatEmptyState
+[o] aiChatMessage
+[o] aiChatMessageList
+[o] aiChatSuggestedAction
+[o] aiChatFeedbackPanel
+[o] aiChatDebugTrace
+[o] aiChatWorkingIndicator
+[o] aiChatErrorCard
+[o] aiChatComposer
+[o] aiChatTerms
+[o] aiChatNewChatsPaused
+[o] aiChatUsageBanner
+[o] aiChatHistory
+[o] aiChatStatePanel
+[o] aiChatPiiMappingsModal
+[o] aiAssistChat (parent - reviewed last, ties every child together)

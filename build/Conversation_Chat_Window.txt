@@ -1,0 +1,94 @@
+AI ASSIST - CONVERSATION CHAT WINDOW
+
+Scenarios from the "AI Assist Chat Window" design canvas and whether each is built.
+[x] built   [~] UI built, backend part still missing (see note)   [ ] not built
+
+Placement: utility bar (AI_Assist_UtilityBar, 400 x 760) or a record page region at least 320px wide.
+Narrower than that, the window shows "This chat needs more room" instead of rendering cramped.
+
+---------- Components ----------
+[x] AIChatController (Apex - every state, limit, context and data decision; LWCs only render)
+[x] AIChatControllerTest
+[x] AIConversationMessageService - continue a conversation by Id, retryLatestMessage, new chats paused (+ tests 9-11)
+[x] aiAssistChat (parent - owns state, all Apex calls, empApi subscription, polling fallback)
+[x] aiChatHeader / aiChatContextBar / aiChatComposer / aiChatMessageList / aiChatMessage
+[x] aiChatSuggestedAction / aiChatFeedbackPanel / aiChatDebugTrace / aiChatWorkingIndicator / aiChatErrorCard
+[x] aiChatEmptyState / aiChatTerms / aiChatNewChatsPaused / aiChatUsageBanner / aiChatHistory / aiChatStatePanel
+[x] aiChatUtils (client helpers - formatting, markdown, command filtering, history grouping)
+[x] aiChatStyles (shared CSS - design tokens + common classes)
+[x] AIChatCommand__mdt (slash commands - Command__c path e.g. /risk-check, hidden PromptText__c, ObjectAPIName__c, AgentDeveloperName__c, AvailableTo__c: All Users / Super Users and Admins / Admins Only by User.AIAssistUserType__c) - replaces the AIChatCommand__c object
+[x] AIAssistSettings__c.CurrentTermsVersion__c / AIUsagePolicyUrl__c
+[x] AIChatController class access on AIAssistUser / AIAssistSuperUser / AIAssistAdminUser
+[x] Utility bar item on AI_Assist_UtilityBar
+
+---------- Conversation ----------
+[x] New conversation - Agent greeting (or "What do you need on this <object>?"), "Working on <record>", up to 3 suggested commands, PII banner with "How this works"
+[x] Regular conversation - user / AI bubbles, markdown replies, copy, "Show earlier messages" (MaxVisibleMessageHistory__c)
+[x] Timestamps on messages (ShowTimestampOnMessages__c)
+[x] Thumbs up / down (IsFeedbackEnabled__c) - saved to AIFeedback__c, one rating per user per message
+[x] Record context strip - "<Object> · <Record name>" + PII protected badge (synced AIPIIRegistry__c for the object)
+[x] Day separator ("Today · 13:02")
+[x] Token count per reply + daily usage meter in the footer ("12.4k / 50k today", red at the limit)
+[x] Regenerate on the newest reply (re-runs the newest user message)
+[~] Sources chips on a reply - shown from the reply's AIExecutionStep__c Data Sources; nothing writes those steps during a turn yet
+[x] Agent picker - active Agents for the object first, then general Agents; switching loads that Agent's conversation
+[x] New conversation (+) - ends the open conversation, then starts fresh
+[x] More menu - Export conversation (ConversationExportEnabled__c), End conversation
+[x] Conversation load trigger - On Page Load / On Chat Window Open auto-load the Active conversation; Manual Only doesn't
+[x] Conversation hit the Agent's message / token cap - service starts a new one, window shows "New conversation started"
+[x] Replies arrive live (AIMessageReadyEvent__e via empApi), polling fallback after 20s, utility bar highlights on a new reply
+
+---------- Suggested action ----------
+[x] Suggested Workflow Action card - name, description, run / Edit first / Dismiss
+[x] "Edit first" - form built from AIWorkflowAction__c.InputSchema__c (text, number, date, date-time, checkbox, long text)
+[x] Confirmation step when RequiresConfirmation__c (ConfirmationMessage__c)
+[x] Runs via AiWorkflowActionDispatcher on the user's click; recorded as an AIExecutionStep__c; shows Done after reload
+[x] Inline buttons display (SuggestedActionsDisplay__c = "Inline Buttons")
+[x] Hidden when AllowInlineWorkflowActions__c is off or the user's WorkflowActionsEnabled__c is off (also refused server-side)
+[ ] Pre-filled action inputs from the model (e.g. "Send refreshed quote" for Jordan Blake) - the model only returns the action's Developer Name
+
+---------- Slash commands ----------
+[x] "/" button and typing "/" open the command list
+[x] Substring match with highlight (/ri -> /risk-check, /brief, /drive-renewal), scope tag (object or "Any record")
+[x] Arrow keys / Enter / Tab / Escape, conversation dims behind the list
+[x] Command sends its hidden PromptText__c with it; the bubble shows only the command (mono)
+[x] Unknown command refused with a message, text kept in the box
+
+---------- Conversation history (Phase 2 in the design - built) ----------
+[x] Conversations list grouped Today / Yesterday / Earlier this week / Older
+[x] Search (title and Agent), This record / All records filter
+[x] Status badges - Active, Timed out, Limit reached, Archived
+[x] Open a past conversation; closed ones show "This conversation has ended" with Continue (AllowConversationResume__c) or Start new
+[x] Retention note
+
+---------- Trust moments & edge states ----------
+[x] First-run terms - three points, policy link (AIUsagePolicyUrl__c), checkbox, Agree and continue -> AITermsAcknowledgment__c
+[x] Terms re-shown when CurrentTermsVersion__c changes
+[~] Working - step card (ShowExecutionTraceToUser__c) with elapsed timer; steps are generic because AIAgentManager doesn't record steps as it runs
+[x] Working - typing indicator (TypingIndicatorEnabled__c), or nothing when both are off
+[~] Stop - stops waiting in the window only; the reply is still generated and saved (no backend cancel)
+[x] Thumbs-down feedback - reason chips, optional comment, Skip / Send feedback
+[~] Blocked by a company rule - "Not sent" bubble, reason card, Edit message, Why?; shown today for channel / inactive Agent / paused refusals - AIViolationRule__c isn't enforced before sending yet
+[x] Provider error - "Couldn't reach the AI service", Try again, log reference (AI Platform Log name)
+
+---------- Settings-driven states ----------
+[x] Maintenance mode (IsMaintenanceMode__c) - badge, message, Check again, contact admin footer
+[x] App inactive (IsApplicationActive__c) - muted logo, Off badge, message
+[x] New chats disabled (DisableUserInitiatedChat__c) - "Open on this record" with Continue; also enforced in AIConversationMessageService
+[x] Usage limit - Block New Messages: red banner with time until reset, composer paused, + disabled
+[x] Usage limit - Notify Only: dismissible warning, can keep going
+[x] Usage limit - Block New Conversations Only: blue banner, finish the open conversation only
+[~] Debug mode (DebugModeEnabled__c) - DEBUG badge, request trace per reply (model config, tokens, tool calls, PII masked, steps, copy ids, pii mappings modal, close trace), failure detail on errors; request.json / response.json aren't stored so aren't offered
+[x] Channel not allowed (AllowedChannels__c) - "AI Assist isn't available here"
+[x] No active Agent for the object
+[x] Not enough room on the record page
+
+---------- Setup (not committed - seed per org) ----------
+[ ] AIChatCommand__mdt records (e.g. /summary, /risk-check, /next-steps, /brief) - Setup > Custom Metadata Types > AI Chat Command > Manage Records
+[ ] AIAssistSettings__c.CurrentTermsVersion__c and AIUsagePolicyUrl__c values
+[ ] Add "AI Assist Chat" to record pages that need it (Lightning App Builder)
+
+---------- Design differences ----------
+- Fonts: the design's Instrument Sans / IBM Plex Mono aren't loaded (Lightning's CSP blocks Google Fonts) - Salesforce Sans and the SLDS monospace stack are used.
+- Debug mode keeps the full composer (slash commands still work) and swaps the disclaimer for "Debug mode is on for your user only."
+- Usage meter says "today" as in the design, but counts the same window the limits enforce (LAST_N_DAYS:1 - yesterday and today).
