@@ -14,6 +14,7 @@ AIConversationMessageService: Coverage 100%
 
 Version      Date               Author                   Description
 1.0          2026-09-22         Chandler Stuart          Initial development
+1.1          2026-09-27         Chandler Stuart          Added testScenario7 (processing lock) and testScenario8 (failed turns record their tokens).
 */
 
 @IsTest private class AIConversationMessageServiceTest {
@@ -24,6 +25,8 @@ Version      Date               Author                   Description
     // testScenario4: When the reusable conversation has already hit the Agent's MaxMessagesPerConversation__c or MaxTokensPerConversation__c cap, sendMessage closes it out with the matching reason and starts a fresh conversation instead of continuing it.
     // testScenario5: UsageLimitReachedBehavior__c is honored - Block New Conversations Only blocks a brand-new conversation once MaxConcurrentConversations__c or MaxConversationsPer24Hours__c is reached, Block New Messages blocks everything once MaxTokensPer24Hours__c is reached, and Notify Only never blocks even over those same limits.
     // testScenario6: closeConversation sets Status__c to Closed with the given reason, defaults to User Closed when no reason is supplied, and throws when no Conversation Id is given.
+    // testScenario7: A message sent while the conversation is already processing another is saved but not enqueued - it waits for the running job's finalizer.
+    // testScenario8: handleAgentResult with a failed result records the tokens spent as a System message; a failed result with no tokens records nothing.
 
     @TestSetup static void setup() {
 
@@ -269,5 +272,57 @@ Version      Date               Author                   Description
 
         Assert.areEqual(AIAssistApplicationConstants.CONVERSATION_STATUS_CLOSED, conversationsById.get(conversationWithNoReason.Id).Status__c, 'Conversation should be Closed.');
         Assert.areEqual(AIAssistApplicationConstants.CONVERSATION_CLOSE_REASON_USER_CLOSED, conversationsById.get(conversationWithNoReason.Id).ConversationCloseReason__c, 'Should default to User Closed when no reason is supplied.');
+    }
+
+    @IsTest static void testScenario7() {
+
+        AIAgent__c agent = AIAssistTestDataFactory.createAIAgents(1, false)[0];
+        agent.IsActive__c = true;
+        agent.SingleActiveConversationPer_Record__c = true;
+        insert agent;
+
+        Id relatedRecordId = AIAssistTestDataFactory.createAccounts(1, true)[0].Id;
+
+        AIConversation__c conversation = AIAssistTestDataFactory.createAIConversations(agent.Id, 1, false)[0];
+        conversation.Status__c = AIAssistApplicationConstants.CONVERSATION_STATUS_ACTIVE;
+        conversation.RelatedRecordId__c = String.valueOf(relatedRecordId);
+        conversation.ProcessingLockedUntil__c = System.now().addMinutes(10); // Another message is already being processed.
+        insert conversation;
+
+        Test.startTest();
+            AIConversationMessage__c result = AIConversationMessageService.sendMessage(agent.Id, 'Sent while busy', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, 'Account', relatedRecordId);
+            Integer jobsEnqueued = Limits.getQueueableJobs();
+        Test.stopTest();
+
+        Assert.isNotNull(result.Id, 'The message should still be saved.');
+        Assert.areEqual(conversation.Id, result.AIConversation__c, 'The message should join the busy conversation.');
+        Assert.areEqual(0, jobsEnqueued, 'No job should be enqueued while the conversation is locked.');
+    }
+
+    @IsTest static void testScenario8() {
+
+        AIAgent__c agent = AIAssistTestDataFactory.createAIAgents(1, false)[0];
+        agent.IsActive__c = true;
+        insert agent;
+
+        AIConversation__c conversation = AIAssistTestDataFactory.createAIConversations(agent.Id, 1, true)[0];
+
+        AIAgentManager.AgentResult failedResultWithTokens = new AIAgentManager.AgentResult();
+        failedResultWithTokens.errorMessage = 'Provider error.';
+        failedResultWithTokens.totalTokensUsed = 250;
+
+        AIAgentManager.AgentResult failedResultWithoutTokens = new AIAgentManager.AgentResult();
+        failedResultWithoutTokens.errorMessage = 'Configuration error.';
+
+        Test.startTest();
+            AIConversationMessageService.handleAgentResult(conversation.Id, failedResultWithTokens);
+            AIConversationMessageService.handleAgentResult(conversation.Id, failedResultWithoutTokens);
+        Test.stopTest();
+
+        List<AIConversationMessage__c> systemMessages = [ SELECT MessageBody__c, TokenCount__c FROM AIConversationMessage__c WHERE AIConversation__c = :conversation.Id AND Sender__c = :AIAssistApplicationConstants.SENDER_SYSTEM ];
+
+        Assert.areEqual(1, systemMessages.size(), 'Only the failed turn that spent tokens should be recorded.');
+        Assert.areEqual(250, systemMessages[0].TokenCount__c, 'The tokens spent should be recorded.');
+        Assert.isTrue(systemMessages[0].MessageBody__c.contains('Provider error.'), 'The failure reason should be recorded.');
     }
 }

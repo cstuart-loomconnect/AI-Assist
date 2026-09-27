@@ -8,13 +8,20 @@ Description: The async worker that does the heavy lifting for one message, run o
 user's original transaction so the chat UI isn't blocked on a live callout.
 
 Flow:
+[0] Attach AiMessageProcessingFinalizer, which runs after this job however it ends - it schedule retries, starts the next waiting message, releases the conversation's processing lock, and reports a job killed by an uncatchable governor limit.
 [1] Load everything for the turn - Agent, active Prompt Template, message history, available Data Source/Workflow Action tools.
-[2] Call AIAgentManager.executeAiMessage for the result - it only ever makes the callout(s) and returns an AgentResult, never touching the database or the event bus itself.
-[3] Hand that AgentResult to AIConversationMessageService.handleAgentResult, which evaluates it and performs whichever update follows: complete the turn, publish AIMessageCalloutEvent__e for another attempt, or fail the turn.
+[2] Call AIAgentManager.executeAiMessage for the result - it only ever makes the callout(s) and returns an AgentResult, never touching the database or the event bus itself. PII mappings its tool calls create are held in memory, then saved here once every callout is done.
+[3] A retryable result is handed to the finalizer to schedule. Anything else goes to AIConversationMessageService.handleAgentResult, which completes or fails the turn.
+
+A Data Source that wrote to the database (AIAgentManager.AIDataSourceWriteException) is the one
+exception deliberately let out of this job: an unhandled exception rolls the whole transaction back,
+undoing the write, and the finalizer then logs it, records the tokens and tells the chat UI.
 
 A failure before a result is even produced (e.g. a loader throwing) is caught and logged rather
 than allowed to propagate, since nothing else is watching this transaction - the chat UI instead
 learns via an IsSuccess__c = false event from AIConversationMessageService.processInvalidAIMessage.
+The conversation Id is passed in up front, so that event can be published even when the triggering
+message itself was deleted before the job ran.
 
 =================================================================
 =================================================================
@@ -22,6 +29,9 @@ learns via an IsSuccess__c = false event from AIConversationMessageService.proce
 Version      Date           Author                   Description
 1.0          2026-09-21     Chandler Stuart          Initial development
 1.1          2026-09-26     Chandler Stuart          Required loaders rethrow (unlogged) to execute() instead of returning empty records, so one failure produces one log entry.
+1.2          2026-09-27     Chandler Stuart          Saves deferred PII mappings after the callouts. Carries prior attempts' token usage across retries.
+1.3          2026-09-27     Chandler Stuart          Retries and lock hand-off moved to AiMessageProcessingFinalizer (replaces AIMessageCalloutEvent__e). Message history is the newest 50 up to the triggering message. A deleted triggering message now fails the turn visibly.
+1.4          2026-09-27     Chandler Stuart          AIDataSourceWriteException is rethrown so the whole job rolls back, undoing a Data Source's write.
 
 */
 
@@ -31,43 +41,72 @@ public without sharing class AiMessageProcessingQueueable implements Queueable, 
 
     private static final Integer FIRST_ATTEMPT_NUMBER = 1;
 
+    private Id conversationId;
     private Id triggeringMessageId;
     private Integer attemptNumber;
+    private Decimal priorAttemptTokensUsed;
 
-    // Only the Id is stored, since Queueable arguments must be serializable and an SObject reference would go stale by execute time.
-    public AiMessageProcessingQueueable(Id triggeringMessageId) {
-        this(triggeringMessageId, FIRST_ATTEMPT_NUMBER);
+    // A message's first attempt. Only Ids are stored, since Queueable arguments must be serializable and an SObject reference would go stale by execute time.
+    public AiMessageProcessingQueueable(Id triggeringMessageId, Id conversationId) {
+        this(triggeringMessageId, conversationId, FIRST_ATTEMPT_NUMBER, 0);
     }
 
-    // Used by AIMessageCalloutEventHandler to re-run a turn that needed a retry, starting at whatever attempt number the event carries.
-    public AiMessageProcessingQueueable(Id triggeringMessageId, Integer attemptNumber) {
+    // A retry, scheduled by AiMessageProcessingFinalizer. priorAttemptTokensUsed carries the tokens already spent by earlier failed attempts, so the final reply's TokenCount__c reflects the whole turn rather than just its last attempt.
+    public AiMessageProcessingQueueable(Id triggeringMessageId, Id conversationId, Integer attemptNumber, Decimal priorAttemptTokensUsed) {
         this.triggeringMessageId = triggeringMessageId;
-        this.attemptNumber = attemptNumber;
+        this.conversationId = conversationId;
+        this.attemptNumber = attemptNumber == null ? FIRST_ATTEMPT_NUMBER : attemptNumber;
+        this.priorAttemptTokensUsed = priorAttemptTokensUsed == null ? 0 : priorAttemptTokensUsed;
     }
 
-    // Entry point run by the platform's async executor; see the class header Flow for the load -> orchestrate -> evaluate steps.
+    // Entry point run by the platform's async executor; see the class header Flow for the steps.
     public void execute(QueueableContext context) {
 
-        Id conversationId;
+        // [0] Attached first, so it runs however this job ends - even on an uncatchable LimitException. context is only null when a test calls execute() directly.
+        AiMessageProcessingFinalizer finalizer = new AiMessageProcessingFinalizer(triggeringMessageId, conversationId, attemptNumber);
+        if (context != null) System.attachFinalizer(finalizer);
+
+        // Earlier attempts' tokens - known now, so they're still recorded even if this job is killed by a governor limit.
+        finalizer.setTokensUsed(priorAttemptTokensUsed);
 
         try {
 
             AIConversationMessage__c triggeringMessage = loadTriggeringMessage(triggeringMessageId);
-            if (triggeringMessage == null) return; // Message may have been deleted since being enqueued - nothing to process.
+
+            // Deleted after being enqueued - still tell the chat UI, which is waiting on this turn.
+            if (triggeringMessage == null) {
+                AIConversationMessageService.processInvalidAIMessage(conversationId, AIAssistApplicationConstants.MESSAGE_PROCESSING_MESSAGE_UNAVAILABLE);
+                return;
+            }
 
             AIConversation__c conversation = loadConversation(triggeringMessage.AIConversation__c);
-            conversationId = conversation.Id; // Captured early so the catch block can still publish a failure event referencing this conversation.
 
             AIAgent__c agent = loadAgent(conversation.AIAgent__c);
             AIModelConfiguration__c modelConfiguration = loadModelConfiguration(agent.AIModelConfiguration__c);
             AIPromptTemplate__c promptTemplate = loadActivePromptTemplate(agent.Id);
-            List<AIConversationMessage__c> messageHistory = loadMessageHistory(conversation.Id);
+            List<AIConversationMessage__c> messageHistory = loadMessageHistory(triggeringMessage);
             List<AIDataSource__c> availableDataSources = loadAvailableDataSources(agent.Id);
             List<AIWorkflowAction__c> availableWorkflowActions = loadAvailableWorkflowActions(agent.Id);
 
-            AIAgentManager.AgentResult result = AIAgentManager.executeAiMessage(agent, modelConfiguration, promptTemplate, conversation, triggeringMessage, messageHistory, availableDataSources, availableWorkflowActions, attemptNumber);
+            AIAgentManager.AgentResult result = AIAgentManager.executeAiMessage(agent, modelConfiguration, promptTemplate, conversation, messageHistory, availableDataSources, availableWorkflowActions, attemptNumber);
+            result.totalTokensUsed += priorAttemptTokensUsed;
 
-            AIConversationMessageService.handleAgentResult(conversation.Id, triggeringMessage.Id, result, attemptNumber);
+            // PII mappings created by tool calls were held in memory so they couldn't block the next callout - every callout is done now, so persist them before any other DML.
+            AIPiiMappingService.isDeferringWrites = false;
+            AIPiiMappingService.processCachedPIIMappings();
+
+            // [3] A retry is scheduled by the finalizer after this job ends - a delayed, fresh job keeps this user's access and gets fresh governor limits.
+            if (result.isRetryable) {
+                finalizer.requestRetry(result.totalTokensUsed);
+                return;
+            }
+
+            AIConversationMessageService.handleAgentResult(conversation.Id, result);
+
+        } catch (AIAgentManager.AIDataSourceWriteException dataSourceWriteException) {
+            // Rethrown on purpose, unlogged - escaping the job rolls back the Data Source's write, and the finalizer logs it once and fails the turn.
+            finalizer.setTokensUsed(dataSourceWriteException.tokensUsed + priorAttemptTokensUsed);
+            throw dataSourceWriteException;
 
         } catch (Exception ex) {
             AIPlatformLogManager.logException(ex, 'AiMessageProcessingQueueable', 'execute');
@@ -81,7 +120,7 @@ public without sharing class AiMessageProcessingQueueable implements Queueable, 
 
             if (messageId == null || messageId.getSobjectType() != AIConversationMessage__c.SObjectType) return null;
 
-            List<AIConversationMessage__c> messages = [ SELECT Id, MessageBody__c, AIConversation__c FROM AIConversationMessage__c WHERE Id =:messageId LIMIT 1 ];
+            List<AIConversationMessage__c> messages = [ SELECT Id, MessageBody__c, AIConversation__c, CreatedDate FROM AIConversationMessage__c WHERE Id =:messageId LIMIT 1 ];
 
             return messages.isEmpty() ? null : messages[0];
 
@@ -127,7 +166,7 @@ public without sharing class AiMessageProcessingQueueable implements Queueable, 
 
             if (modelConfigurationId == null || modelConfigurationId.getSobjectType() != AIModelConfiguration__c.SObjectType) throw new AiMessageProcessingQueueableException('AI Agent has no AI Model Configuration assigned.');
 
-            List<AIModelConfiguration__c> configurations = [ SELECT Id, DeveloperName__c, AIProvider__c, ModelIdentifier__c, NamedCredential__c, ApiPath__c, ApiVersionHeaderName__c, ApiVersionHeaderValue__c, MaximumOutputTokens__c, Temperature__c, SystemTimeoutSeconds__c, RetryAttempts__c
+            List<AIModelConfiguration__c> configurations = [ SELECT Id, DeveloperName__c, AIProvider__c, ModelIdentifier__c, NamedCredential__c, ApiPath__c, ApiVersionHeaderName__c, ApiVersionHeaderValue__c, MaximumOutputTokens__c, Temperature__c, RetryAttempts__c
                                                                FROM AIModelConfiguration__c
                                                                WHERE Id = :modelConfigurationId
                                                                LIMIT 1 ];
@@ -158,17 +197,29 @@ public without sharing class AiMessageProcessingQueueable implements Queueable, 
         }
     }
 
-    // [6] Loads prior turns for context, oldest first, capped to keep the prompt within a reasonable token budget.
-    private static List<AIConversationMessage__c> loadMessageHistory(Id conversationId) {
+    // [6] Loads the most recent messages for context, capped to keep the prompt within a reasonable token budget.
+    // Queried newest-first so the LIMIT keeps the latest messages (not the oldest), then reversed back to oldest-first for the model.
+    // Stops at the triggering message, so the history always ends with the message being answered - even if the user has sent more since.
+    @TestVisible private static List<AIConversationMessage__c> loadMessageHistory(AIConversationMessage__c triggeringMessage) {
         try {
 
-            if (conversationId == null || conversationId.getSobjectType() != AIConversation__c.SObjectType) return new List<AIConversationMessage__c>();
+            if (triggeringMessage == null || triggeringMessage.AIConversation__c == null) return new List<AIConversationMessage__c>();
 
-            return [ SELECT Id, Sender__c, MessageBody__c
-                     FROM AIConversationMessage__c
-                     WHERE AIConversation__c = :conversationId
-                     ORDER BY CreatedDate ASC
-                     LIMIT :AIAssistApplicationConstants.MESSAGE_PROCESSING_MAX_MESSAGE_HISTORY ];
+            List<AIConversationMessage__c> newestFirst = [ SELECT Id, Sender__c, MessageBody__c
+                                                           FROM AIConversationMessage__c
+                                                           WHERE AIConversation__c =:triggeringMessage.AIConversation__c
+                                                           AND CreatedDate <= :triggeringMessage.CreatedDate
+                                                           ORDER BY CreatedDate DESC, Id DESC
+                                                           LIMIT :AIAssistApplicationConstants.MESSAGE_PROCESSING_MAX_MESSAGE_HISTORY ];
+
+            // Walks the list backwards to reverse it - Apex has no List.reverse(), and add(0, message) throws on an empty list.
+            List<AIConversationMessage__c> oldestFirst = new List<AIConversationMessage__c>();
+
+            for (Integer messageIndex = newestFirst.size() - 1; messageIndex >= 0; messageIndex--) {
+                oldestFirst.add(newestFirst[messageIndex]);
+            }
+
+            return oldestFirst;
 
         } catch (Exception ex) {
             AIPlatformLogManager.logException(ex, 'AiMessageProcessingQueueable', 'loadMessageHistory');

@@ -1,0 +1,138 @@
+TRIGGERS (Trigger / Handler / Test)
+
+NON-TRIGGER CLASSES (Class / Test)
+
+BUILD COMPLETE
+
+---------- User ----------
+[x] AIAssistUserTrigger
+[x] AIAssistUserTriggerHandler
+[x] AIAssistUserTriggerTest
+[x] AIAssistUserDefaults
+[x] AIAssistUserDefaultsTest
+
+---------- Utilities ----------
+[x] AIAssistGlobalUtility
+[x] AIAssistGlobalUtilityTest
+[x] AIAssistTestDataFactory
+[x] AIAssistApplicationConstants
+[x] AIAssistSettingsService
+[x] AIAssistSettingsServiceTest
+[x] AIGovernorLimits
+[x] AIGovernorLimitsTest
+
+---------- PII ----------
+[x] AIPiiRegistryDispatcher
+[x] AIPiiRegistryDispatcherTest
+[x] AIPiiRegistryWorker
+[x] AIPiiRegistryWorkerTest
+[x] AIPiiFieldRegistry
+[x] AIPiiFieldRegistryTest
+[x] AIPiiFieldTypeClassifier
+[x] AIPiiFieldTypeClassifierTest
+[x] AIPiiMappingService
+[x] AIPiiMappingServiceTest
+[x] AIPiiPseudonymizationService
+[x] AIPiiPseudonymizationServiceTest
+
+---------- AIPlatformLog__c / __e ----------
+[x] AIPlatformLogManager
+[x] AIPlatformLogManagerTest
+[x] AIPlatformLogEventTrigger
+[x] AIPlatformLogEventHandler (covered by AIPlatformLogManagerTest)
+
+---------- AIAgent__c ----------
+[x] AIAgentTrigger
+[x] AIAgentTriggerHandler
+[x] AIAgentTriggerTest
+
+---------- AIConversation__c ----------
+[x] AIConversationTrigger
+[x] AIConversationTriggerHandler
+[x] AIConversationTriggerTest
+
+---------- AIConversationMessage__c ----------
+[x] AIConversationMessageTrigger
+[x] AIConversationMessageTriggerHandler
+[x] AIConversationMessageTriggerTest
+
+---------- AI Conversation Classes ----------
+[x] AIConversationRetentionBatch
+[x] AIConversationRetentionBatchTest
+[x] AIConversationIdleTimeoutBatch
+[x] AIConversationIdleTimeoutBatchTest
+
+---------- AIDataSource__c ----------
+[x] AIDataSourceTrigger
+[x] AIDataSourceTriggerHandler
+[x] AIDataSourceTriggerTest
+
+---------- AI Data Source Execution Classes ----------
+[x] IAIDataSourceExecutor
+[x] AiDataSourceDispatcher
+[x] AiDataSourceDispatcherTest
+[x] AiSoqlTemplateRunner
+[x] AiSoqlTemplateRunnerTest
+[x] AiDataSourceResultProcessor
+[x] AiDataSourceResultProcessorTest
+[x] AiDataSourceDemoExecutor (demo only - used by scripts/apex/10 and 11)
+[ ] AiDataSourceDemoExecutorTest
+
+---------- AIModelConfiguration__c ----------
+[x] AIModelConfigurationTrigger
+[x] AIModelConfigurationTriggerHandler
+[x] AIModelConfigurationTriggerTest
+
+---------- AIPromptTemplate__c ----------
+[x] AIPromptTemplateTrigger
+[x] AIPromptTemplateTriggerHandler
+[x] AIPromptTemplateTriggerTest
+
+---------- AITermsAcknowledgment__c ----------
+[x] AITermsAcknowledgmentTrigger
+[x] AITermsAcknowledgmentTriggerHandler
+[x] AITermsAcknowledgmentTriggerTest
+
+---------- AIViolation__c ----------
+[x] AIViolationTrigger
+[x] AIViolationTriggerHandler
+[x] AIViolationTriggerTest
+
+---------- AIViolationRule__c ----------
+[x] AIViolationRuleTrigger
+[x] AIViolationRuleTriggerHandler
+[x] AIViolationRuleTriggerTest
+
+---------- AIWorkflowAction__c ----------
+[x] AIWorkflowActionTrigger
+[x] AIWorkflowActionTriggerHandler
+[x] AIWorkflowActionTriggerTest
+[x] IAIWorkflowActionExecutor
+[x] AiWorkflowActionDispatcher (runs a suggested Workflow Action when the user clicks it - nothing calls it until the chat UI is built)
+[x] AiWorkflowActionDispatcherTest
+
+---------- AI Core Orchestration Classes (Phase 4) - in call order ----------
+[x] AIConversationMessageService (entry point - saves the user's message, starts the job)
+[x] AIConversationMessageServiceTest
+[x] AIConversationLockService (one message processed per conversation at a time)
+[x] AIConversationLockServiceTest
+[x] AiMessageProcessingQueueable (async worker - loads the turn's records)
+[x] AiMessageProcessingQueueableTest
+[x] AIAgentManager (LLM callout + tool-calling loop)
+[0] AIAgentManagerTest
+[0] AiMessageProcessingFinalizer (retries, lock hand-off to the next message, reports a killed job)
+[x] AiMessageProcessingFinalizerTest
+
+---------- AI Provider Classes (Request / Response) - used by AIAgentManager ----------
+[x] AIProvider (shared Request/Response types + picks each provider's builder and handler)
+[x] AIProviderTest
+[x] IAIProviderRequestBuilder
+[x] IAIProviderResponseHandler
+[x] AIAnthropicRequestBuilder
+[x] AIAnthropicRequestBuilderTest
+[x] AIAnthropicResponseHandler
+[x] AIAnthropicResponseHandlerTest
+[x] AIOpenAiRequestBuilder
+[x] AIOpenAiRequestBuilderTest
+[x] AIOpenAiResponseHandler
+[x] AIOpenAiResponseHandlerTest

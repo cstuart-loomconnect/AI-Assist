@@ -10,7 +10,10 @@ talks to the AI provider itself - that's handed off entirely to the async job.
 Flow:
 [1] Validate the request (Agent active, channel allowed, usage limits on AIUserSettings__c).
 [2] Find an Active conversation to reuse, or start a new one - per AIAgent__c.SingleActiveConversationPer_Record__c, closing the existing one first if it hit the Agent's per-conversation message/token cap.
-[3] Insert the user's AIConversationMessage__c and enqueue AiMessageProcessingQueueable.
+[3] Take the conversation's processing lock (AIConversationLockService), insert the user's
+    AIConversationMessage__c, and enqueue AiMessageProcessingQueueable - but only if the lock was
+    free. If another message is still being processed, this one waits and is started by that
+    job's AiMessageProcessingFinalizer.
 
 Also owns manually closing a conversation, distinct from the Idle/Retention batch jobs'
 automated closing.
@@ -21,6 +24,9 @@ automated closing.
 Version      Date           Author                   Description
 1.0          2026-09-21     Chandler Stuart          Initial development
 1.1          2026-09-26     Chandler Stuart          Only public entry points (sendMessage, closeConversation) log; private helpers rethrow unlogged. Split updateConversationToClosed out of closeConversation. Dropped SaveResult logs that duplicated the thrown exception.
+1.2          2026-09-27     Chandler Stuart          Retry event carries PriorAttemptTokensUsed__c so tokens spent before a retry aren't lost.
+1.3          2026-09-27     Chandler Stuart          One message processed per conversation at a time (AIConversationLockService). Retries moved to AiMessageProcessingFinalizer - AIMessageCalloutEvent__e removed. Failed turns record their tokens via a System message.
+1.4          2026-09-27     Chandler Stuart          Failed turns show the user a generic message; the detailed error goes only into the failed-turn System message and the logs.
 */
 
 public without sharing class AIConversationMessageService {
@@ -59,6 +65,9 @@ public without sharing class AIConversationMessageService {
                 if (!conversationSaveResult.isSuccess()) throw new AIConversationMessageServiceException('Failed to create conversation: ' + conversationSaveResult.getErrors()[0].getMessage());
             }
 
+            // Locked before the message is inserted, so a job finishing at the same moment either sees this message or finds the lock already released - it can't miss it.
+            Boolean shouldStartProcessing = AIConversationLockService.lockConversation(conversation.Id);
+
             AIConversationMessage__c userMessage = new AIConversationMessage__c(
                 AIConversation__c = conversation.Id,
                 Sender__c = AIAssistApplicationConstants.SENDER_USER,
@@ -69,7 +78,10 @@ public without sharing class AIConversationMessageService {
             Database.SaveResult userMessageSaveResult = Database.insert(userMessage, false);
             if (!userMessageSaveResult.isSuccess()) throw new AIConversationMessageServiceException('Failed to create message: ' + userMessageSaveResult.getErrors()[0].getMessage());
 
-            System.enqueueJob(new AiMessageProcessingQueueable(userMessage.Id));
+            // Only when this message took the lock - otherwise it waits, and the running job's finalizer starts it.
+            if (shouldStartProcessing) {
+                System.enqueueJob(new AiMessageProcessingQueueable(userMessage.Id, conversation.Id));
+            }
 
             return userMessage;
 
@@ -80,25 +92,17 @@ public without sharing class AIConversationMessageService {
     }
 
 
-    // Evaluates one AgentResult from AIAgentManager.executeAiMessage and performs whichever update follows - the manager itself never touches the database or the event bus. Shared by the first attempt (AiMessageProcessingQueueable) and every retried attempt (the same class, re-run by AIMessageCalloutEventHandler), since the branching is identical either way.
-    public static void handleAgentResult(Id conversationId, Id triggeringMessageId, AIAgentManager.AgentResult result, Integer attemptNumber) {
+    // Evaluates one final AgentResult from AIAgentManager.executeAiMessage and performs whichever update follows - the manager itself never touches the database or the event bus. Retryable results never reach here; AiMessageProcessingQueueable hands those to AiMessageProcessingFinalizer to schedule.
+    public static void handleAgentResult(Id conversationId, AIAgentManager.AgentResult result) {
         try {
 
-            if (result.isSuccessful) {
-                processValidAIMessage(conversationId, result);
-                return;
-            }
+            if (result.isSuccessful) { processValidAIMessage(conversationId, result); return; }
 
-            if (result.isRetryable) {
-                EventBus.publish(new AIMessageCalloutEvent__e(
-                    AIConversationId__c = conversationId,
-                    AIConversationMessageId__c = triggeringMessageId,
-                    AttemptNumber__c = attemptNumber + 1
-                ));
-                return;
-            }
+            // A failed turn still spent tokens (earlier iterations, earlier attempts) - record them, with the detailed error, before telling the UI.
+            processFailedAIMessageTokens(conversationId, result.totalTokensUsed, result.errorMessage);
 
-            processInvalidAIMessage(conversationId, result.errorMessage);
+            // The user only sees a generic message - result.errorMessage can contain configuration details (Named Credentials, model names, provider errors).
+            processInvalidAIMessage(conversationId, AIAssistApplicationConstants.MESSAGE_PROCESSING_GENERIC_FAILURE_MESSAGE);
 
         } catch (Exception ex) {
             AIPlatformLogManager.logException(ex, 'AIConversationMessageService', 'handleAgentResult');
@@ -147,6 +151,27 @@ public without sharing class AIConversationMessageService {
 
         } catch (Exception ex) {
             AIPlatformLogManager.logException(ex, 'AIConversationMessageService', 'processInvalidAIMessage');
+        }
+    }
+
+    // Records the tokens a failed turn spent as a System message, so they still count toward ConversationTokenUsage__c and the usage limits (via AIConversationMessageTriggerHandler). System messages are never shown to the model. Nothing is recorded when no tokens were spent. Never throws.
+    public static void processFailedAIMessageTokens(Id conversationId, Decimal tokensUsed, String failureReason) {
+        try {
+
+            if (conversationId == null || tokensUsed == null || tokensUsed <= 0) return;
+
+            AIConversationMessage__c failedTurnMessage = new AIConversationMessage__c(
+                AIConversation__c = conversationId,
+                Sender__c = AIAssistApplicationConstants.SENDER_SYSTEM,
+                MessageBody__c = AIAssistApplicationConstants.MESSAGE_PROCESSING_FAILED_TURN_PREFIX + (String.isBlank(failureReason) ? 'Unknown error.' : failureReason),
+                TokenCount__c = tokensUsed
+            );
+
+            Database.SaveResult failedTurnSaveResult = Database.insert(failedTurnMessage, false);
+            if (!failedTurnSaveResult.isSuccess()) throw new AIConversationMessageServiceException('Failed to record failed turn tokens: ' + failedTurnSaveResult.getErrors()[0].getMessage());
+
+        } catch (Exception ex) {
+            AIPlatformLogManager.logException(ex, 'AIConversationMessageService', 'processFailedAIMessageTokens');
         }
     }
 

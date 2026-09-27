@@ -16,9 +16,12 @@ Flow:
 
 Version      Date           Author                   Description
 1.0          2026-09-21     Chandler Stuart          Initial development
+1.1          2026-09-27     Chandler Stuart          Failures now throw rather than returning an empty list, so a broken query is never mistaken for "no records found".
 */
 
 public without sharing class AiSoqlTemplateRunner {
+
+    public class AiSoqlTemplateRunnerException extends Exception {}
 
     public static List<SObject> run(String soqlTemplate, Map<String, Object> bindValues, AccessLevel accessLevel) {
         try {
@@ -28,8 +31,7 @@ public without sharing class AiSoqlTemplateRunner {
             return Database.queryWithBinds(soqlTemplate, bindValues == null ? new Map<String, Object>() : bindValues, accessLevel == null ? System.AccessLevel.USER_MODE : accessLevel);
 
         } catch (Exception ex) {
-            AIPlatformLogManager.logException(ex, 'AiSoqlTemplateRunner', 'run');
-            return new List<SObject>();
+            throw new AiSoqlTemplateRunnerException('Failed to run SOQL template: ' + ex.getMessage(), ex); // AIAgentManager.invokeTool logs it once.
         }
     }
 

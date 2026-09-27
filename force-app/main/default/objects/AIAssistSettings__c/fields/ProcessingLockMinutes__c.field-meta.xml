@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ProcessingLockMinutes__c</fullName>
+    <defaultValue>10</defaultValue>
+    <description>How long a conversation&apos;s processing lock (AIConversation__c.ProcessingLockedUntil__c) lasts before it expires on its own. The lock is normally released as soon as the turn ends; this is the safety net if it isn&apos;t. Must be longer than a turn takes to queue and run. Blank or below 1 falls back to the code default (10).</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Safety-net expiry for a conversation&apos;s processing lock, in minutes.</inlineHelpText>
+    <label>Processing Lock Minutes</label>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

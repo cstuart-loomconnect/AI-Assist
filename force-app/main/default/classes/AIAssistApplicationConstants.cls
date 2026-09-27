@@ -67,6 +67,9 @@ public without sharing class AIAssistApplicationConstants {
     public static final String DATA_SOURCE_TYPE_APEX = 'Apex';
     public static final String DATA_SOURCE_TYPE_SOQL = 'SOQL';
 
+    // AIAgentManager.invokeTool - handed to the model in place of a bare "[]" so it can tell a genuine no-match apart from a failure and stop retrying.
+    public static final String TOOL_RESULT_NO_RECORDS_FOUND = 'No records found.';
+
     // AIWorkflowAction__c.ActionType__c
     public static final String WORKFLOW_ACTION_TYPE_APEX = 'Apex';
     public static final String WORKFLOW_ACTION_TYPE_FLOW = 'Flow';
@@ -92,6 +95,12 @@ public without sharing class AIAssistApplicationConstants {
     public static final String SENDER_USER = 'User';
     public static final String SENDER_AI_AGENT = 'AI Agent';
     public static final String SENDER_SYSTEM = 'System';
+
+    // AIAgentManager - canonical (provider-agnostic) message shape built from AIConversationMessage__c history, before any provider handler reshapes it.
+    public static final String CANONICAL_ROLE_KEY = 'role';
+    public static final String CANONICAL_CONTENT_KEY = 'content';
+    public static final String CANONICAL_ROLE_USER = 'user';
+    public static final String CANONICAL_ROLE_ASSISTANT = 'assistant';
 
     // AIExecutionStep__c.Status__c
     public static final String EXECUTION_STEP_STATUS_SUCCESS = 'Success';
@@ -187,4 +196,90 @@ public without sharing class AIAssistApplicationConstants {
     public static final String ANTHROPIC_FIELD_TOOLS = 'tools';
     public static final String ANTHROPIC_FIELD_TOOL_DESCRIPTION = 'description';
     public static final String ANTHROPIC_FIELD_TOOL_INPUT_SCHEMA = 'input_schema';
+
+    // AIOpenAiRequestBuilder - field/value names in OpenAI's Chat Completions API request shape.
+    public static final String OPENAI_FIELD_MODEL = 'model';
+    public static final String OPENAI_FIELD_MAX_TOKENS = 'max_tokens';
+    public static final String OPENAI_FIELD_MESSAGES = 'messages';
+    public static final String OPENAI_FIELD_TEMPERATURE = 'temperature';
+    public static final String OPENAI_FIELD_CONTENT = 'content';
+    public static final String OPENAI_FIELD_TOOLS = 'tools';
+    public static final String OPENAI_FIELD_TOOL_TYPE = 'type';
+    public static final String OPENAI_TOOL_TYPE_FUNCTION = 'function';
+    public static final String OPENAI_FIELD_TOOL_FUNCTION = 'function';
+    public static final String OPENAI_FIELD_TOOL_NAME = 'name';
+    public static final String OPENAI_FIELD_TOOL_DESCRIPTION = 'description';
+    public static final String OPENAI_FIELD_TOOL_PARAMETERS = 'parameters';
+
+    public static final String OPENAI_ROLE_KEY = 'role';
+    public static final String OPENAI_ROLE_SYSTEM = 'system';
+
+    // AIOpenAiResponseHandler - field/value names in OpenAI's Chat Completions API response shape. Content, function, tool name and role key reuse the OPENAI_* constants above.
+    public static final String OPENAI_FIELD_CHOICES = 'choices';
+    public static final String OPENAI_FIELD_MESSAGE = 'message';
+    public static final String OPENAI_FIELD_TOOL_CALLS = 'tool_calls';
+    public static final String OPENAI_FIELD_TOOL_CALL_ID = 'id';
+    public static final String OPENAI_FIELD_TOOL_CALL_ARGUMENTS = 'arguments';
+    public static final String OPENAI_FIELD_TOOL_RESULT_ID = 'tool_call_id';
+
+    public static final String OPENAI_FIELD_USAGE = 'usage';
+    public static final String OPENAI_FIELD_USAGE_TOTAL_TOKENS = 'total_tokens';
+    public static final String OPENAI_FIELD_ERROR = 'error';
+    public static final String OPENAI_FIELD_ERROR_MESSAGE = 'message';
+    public static final String OPENAI_FIELD_ERROR_TYPE = 'type';
+
+    public static final String OPENAI_ROLE_TOOL = 'tool';
+
+    // AIAnthropicRequestBuilder / AIOpenAiRequestBuilder - sent on the last tool-calling iteration so the model must answer rather than call another tool.
+    public static final String ANTHROPIC_FIELD_TOOL_CHOICE = 'tool_choice';
+    public static final String ANTHROPIC_FIELD_TOOL_CHOICE_TYPE = 'type';
+    public static final String ANTHROPIC_TOOL_CHOICE_NONE = 'none';
+    public static final String OPENAI_FIELD_TOOL_CHOICE = 'tool_choice';
+    public static final String OPENAI_TOOL_CHOICE_NONE = 'none';
+
+    // Tool names both AI providers accept - letters, numbers, underscores and hyphens, 1-64 characters. Checked on AIDataSource__c.DeveloperName__c by AIDataSourceTriggerHandler.
+    public static final String AI_PROVIDER_TOOL_NAME_PATTERN = '^[a-zA-Z0-9_-]{1,64}$';
+
+    // AIAgentManager - used when AIAssistSettings__c.DefaultMaxToolCallingIterations__c / MaxToolCallingIterationsCap__c / MaxToolCallsPerIteration__c are blank or below 1.
+    public static final Integer DEFAULT_MAX_TOOL_CALLING_ITERATIONS = 5;
+    public static final Integer DEFAULT_MAX_TOOL_CALLING_ITERATIONS_CAP = 20;
+    public static final Integer DEFAULT_MAX_TOOL_CALLS_PER_ITERATION = 5;
+
+    // AIAgentManager - tool results sent back to the model when a tool call isn't run. Worded for the model, so it answers with what it already has rather than asking again.
+    public static final String TOOL_RESULT_SKIPPED_TOO_MANY_CALLS = 'Not run: too many tool calls in one step. Ask for fewer tools at once, or answer with the information you already have.';
+    public static final String TOOL_RESULT_FAILED = 'This tool failed to run. Answer with the information you already have, or tell the user the information is unavailable.';
+    public static final String TOOL_RESULT_SKIPPED_LIMITS_REACHED = 'Not run: Salesforce processing limits for this request have been reached. Answer with the information you already have.';
+
+    // AIConversationMessageService / AiMessageProcessingFinalizer - used when AIAssistSettings__c.ProcessingLockMinutes__c is blank or below 1.
+    public static final Integer DEFAULT_PROCESSING_LOCK_MINUTES = 10;
+
+    // AIGovernorLimits - Salesforce allows 120s of total callout time per transaction. No callout starts with less than the minimum left - it would almost certainly time out, and the AI provider may still bill for a request it had already started on.
+    public static final Integer MAX_TRANSACTION_CALLOUT_MILLISECONDS = 120000;
+    public static final Integer MIN_CALLOUT_TIMEOUT_MILLISECONDS = 5000;
+
+    // AIGovernorLimits - amount of each limit held back before running another tool call - enough for the next AI provider callout and the work after the loop (saving PII mappings, inserting the reply and its trigger).
+    public static final Integer TOOL_CALL_RESERVED_SOQL_QUERIES = 20;
+    public static final Integer TOOL_CALL_RESERVED_CALLOUTS = 1;
+    public static final Integer TOOL_CALL_RESERVED_CPU_MILLISECONDS = 5000;
+    public static final Integer TOOL_CALL_RESERVED_HEAP_BYTES = 2000000;
+
+    // AIGovernorLimits - the platform's message when a callout is attempted after uncommitted DML in the same transaction.
+    public static final String UNCOMMITTED_WORK_ERROR_TEXT = 'uncommitted work pending';
+
+    // AiMessageProcessingQueueable - shown when the message being answered was deleted before its job ran.
+    public static final String MESSAGE_PROCESSING_MESSAGE_UNAVAILABLE = 'This message is no longer available, so no response was generated.';
+
+    // AIConversationMessageService - prefix for the System audit message that records the tokens a failed turn used.
+    public static final String MESSAGE_PROCESSING_FAILED_TURN_PREFIX = 'AI response failed: ';
+
+    // AIAgentManager - AI provider callout request.
+    public static final String HTTP_METHOD_POST = 'POST';
+    public static final String HTTP_HEADER_CONTENT_TYPE = 'Content-Type';
+    public static final String CONTENT_TYPE_JSON = 'application/json';
+
+    // AIAgentManager - the model can only ever suggest a Workflow Action, never run one - phase 1 requires the user to trigger it explicitly from the chat UI.
+    public static final String SUGGESTED_WORKFLOW_ACTION_JSON_KEY = 'suggested_workflow_action';
+    public static final String WORKFLOW_ACTION_PROMPT_INSTRUCTION = 'Workflows (you cannot run these; suggest one only if it genuinely helps, never claim to have run one):';
+    public static final String WORKFLOW_ACTION_SUGGESTION_ONLY_REPLY = 'Here\'s a suggested next step.'; // Shown when the model's reply was only a Workflow Action suggestion, so the saved reply is never blank.
+    public static final String WORKFLOW_ACTION_PROMPT_JSON_INSTRUCTION = 'To suggest one, end your reply with a line containing only {"' + SUGGESTED_WORKFLOW_ACTION_JSON_KEY + '":"<DeveloperName>"}; otherwise omit it.';
 }

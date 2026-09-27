@@ -14,6 +14,7 @@ AiSoqlTemplateRunner: Coverage 100%
 
 Version      Date               Author                   Description
 1.0          2026-09-21         Chandler Stuart          Initial development
+1.1          2026-09-27         Chandler Stuart          Failures now throw rather than returning an empty list.
 */
 
 @IsTest private class AiSoqlTemplateRunnerTest {
@@ -21,7 +22,7 @@ Version      Date               Author                   Description
     // testScenario1: A blank SOQL template returns an empty list rather than running any query.
     // testScenario2: A valid template runs with its bind values substituted in, and returns the matching records.
     // testScenario3: A null bindValues Map is handled gracefully for a template with no bind variables.
-    // testScenario4: A null AccessLevel defaults to USER_MODE - querying a field the running user has no FLS access to fails safe to an empty list, while explicit SYSTEM_MODE still returns the data.
+    // testScenario4: A null AccessLevel defaults to USER_MODE - querying a field the running user has no FLS access to throws (never an empty list that would read as "no records found"), while explicit SYSTEM_MODE still returns the data.
 
     @TestSetup static void setup() {
 
@@ -73,17 +74,21 @@ Version      Date               Author                   Description
 
         User bareUser = AIAssistTestDataFactory.createStandardUsers(null, 1, true)[0]; // No AIAssistUserType__c - no AI Assist Permission Set is auto-assigned, so this user has no access at all to AIDataSource__c.
 
-        List<SObject> userModeResults;
+        Exception userModeException;
         List<SObject> systemModeResults;
 
         Test.startTest();
             System.runAs(bareUser) {
-                userModeResults = AiSoqlTemplateRunner.run('SELECT Id, ApexClassName__c FROM AIDataSource__c WHERE Id = :dataSourceId', new Map<String, Object>{ 'dataSourceId' => testDataSource.Id }, null);
+                try {
+                    AiSoqlTemplateRunner.run('SELECT Id, ApexClassName__c FROM AIDataSource__c WHERE Id = :dataSourceId', new Map<String, Object>{ 'dataSourceId' => testDataSource.Id }, null);
+                } catch (AiSoqlTemplateRunner.AiSoqlTemplateRunnerException ex) {
+                    userModeException = ex;
+                }
                 systemModeResults = AiSoqlTemplateRunner.run('SELECT Id, ApexClassName__c FROM AIDataSource__c WHERE Id = :dataSourceId', new Map<String, Object>{ 'dataSourceId' => testDataSource.Id }, AccessLevel.SYSTEM_MODE);
             }
         Test.stopTest();
 
-        Assert.isTrue(userModeResults.isEmpty(), 'A null AccessLevel should default to USER_MODE, and querying a field with no FLS access should fail safe to an empty list rather than throwing.');
+        Assert.isNotNull(userModeException, 'A null AccessLevel should default to USER_MODE, and querying a field with no FLS access should throw rather than return an empty list.');
         Assert.areEqual(1, systemModeResults.size(), 'Explicit SYSTEM_MODE should bypass FLS and still return the record.');
     }
 }

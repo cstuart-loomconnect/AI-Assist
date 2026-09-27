@@ -15,10 +15,11 @@ not per provider brand, so they live on AIModelConfiguration__c instead.
 
 Version      Date           Author                   Description
 1.0          2026-09-26     Chandler Stuart          Initial development
+1.1          2026-09-27     Chandler Stuart          Canonical types moved from AIAgentManager to AIProvider.
 */
 
 public interface IAIProviderRequestBuilder {
 
     // Converts the canonical request into this provider's exact JSON-ready body.
-    Map<String, Object> buildRequestBody(AIAgentManager.Request request);
+    Map<String, Object> buildRequestBody(AIProvider.Request request);
 }

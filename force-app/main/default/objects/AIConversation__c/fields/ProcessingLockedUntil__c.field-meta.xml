@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ProcessingLockedUntil__c</fullName>
+    <description>Set while an AI response is being generated for this conversation, so only one message is processed at a time. Cleared by AiMessageProcessingFinalizer when the turn ends. A value in the past is treated as unlocked, so a lock can never be held forever.</description>
+    <inlineHelpText>Managed automatically. Blank or in the past means the conversation is free to process its next message.</inlineHelpText>
+    <label>Processing Locked Until</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>DateTime</type>
+</CustomField>

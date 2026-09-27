@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DefaultMaxToolCallingIterations__c</fullName>
+    <defaultValue>5</defaultValue>
+    <description>How many tool-calling iterations AIAgentManager allows per AI message when the AI Agent&apos;s own Max Tool Calling Iterations is blank. Always clamped to Max Tool Calling Iterations Cap. Blank or below 1 falls back to the code default (5).</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Used when an AI Agent has no Max Tool Calling Iterations set. Clamped to Max Tool Calling Iterations Cap.</inlineHelpText>
+    <label>Default Max Tool Calling Iterations</label>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

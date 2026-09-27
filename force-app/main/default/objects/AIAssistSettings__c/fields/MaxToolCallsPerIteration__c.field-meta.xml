@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MaxToolCallsPerIteration__c</fullName>
+    <defaultValue>5</defaultValue>
+    <description>How many tool calls AIAgentManager runs from a single model reply. Any extra tool calls are skipped and the model is told so. Each tool call uses SOQL queries (and callouts for some Apex Data Sources), so this keeps a turn within Salesforce governor limits. Blank or below 1 falls back to the code default (5).</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Maximum tool calls run per model reply. Extra calls are skipped.</inlineHelpText>
+    <label>Max Tool Calls Per Iteration</label>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

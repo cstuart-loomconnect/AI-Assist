@@ -8,7 +8,7 @@ Description: IAIProviderResponseHandler for Anthropic's Messages API - parses a 
 shapes providerMessages. Deliberately a separate class from AIAnthropicRequestBuilder; handling
 a response and building a request are different jobs. Every field name/value this shape depends
 on is a AIAssistApplicationConstants.ANTHROPIC_* constant - adding or changing
-a provider is a new pair of classes, never a change to AIAgentManager.
+a provider is a new pair of classes registered in AIProvider, never a change to AIAgentManager.
 
 =================================================================
 =================================================================
@@ -16,6 +16,7 @@ a provider is a new pair of classes, never a change to AIAgentManager.
 Version      Date           Author                   Description
 1.0          2026-09-26     Chandler Stuart          Initial development
 1.1          2026-09-26     Chandler Stuart          Wrapped handleResponse in a single try/catch - wraps unexpected failures in AIAnthropicResponseHandlerException; logging left to the caller.
+1.2          2026-09-27     Chandler Stuart          Canonical types moved from AIAgentManager to AIProvider.
 */
 
 public without sharing class AIAnthropicResponseHandler implements IAIProviderResponseHandler {
@@ -23,7 +24,7 @@ public without sharing class AIAnthropicResponseHandler implements IAIProviderRe
     public class AIAnthropicResponseHandlerException extends Exception {}
 
     // previousToolCalls non-null: batches every tool result from the prior iteration into one user-role message. anthropicHttpResponse non-null: parses it and appends the assistant's content array as-is.
-    public AIAgentManager.Response handleResponse(List<Map<String, Object>> providerMessages, HttpResponse anthropicHttpResponse, List<AIAgentManager.ToolCall> previousToolCalls, List<Object> previousToolResults) {
+    public AIProvider.Response handleResponse(List<Map<String, Object>> providerMessages, HttpResponse anthropicHttpResponse, List<AIProvider.ToolCall> previousToolCalls, List<Object> previousToolResults) {
 
         try {
 
@@ -36,7 +37,7 @@ public without sharing class AIAnthropicResponseHandler implements IAIProviderRe
                 List<Object> toolResultBlocks = new List<Object>();
 
                 for (Integer toolIndex = 0; toolIndex < previousToolCalls.size(); toolIndex++) {
-                    toolResultBlocks.add( new Map<String, Object>{ AIAssistApplicationConstants.ANTHROPIC_FIELD_BLOCK_TYPE => AIAssistApplicationConstants.ANTHROPIC_BLOCK_TYPE_TOOL_RESULT, AIAssistApplicationConstants.ANTHROPIC_FIELD_TOOL_RESULT_ID => previousToolCalls[toolIndex].id, AIAssistApplicationConstants.ANTHROPIC_FIELD_CONTENT => AIAgentManager.stringifyToolResult(previousToolResults[toolIndex]) } );
+                    toolResultBlocks.add( new Map<String, Object>{ AIAssistApplicationConstants.ANTHROPIC_FIELD_BLOCK_TYPE => AIAssistApplicationConstants.ANTHROPIC_BLOCK_TYPE_TOOL_RESULT, AIAssistApplicationConstants.ANTHROPIC_FIELD_TOOL_RESULT_ID => previousToolCalls[toolIndex].id, AIAssistApplicationConstants.ANTHROPIC_FIELD_CONTENT => AIProvider.stringifyToolResult(previousToolResults[toolIndex]) } );
                 }
 
                 // Tool results go back as a user-role message (Anthropic has no separate "tool" role, unlike OpenAI) - all blocks in one message, never split across several.
@@ -48,7 +49,7 @@ public without sharing class AIAnthropicResponseHandler implements IAIProviderRe
             String rawResponseBody = anthropicHttpResponse.getBody();
 
             // Status not in AIAssistSettings__c.AIProviderSuccessStatusCodes__c - expose Anthropic's error, e.g. { "type": "error", "error": { "type": "invalid_request_error", "message": "..." } }, falling back to the raw body.
-            if (!AIAssistSettingsService.getAIProviderSuccessStatusCodes().contains(anthropicHttpResponse.getStatusCode())) {
+            if (!AIAssistSettingsService.getSuccessStatusCodes().contains(anthropicHttpResponse.getStatusCode())) {
 
                 String providerErrorDetail = rawResponseBody;
                 Boolean isJsonObjectBody = String.isNotBlank(rawResponseBody) && rawResponseBody.trim().startsWith('{') && rawResponseBody.trim().endsWith('}');
@@ -70,7 +71,7 @@ public without sharing class AIAnthropicResponseHandler implements IAIProviderRe
 
             if (contentBlocks == null) contentBlocks = new List<Object>();
 
-            AIAgentManager.Response agentResponse = new AIAgentManager.Response();
+            AIProvider.Response agentResponse = new AIProvider.Response();
             List<String> responseTextLines = new List<String>();
 
             // Text blocks become the reply text, tool_use blocks become tool calls - any other block type is ignored here
@@ -87,7 +88,7 @@ public without sharing class AIAnthropicResponseHandler implements IAIProviderRe
                 if (contentBlockType == AIAssistApplicationConstants.ANTHROPIC_BLOCK_TYPE_TOOL_USE) {
                     Map<String, Object> toolArguments = (Map<String, Object>) contentBlock.get(AIAssistApplicationConstants.ANTHROPIC_FIELD_TOOL_USE_INPUT);
 
-                    AIAgentManager.ToolCall toolCall = new AIAgentManager.ToolCall();
+                    AIProvider.ToolCall toolCall = new AIProvider.ToolCall();
                     toolCall.id = (String) contentBlock.get(AIAssistApplicationConstants.ANTHROPIC_FIELD_TOOL_USE_ID);
                     toolCall.name = (String) contentBlock.get(AIAssistApplicationConstants.ANTHROPIC_FIELD_TOOL_NAME);
                     toolCall.arguments = toolArguments != null ? toolArguments : new Map<String, Object>();

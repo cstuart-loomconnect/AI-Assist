@@ -18,9 +18,12 @@ Flow:
 
 Version      Date           Author                   Description
 1.0          2026-09-21     Chandler Stuart          Initial development
+1.1          2026-09-27     Chandler Stuart          process() rethrows instead of returning an empty list, so a failure is never mistaken for "no records found".
 */
 
 public without sharing class AiDataSourceResultProcessor {
+
+    public class AiDataSourceResultProcessorException extends Exception {}
 
     @TestVisible private static Id currentConversationId;
 
@@ -51,8 +54,7 @@ public without sharing class AiDataSourceResultProcessor {
             return processedRecords;
 
         } catch (Exception ex) {
-            AIPlatformLogManager.logException(ex, 'AiDataSourceResultProcessor', 'process');
-            return new List<Object>();
+            throw new AiDataSourceResultProcessorException('Failed to process AI Data Source results: ' + ex.getMessage(), ex); // Rethrown, not swallowed to an empty list - the model would read that as "no records found" and retry. Still fails closed: no data is returned. AIAgentManager.invokeTool logs it once.
         }
     }
 

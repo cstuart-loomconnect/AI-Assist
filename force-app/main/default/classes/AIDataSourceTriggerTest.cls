@@ -15,6 +15,8 @@ AIDataSourceTriggerHandler: Coverage 89%
 
 Version      Date               Author                   Description
 1.0          2026-09-09         Chandler Stuart          Initial development
+1.1          2026-09-27         Chandler Stuart          Added testScenario7 for Input Schema validation.
+1.2          2026-09-27         Chandler Stuart          Added testScenario8 for Developer Name tool-name validation.
 */
 
 @IsTest private class AIDataSourceTriggerTest {
@@ -25,6 +27,8 @@ Version      Date               Author                   Description
     // testScenario4: Inserting a Data Source with an uninstantiable Apex Class Name raises a validation error and rolls back the insert.
     // testScenario5: Updating an AIDataSource__c's Source Type to Apex with an Apex Class Name that doesn't implement IAIDataSourceExecutor raises a validation error on update.
     // testScenario6: Updating an unrelated field on an Apex-type AIDataSource__c, leaving Source Type and Apex Class Name unchanged, does not re-run Apex Class Name validation.
+    // testScenario7: InputSchema__c must be a JSON object - invalid JSON and a JSON array are rejected on insert and update; a JSON object and a blank value are accepted.
+    // testScenario8: DeveloperName__c must be a valid AI provider tool name - a name with a space is rejected on insert and update; letters, numbers, underscores and hyphens are accepted.
 
     @TestSetup static void setup() {
 
@@ -131,5 +135,52 @@ Version      Date               Author                   Description
         Test.stopTest();
 
         Assert.areEqual('Updated description only.', [SELECT Description__c FROM AIDataSource__c WHERE Id = :apexSource.Id].Description__c, 'The unrelated field update should have been saved.');
+    }
+
+    @IsTest static void testScenario7() {
+
+        AIDataSource__c validSource = AIAssistTestDataFactory.createAIDataSources(1, AIAssistApplicationConstants.DATA_SOURCE_TYPE_SOQL, 'SELECT Id FROM Account', false)[0];
+        validSource.InputSchema__c = '{"type": "object", "properties": {}}';
+
+        AIDataSource__c invalidJsonSource = AIAssistTestDataFactory.createAIDataSources(1, AIAssistApplicationConstants.DATA_SOURCE_TYPE_SOQL, 'SELECT Id FROM Account', false)[0];
+        invalidJsonSource.InputSchema__c = '{"type": "object"';
+
+        AIDataSource__c arraySource = AIAssistTestDataFactory.createAIDataSources(1, AIAssistApplicationConstants.DATA_SOURCE_TYPE_SOQL, 'SELECT Id FROM Account', false)[0];
+        arraySource.InputSchema__c = '[{"type": "object"}]';
+
+        Test.startTest();
+            List<Database.SaveResult> insertResults = Database.insert(new List<AIDataSource__c>{ validSource, invalidJsonSource, arraySource }, false);
+
+            validSource.InputSchema__c = 'not json';
+            Database.SaveResult updateResult = Database.update(validSource, false);
+        Test.stopTest();
+
+        Assert.isTrue(insertResults[0].isSuccess(), 'A JSON object schema should be accepted.');
+        Assert.isFalse(insertResults[1].isSuccess(), 'Invalid JSON should be rejected.');
+        Assert.isTrue(insertResults[1].getErrors()[0].getMessage().contains('valid JSON'), 'The error should say the JSON is invalid.');
+        Assert.isFalse(insertResults[2].isSuccess(), 'A JSON array should be rejected.');
+        Assert.isTrue(insertResults[2].getErrors()[0].getMessage().contains('JSON object'), 'The error should say a JSON object is required.');
+        Assert.isFalse(updateResult.isSuccess(), 'Changing the schema to invalid JSON should be rejected on update.');
+    }
+
+    @IsTest static void testScenario8() {
+
+        AIDataSource__c validSource = AIAssistTestDataFactory.createAIDataSources(1, AIAssistApplicationConstants.DATA_SOURCE_TYPE_SOQL, 'SELECT Id FROM Account', false)[0];
+        validSource.DeveloperName__c = 'Account_Lookup-v2';
+
+        AIDataSource__c invalidSource = AIAssistTestDataFactory.createAIDataSources(1, AIAssistApplicationConstants.DATA_SOURCE_TYPE_SOQL, 'SELECT Id FROM Account', false)[0];
+        invalidSource.DeveloperName__c = 'Account Lookup';
+
+        Test.startTest();
+            List<Database.SaveResult> insertResults = Database.insert(new List<AIDataSource__c>{ validSource, invalidSource }, false);
+
+            validSource.DeveloperName__c = 'Account.Lookup';
+            Database.SaveResult updateResult = Database.update(validSource, false);
+        Test.stopTest();
+
+        Assert.isTrue(insertResults[0].isSuccess(), 'Letters, numbers, underscores and hyphens should be accepted.');
+        Assert.isFalse(insertResults[1].isSuccess(), 'A name with a space should be rejected.');
+        Assert.isTrue(insertResults[1].getErrors()[0].getMessage().contains('tool name'), 'The error should explain the name is sent as the tool name.');
+        Assert.isFalse(updateResult.isSuccess(), 'Changing the name to an invalid one should be rejected on update.');
     }
 }

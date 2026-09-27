@@ -1,0 +1,18 @@
+AI AGENT MANAGER - UPGRADES
+
+Improvements that don't fix a failure.
+
+---------- Structure ----------
+[x] Move Request/ToolDefinition/Response/ToolCall and stringifyToolResult out of AIAgentManager into AIProvider (2026-09-27)
+[x] Provider lookup in AIProvider - adding a provider no longer changes AIAgentManager (2026-09-27)
+[ ] PII write deferral - AiMessageProcessingQueueable owns the whole cycle (turn on, call AIAgentManager, turn off, processCachedPIIMappings). Today AIAgentManager turns it on and off and the queueable turns it off again and saves.
+[ ] AgentResult - small factory methods (success/failure/retryable) instead of setting isSuccessful/isRetryable/errorMessage by hand in three places.
+[ ] Remove the AIAgentManager static block that preloads AIAssistSettingsService - the service already caches on first use.
+[ ] Tool-calling loop exits - when the provider ignores allowToolCalls on the last iteration, the turn fails as "Reached the maximum tool-calling iterations", which logs the wrong reason.
+
+---------- Cost ----------
+[ ] Anthropic prompt caching - every iteration and every retry re-sends the same system prompt, tools and history.
+
+---------- Housekeeping ----------
+[x] Build.txt - AiAgentOrchestrator renamed to AIAgentManager; added AIProvider, the provider request builders/response handlers, AIConversationLockService, AiMessageProcessingFinalizer and AIGovernorLimits (2026-09-27)
+[ ] AiWorkflowActionDispatcher header still says "Entry point Agent tool-calling invokes" - Workflow Actions are suggestion-only now, run when the user clicks one.

@@ -10,11 +10,17 @@ AIPiiPseudonymizationService hands it and reads them back later, keyed by conver
 mapping is stored as JSON in a single AIPIIMapping__c row per conversation. Reads and the
 mapping itself are cached per conversation for the life of the transaction.
 
+Deferred writes: Salesforce blocks a callout after uncommitted DML, so while AIAgentManager's
+tool-calling loop is running, isDeferringWrites = true makes addMapping() update only the in-memory cache.
+The caller then sets it back to false and persists every pending mapping in one pass with
+processCachedPIIMappings() once all callouts are finished.
+
 =================================================================
 =================================================================
 
 Version      Author                   Description
 1.0          Chandler Stuart          Initial development
+1.1          Chandler Stuart          isDeferringWrites/processCachedPIIMappings() - no DML mid tool-calling loop, which would block the next callout.
 
 */
 
@@ -24,6 +30,35 @@ public without sharing class AIPiiMappingService {
     @TestVisible private static Map<Id, Map<String, String>> conversationIdToReverseMapping = new Map<Id, Map<String, String>>();
 
     @TestVisible private static Map<Id, AIPIIMapping__c> conversationIdToPIIMapping = new Map<Id, AIPIIMapping__c>();
+
+    // true = addMapping() holds pairings in memory only, until processCachedPIIMappings(). Set true before any callout loop that may mask PII between callouts, and back to false once the callouts are done.
+    public static Boolean isDeferringWrites = false;
+    @TestVisible private static Set<Id> conversationIdsWithUnsavedMappings = new Set<Id>();
+
+    // Saves every mapping cached while isDeferringWrites was true. Must run after the transaction's last callout.
+    public static void processCachedPIIMappings() {
+        try {
+
+            if (conversationIdsWithUnsavedMappings.isEmpty()) return;
+
+            // Collect the cached record for each conversation with unsaved pairings.
+            List<AIPIIMapping__c> mappingsToSave = new List<AIPIIMapping__c>();
+
+            for (Id conversationId : conversationIdsWithUnsavedMappings) {
+                AIPIIMapping__c cachedMapping = conversationIdToPIIMapping.get(conversationId);
+                if (cachedMapping != null) mappingsToSave.add(cachedMapping);
+            }
+
+            conversationIdsWithUnsavedMappings.clear();
+
+            // Upsert - inserts a conversation's first mapping record, updates an existing one.
+            List<Database.UpsertResult> saveResults = Database.upsert(mappingsToSave, false);
+            AIPlatformLogManager.logExceptions(saveResults, 'AIPiiMappingService', 'processCachedPIIMappings');
+
+        } catch (Exception ex) {
+            AIPlatformLogManager.logException(ex, 'AIPiiMappingService', 'processCachedPIIMappings');
+        }
+    }
 
 
     // Looks up the fake value previously mapped to a real value for this conversation, if any.
@@ -139,7 +174,15 @@ public without sharing class AIPiiMappingService {
             // Re-serialise the full map back to JSON for storage.
             String updatedJson = JSON.serialize(pairs);
 
-            if (existing != null) {
+            if (isDeferringWrites) {
+                // Deferred - update or create the cached record only; processCachedPIIMappings() persists it once the callouts are done.
+                if (existing != null) {
+                    existing.MappingJson__c = updatedJson;
+                } else {
+                    conversationIdToPIIMapping.put(conversationId, new AIPIIMapping__c(AIConversation__c = conversationId, MappingJson__c = updatedJson));
+                }
+                conversationIdsWithUnsavedMappings.add(conversationId);
+            } else if (existing != null) {
                 // Update the existing mapping record with the merged JSON.
                 Database.SaveResult updateResult = Database.update( new AIPIIMapping__c(Id = existing.Id, MappingJson__c = updatedJson), false );
                 if (!updateResult.isSuccess()) {

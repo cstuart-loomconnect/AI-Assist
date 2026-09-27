@@ -9,7 +9,7 @@ Deliberately a separate class from AIAnthropicResponseHandler; building a reques
 a response are different jobs. The endpoint path and version header live on
 AIModelConfiguration__c instead of here, since they vary per deployment, not per provider brand.
 Every JSON field name this shape depends on is a AIAssistApplicationConstants.ANTHROPIC_* constant -
-adding or changing a provider is a new pair of classes, never a change to AIAgentManager.
+adding or changing a provider is a new pair of classes registered in AIProvider, never a change to AIAgentManager.
 
 =================================================================
 =================================================================
@@ -18,6 +18,8 @@ Version      Date           Author                   Description
 1.0          2026-09-26     Chandler Stuart          Initial development
 1.1          2026-09-26     Chandler Stuart          Removed apiPath/apiVersionHeader* - moved to AIModelConfiguration__c fields.
 1.2          2026-09-26     Chandler Stuart          Moved field names to AIAssistApplicationConstants, wrapped in try/catch.
+1.3          2026-09-27     Chandler Stuart          Sends tool_choice {"type": "none"} when Request.allowToolCalls is false.
+1.4          2026-09-27     Chandler Stuart          Canonical types moved from AIAgentManager to AIProvider.
 */
 
 public without sharing class AIAnthropicRequestBuilder implements IAIProviderRequestBuilder {
@@ -25,7 +27,7 @@ public without sharing class AIAnthropicRequestBuilder implements IAIProviderReq
     public class AIAnthropicRequestBuilderException extends Exception {}
 
     // Builds { model, max_tokens, messages, [temperature], [system], [tools] } - optional keys are omitted entirely when unset, never sent as null.
-    public Map<String, Object> buildRequestBody(AIAgentManager.Request request) {
+    public Map<String, Object> buildRequestBody(AIProvider.Request request) {
 
         try {
 
@@ -46,7 +48,7 @@ public without sharing class AIAnthropicRequestBuilder implements IAIProviderReq
 
                 List<Object> toolDefinitions = new List<Object>();
 
-                for (AIAgentManager.ToolDefinition tool : request.tools) {
+                for (AIProvider.ToolDefinition tool : request.tools) {
                     toolDefinitions.add(new Map<String, Object>{
                         AIAssistApplicationConstants.ANTHROPIC_FIELD_TOOL_NAME => tool.name,
                         AIAssistApplicationConstants.ANTHROPIC_FIELD_TOOL_DESCRIPTION => tool.description,
@@ -55,6 +57,10 @@ public without sharing class AIAnthropicRequestBuilder implements IAIProviderReq
                 }
 
                 requestBody.put(AIAssistApplicationConstants.ANTHROPIC_FIELD_TOOLS, toolDefinitions);
+
+                // Last tool-calling iteration - tools stay listed (Anthropic rejects a conversation with tool_use blocks but no tools) but the model may not call one.
+                if (request.allowToolCalls == false) requestBody.put(AIAssistApplicationConstants.ANTHROPIC_FIELD_TOOL_CHOICE, new Map<String, Object>{ AIAssistApplicationConstants.ANTHROPIC_FIELD_TOOL_CHOICE_TYPE => AIAssistApplicationConstants.ANTHROPIC_TOOL_CHOICE_NONE });
+
             }
 
             return requestBody;

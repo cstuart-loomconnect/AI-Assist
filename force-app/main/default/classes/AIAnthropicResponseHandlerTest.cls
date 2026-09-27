@@ -14,6 +14,7 @@ AIAnthropicResponseHandler: Coverage 100%
 
 Version      Date               Author                   Description
 1.0          2026-09-26         Chandler Stuart          Initial development
+1.1          2026-09-27         Chandler Stuart          Canonical types moved from AIAgentManager to AIProvider.
 */
 
 @IsTest private class AIAnthropicResponseHandlerTest {
@@ -47,7 +48,7 @@ Version      Date               Author                   Description
         List<Map<String, Object>> providerMessages = new List<Map<String, Object>>();
 
         Test.startTest();
-            AIAgentManager.Response agentResponse = new AIAnthropicResponseHandler().handleResponse(providerMessages, buildHttpResponse(200, responseBody), null, null);
+            AIProvider.Response agentResponse = new AIAnthropicResponseHandler().handleResponse(providerMessages, buildHttpResponse(200, responseBody), null, null);
         Test.stopTest();
 
         Assert.areEqual('Looking that up.\nOne moment.', agentResponse.textContent, 'Text blocks should be joined with a newline.');
@@ -63,12 +64,12 @@ Version      Date               Author                   Description
 
     @IsTest static void testScenario2() {
 
-        List<AIAgentManager.ToolCall> previousToolCalls = new List<AIAgentManager.ToolCall>{ buildToolCall('toolu_01'), buildToolCall('toolu_02') };
+        List<AIProvider.ToolCall> previousToolCalls = new List<AIProvider.ToolCall>{ buildToolCall('toolu_01'), buildToolCall('toolu_02') };
         List<Object> previousToolResults = new List<Object>{ 'plain text result', new Map<String, Object>{ 'Name' => 'Acme' } };
         List<Map<String, Object>> providerMessages = new List<Map<String, Object>>();
 
         Test.startTest();
-            AIAgentManager.Response agentResponse = new AIAnthropicResponseHandler().handleResponse(providerMessages, null, previousToolCalls, previousToolResults);
+            AIProvider.Response agentResponse = new AIAnthropicResponseHandler().handleResponse(providerMessages, null, previousToolCalls, previousToolResults);
         Test.stopTest();
 
         Assert.isNull(agentResponse, 'A null HttpResponse should return null.');
@@ -89,7 +90,7 @@ Version      Date               Author                   Description
 
     @IsTest static void testScenario3() {
 
-        List<AIAgentManager.ToolCall> previousToolCalls = new List<AIAgentManager.ToolCall>{ buildToolCall('toolu_01'), buildToolCall('toolu_02') };
+        List<AIProvider.ToolCall> previousToolCalls = new List<AIProvider.ToolCall>{ buildToolCall('toolu_01'), buildToolCall('toolu_02') };
         List<Object> previousToolResults = new List<Object>{ 'only one result' };
 
         Test.startTest();
@@ -148,8 +149,8 @@ Version      Date               Author                   Description
         return httpResponse;
     }
 
-    private static AIAgentManager.ToolCall buildToolCall(String toolCallId) {
-        AIAgentManager.ToolCall toolCall = new AIAgentManager.ToolCall();
+    private static AIProvider.ToolCall buildToolCall(String toolCallId) {
+        AIProvider.ToolCall toolCall = new AIProvider.ToolCall();
         toolCall.id = toolCallId;
         toolCall.name = 'getAccount';
         toolCall.arguments = new Map<String, Object>();

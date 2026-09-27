@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CalloutTimeoutMilliseconds__c</fullName>
+    <defaultValue>30000</defaultValue>
+    <description>How long, in milliseconds, AIAgentManager waits for an AI provider callout before treating it as failed. Applies to every AI Model Configuration. Required - a blank value fails every AI message.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>1 - 120000 (the Apex callout limit). Must be set - a blank value fails every AI message.</inlineHelpText>
+    <label>Callout Timeout Milliseconds</label>
+    <precision>6</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>
