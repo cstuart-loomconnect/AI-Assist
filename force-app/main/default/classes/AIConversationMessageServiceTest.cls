@@ -15,6 +15,7 @@ AIConversationMessageService: Coverage 100%
 Version      Date               Author                   Description
 1.0          2026-09-22         Chandler Stuart          Initial development
 1.1          2026-09-27         Chandler Stuart          Added testScenario7 (processing lock) and testScenario8 (failed turns record their tokens).
+1.2          2026-09-27         Chandler Stuart          Added testScenario9 (continuing a conversation by Id), testScenario10 (retryLatestMessage) and testScenario11 (new conversations paused).
 */
 
 @IsTest private class AIConversationMessageServiceTest {
@@ -27,6 +28,9 @@ Version      Date               Author                   Description
     // testScenario6: closeConversation sets Status__c to Closed with the given reason, defaults to User Closed when no reason is supplied, and throws when no Conversation Id is given.
     // testScenario7: A message sent while the conversation is already processing another is saved but not enqueued - it waits for the running job's finalizer.
     // testScenario8: handleAgentResult with a failed result records the tokens spent as a System message; a failed result with no tokens records nothing.
+    // testScenario9: sendMessage with a conversation Id continues that conversation while it's Active, owned by the user and on the same Agent; a closed one, or one over the Agent's message cap (closed with Message Limit Reached), starts a new conversation instead.
+    // testScenario10: retryLatestMessage re-runs the newest user message once the lock is free, and refuses while it's still locked, for a closed conversation and for one with no user message.
+    // testScenario11: While AIAssistUISettings__c.DisableUserInitiatedChat__c is on, a message that would start a new conversation is refused, but an open conversation can still be continued.
 
     @TestSetup static void setup() {
 
@@ -324,5 +328,100 @@ Version      Date               Author                   Description
         Assert.areEqual(1, systemMessages.size(), 'Only the failed turn that spent tokens should be recorded.');
         Assert.areEqual(250, systemMessages[0].TokenCount__c, 'The tokens spent should be recorded.');
         Assert.isTrue(systemMessages[0].MessageBody__c.contains('Provider error.'), 'The failure reason should be recorded.');
+    }
+
+    @IsTest static void testScenario9() {
+
+        AIAgent__c agent = AIAssistTestDataFactory.createAIAgents(1, false)[0];
+        agent.IsActive__c = true;
+        agent.MaxMessagesPerConversation__c = 3;
+        insert agent;
+
+        AIConversationMessage__c first = AIConversationMessageService.sendMessage(null, agent.Id, 'First', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+        AIConversationMessage__c second = AIConversationMessageService.sendMessage(first.AIConversation__c, agent.Id, 'Second', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+        Assert.areEqual(first.AIConversation__c, second.AIConversation__c, 'Passing the open conversation should continue it.');
+
+        AIConversationMessageService.sendMessage(first.AIConversation__c, agent.Id, 'Third', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+
+        Test.startTest();
+            AIConversationMessage__c fourth = AIConversationMessageService.sendMessage(first.AIConversation__c, agent.Id, 'Fourth', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+        Test.stopTest();
+
+        Assert.areNotEqual(first.AIConversation__c, fourth.AIConversation__c, 'A conversation at its message cap should start a new one.');
+
+        AIConversation__c capped = [SELECT Status__c, ConversationCloseReason__c FROM AIConversation__c WHERE Id = :first.AIConversation__c];
+        Assert.areEqual(AIAssistApplicationConstants.CONVERSATION_STATUS_CLOSED, capped.Status__c, 'The capped conversation should be closed.');
+        Assert.areEqual(AIAssistApplicationConstants.CONVERSATION_CLOSE_REASON_MESSAGE_LIMIT_REACHED, capped.ConversationCloseReason__c, 'It should be closed for its message limit.');
+
+        AIConversationMessage__c afterClosed = AIConversationMessageService.sendMessage(first.AIConversation__c, agent.Id, 'Fifth', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+        Assert.areNotEqual(first.AIConversation__c, afterClosed.AIConversation__c, 'A closed conversation should never be continued.');
+    }
+
+    @IsTest static void testScenario10() {
+
+        AIAgent__c agent = AIAssistTestDataFactory.createAIAgents(1, false)[0];
+        agent.IsActive__c = true;
+        insert agent;
+
+        AIConversationMessage__c sent = AIConversationMessageService.sendMessage(agent.Id, 'Hello', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+        Id conversationId = sent.AIConversation__c;
+
+        try {
+            AIConversationMessageService.retryLatestMessage(conversationId);
+            Assert.fail('Retrying while the message is still processing should have thrown.');
+        } catch (AIConversationMessageService.AIConversationMessageServiceException ex) {
+            Assert.isTrue(ex.getMessage().contains('Still working'), 'Error should explain the message is still processing.');
+        }
+
+        update new AIConversation__c(Id = conversationId, ProcessingLockedUntil__c = null);
+
+        Test.startTest();
+            Id retriedMessageId = AIConversationMessageService.retryLatestMessage(conversationId);
+        Test.stopTest();
+
+        Assert.areEqual(sent.Id, retriedMessageId, 'The newest user message should be re-run.');
+
+        AIConversation__c emptyConversation = AIAssistTestDataFactory.createAIConversations(agent.Id, 1, true)[0];
+        try {
+            AIConversationMessageService.retryLatestMessage(emptyConversation.Id);
+            Assert.fail('A conversation with no user message should have thrown.');
+        } catch (AIConversationMessageService.AIConversationMessageServiceException ex) {
+            Assert.isTrue(ex.getMessage().contains('no message'), 'Error should explain there is nothing to retry.');
+        }
+
+        AIConversationMessageService.closeConversation(conversationId, null);
+        try {
+            AIConversationMessageService.retryLatestMessage(conversationId);
+            Assert.fail('A closed conversation should have thrown.');
+        } catch (AIConversationMessageService.AIConversationMessageServiceException ex) {
+            Assert.isTrue(ex.getMessage().contains('has ended'), 'Error should explain the conversation has ended.');
+        }
+    }
+
+    @IsTest static void testScenario11() {
+
+        AIAgent__c agent = AIAssistTestDataFactory.createAIAgents(1, false)[0];
+        agent.IsActive__c = true;
+        insert agent;
+
+        AIConversationMessage__c opened = AIConversationMessageService.sendMessage(agent.Id, 'Before the pause', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+
+        AIAssistUISettings__c uiSettings = AIAssistUISettings__c.getOrgDefaults();
+        uiSettings.DisableUserInitiatedChat__c = true;
+        upsert uiSettings;
+
+        Test.startTest();
+
+            AIConversationMessage__c continued = AIConversationMessageService.sendMessage(opened.AIConversation__c, agent.Id, 'Still allowed', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+            Assert.areEqual(opened.AIConversation__c, continued.AIConversation__c, 'An open conversation should still continue.');
+
+            try {
+                AIConversationMessageService.sendMessage(agent.Id, 'A new chat', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
+                Assert.fail('Starting a new conversation should have been refused.');
+            } catch (AIConversationMessageService.AIConversationMessageServiceException ex) {
+                Assert.areEqual(AIAssistApplicationConstants.NEW_CONVERSATIONS_PAUSED_MESSAGE, ex.getMessage(), 'Error should say new conversations are paused.');
+            }
+
+        Test.stopTest();
     }
 }

@@ -282,4 +282,51 @@ public without sharing class AIAssistApplicationConstants {
     public static final String WORKFLOW_ACTION_PROMPT_INSTRUCTION = 'Workflows (you cannot run these; suggest one only if it genuinely helps, never claim to have run one):';
     public static final String WORKFLOW_ACTION_SUGGESTION_ONLY_REPLY = 'Here\'s a suggested next step.'; // Shown when the model's reply was only a Workflow Action suggestion, so the saved reply is never blank.
     public static final String WORKFLOW_ACTION_PROMPT_JSON_INSTRUCTION = 'To suggest one, end your reply with a line containing only {"' + SUGGESTED_WORKFLOW_ACTION_JSON_KEY + '":"<DeveloperName>"}; otherwise omit it.';
+
+    // AIConversationMessageService - thrown when a new conversation is needed while AIAssistUISettings__c.DisableUserInitiatedChat__c is on.
+    public static final String NEW_CONVERSATIONS_PAUSED_MESSAGE = 'New conversations are paused by your admin.';
+
+    // AIFeedback__c.Rating__c
+    public static final String FEEDBACK_RATING_HELPFUL = 'Helpful';
+    public static final String FEEDBACK_RATING_NOT_HELPFUL = 'Not Helpful';
+
+    // AIAssistUISettings__c.SuggestedActionsDisplay__c (Text - Custom Settings have no picklists)
+    public static final String SUGGESTED_ACTIONS_DISPLAY_CARDS = 'Cards';
+    public static final String SUGGESTED_ACTIONS_DISPLAY_INLINE_BUTTONS = 'Inline Buttons';
+
+    // AIAgent__c.ConversationLoadTrigger__c
+    public static final String CONVERSATION_LOAD_TRIGGER_ON_PAGE_LOAD = 'On Page Load';
+    public static final String CONVERSATION_LOAD_TRIGGER_ON_CHAT_WINDOW_OPEN = 'On Chat Window Open';
+    public static final String CONVERSATION_LOAD_TRIGGER_MANUAL_ONLY = 'Manual Only';
+
+    // AIChatController - used when AIAssistSettings__c.CurrentTermsVersion__c is blank.
+    public static final String DEFAULT_TERMS_VERSION = '1.0';
+
+    // AIChatCommand__mdt.AvailableTo__c - each level includes the ones above it.
+    public static final String CHAT_COMMAND_AVAILABLE_TO_ALL_USERS = 'All Users';
+    public static final String CHAT_COMMAND_AVAILABLE_TO_SUPER_USERS_AND_ADMINS = 'Super Users and Admins';
+    public static final String CHAT_COMMAND_AVAILABLE_TO_ADMINS_ONLY = 'Admins Only';
+
+    // AIChatController - a slash command's user-typed text and its hidden AIChatCommand__mdt.PromptText__c are saved as one message body, split by this marker. The chat window only shows the part before it; the model sees both.
+    public static final String CHAT_COMMAND_PROMPT_SEPARATOR = '\n\n[Command instructions]\n';
+    public static final String CHAT_COMMAND_PATTERN = '^/[A-Za-z0-9_-]{1,40}(\\s[\\s\\S]*)?$';
+
+    // AIChatController - chat window state machine values, mirrored by the aiAssistChat LWC.
+    public static final String CHAT_STATE_READY = 'READY';
+    public static final String CHAT_STATE_INACTIVE = 'INACTIVE';
+    public static final String CHAT_STATE_MAINTENANCE = 'MAINTENANCE';
+    public static final String CHAT_STATE_CHANNEL_DISABLED = 'CHANNEL_DISABLED';
+    public static final String CHAT_STATE_NO_AGENT = 'NO_AGENT';
+    public static final String CHAT_STATE_TERMS = 'TERMS';
+
+    // AIChatController.sendMessage result status, mirrored by the aiAssistChat LWC.
+    public static final String CHAT_SEND_STATUS_SENT = 'SENT';
+    public static final String CHAT_SEND_STATUS_BLOCKED = 'BLOCKED';
+    public static final String CHAT_SEND_STATUS_LIMIT = 'LIMIT';
+    public static final String CHAT_SEND_STATUS_ERROR = 'ERROR';
+
+    // AIChatController - how many conversations the history panel lists, and how many messages load per page when AIAssistUISettings__c.MaxVisibleMessageHistory__c is blank.
+    public static final Integer CHAT_HISTORY_MAX_CONVERSATIONS = 50;
+    public static final Integer CHAT_DEFAULT_MESSAGE_PAGE_SIZE = 20;
+    public static final Integer CHAT_CONVERSATION_TITLE_MAX_LENGTH = 60;
 }

@@ -27,6 +27,7 @@ Version      Date           Author                   Description
 1.2          2026-09-27     Chandler Stuart          Retry event carries PriorAttemptTokensUsed__c so tokens spent before a retry aren't lost.
 1.3          2026-09-27     Chandler Stuart          One message processed per conversation at a time (AIConversationLockService). Retries moved to AiMessageProcessingFinalizer - AIMessageCalloutEvent__e removed. Failed turns record their tokens via a System message.
 1.4          2026-09-27     Chandler Stuart          Failed turns show the user a generic message; the detailed error goes only into the failed-turn System message and the logs.
+1.5          2026-09-27     Chandler Stuart          sendMessage overload continues a known conversation by Id (the chat window). Added retryLatestMessage (Try again / Regenerate). New conversations are refused while AIAssistUISettings__c.DisableUserInitiatedChat__c is on.
 */
 
 public without sharing class AIConversationMessageService {
@@ -35,6 +36,11 @@ public without sharing class AIConversationMessageService {
 
     // Validates the request, finds-or-creates the Active conversation, inserts the user's message, and enqueues async AI processing. Returns the inserted user message.
     public static AIConversationMessage__c sendMessage(Id agentId, String messageBody, String channel, String relatedObjectApiName, Id relatedRecordId) {
+        return sendMessage(null, agentId, messageBody, channel, relatedObjectApiName, relatedRecordId);
+    }
+
+    // As above, but continues conversationId when it's still Active, owned by the user and on the same Agent - the chat window passes the conversation it has open. Anything else (blank, closed, over its caps) starts a new conversation, so check the returned message's AIConversation__c.
+    public static AIConversationMessage__c sendMessage(Id conversationId, Id agentId, String messageBody, String channel, String relatedObjectApiName, Id relatedRecordId) {
         try {
 
             if (agentId == null) throw new AIConversationMessageServiceException('An Agent Id is required.');
@@ -46,8 +52,10 @@ public without sharing class AIConversationMessageService {
             Boolean channelAllowed = isChannelAllowed(userSettings, channel);
             if (!channelAllowed) throw new AIConversationMessageServiceException('Channel "' + channel + '" is not enabled for your account.');
 
-            AIConversation__c conversation = getReusableConversation(agent, relatedRecordId);
+            AIConversation__c conversation = conversationId != null ? getContinuingConversation(agent, conversationId) : getReusableConversation(agent, relatedRecordId);
             Boolean isNewConversation = conversation == null;
+
+            if (isNewConversation && AIAssistUISettings__c.getInstance().DisableUserInitiatedChat__c == true) throw new AIConversationMessageServiceException(AIAssistApplicationConstants.NEW_CONVERSATIONS_PAUSED_MESSAGE);
 
             Boolean withinUsageLimits = isWithinUsageLimits(userSettings, isNewConversation);
             if (!withinUsageLimits) throw new AIConversationMessageServiceException('You have reached your usage limit.');
@@ -91,6 +99,38 @@ public without sharing class AIConversationMessageService {
         }
     }
 
+
+    // Re-runs the AI response for the conversation's newest user message - the chat window's Try again (after a failed turn) and Regenerate. Only the newest message can be re-run: the finalizer hands the lock to the newest user message, so re-running an older one would answer the newest twice. Returns the re-run message's Id.
+    public static Id retryLatestMessage(Id conversationId) {
+        try {
+
+            if (conversationId == null || conversationId.getSobjectType() != AIConversation__c.SObjectType) throw new AIConversationMessageServiceException('A valid AI Conversation Id is required.');
+
+            List<AIConversation__c> conversations = [ SELECT Id, Status__c FROM AIConversation__c WHERE Id =:conversationId AND OwnerId =:UserInfo.getUserId() LIMIT 1 ];
+            if (conversations.isEmpty()) throw new AIConversationMessageServiceException('AI Conversation not found for Id: ' + conversationId);
+            if (conversations[0].Status__c != AIAssistApplicationConstants.CONVERSATION_STATUS_ACTIVE) throw new AIConversationMessageServiceException('This conversation has ended. Start a new one to keep going.');
+
+            List<AIConversationMessage__c> newestUserMessages = [ SELECT Id
+                                                                  FROM AIConversationMessage__c
+                                                                  WHERE AIConversation__c =:conversationId
+                                                                  AND Sender__c =:AIAssistApplicationConstants.SENDER_USER
+                                                                  ORDER BY CreatedDate DESC, Id DESC
+                                                                  LIMIT 1 ];
+
+            if (newestUserMessages.isEmpty()) throw new AIConversationMessageServiceException('There is no message to try again.');
+
+            Boolean hasLock = AIConversationLockService.lockConversation(conversationId);
+            if (!hasLock) throw new AIConversationMessageServiceException('Still working on your last message - try again once it has finished.');
+
+            System.enqueueJob(new AiMessageProcessingQueueable(newestUserMessages[0].Id, conversationId));
+
+            return newestUserMessages[0].Id;
+
+        } catch (Exception ex) {
+            AIPlatformLogManager.logException(ex, 'AIConversationMessageService', 'retryLatestMessage');
+            throw ex instanceof AIConversationMessageServiceException ? ex : new AIConversationMessageServiceException('Failed to try the message again: ' + ex.getMessage(), ex);
+        }
+    }
 
     // Evaluates one final AgentResult from AIAgentManager.executeAiMessage and performs whichever update follows - the manager itself never touches the database or the event bus. Retryable results never reach here; AiMessageProcessingQueueable hands those to AiMessageProcessingFinalizer to schedule.
     public static void handleAgentResult(Id conversationId, AIAgentManager.AgentResult result) {
@@ -283,27 +323,50 @@ public without sharing class AIConversationMessageService {
 
             if (existingConversations.isEmpty()) return null;
 
-            AIConversation__c existingConversation = existingConversations[0];
-
-            // Agent enforces a max message count per conversation; once reached, close it out instead of continuing
-            if (agent.MaxMessagesPerConversation__c != null && existingConversation.MessageCount__c != null && existingConversation.MessageCount__c >= agent.MaxMessagesPerConversation__c) {
-                // Limit reached: close the conversation and signal callers there is no conversation to append to
-                updateConversationToClosed(existingConversation.Id, AIAssistApplicationConstants.CONVERSATION_CLOSE_REASON_MESSAGE_LIMIT_REACHED);
-                return null;
-            }
-
-            // Agent enforces a max token usage per conversation; once reached, close it out instead of continuing
-            if (agent.MaxTokensPerConversation__c != null && existingConversation.ConversationTokenUsage__c != null && existingConversation.ConversationTokenUsage__c >= agent.MaxTokensPerConversation__c) {
-                // Limit reached: close the conversation and signal callers there is no conversation to append to
-                updateConversationToClosed(existingConversation.Id, AIAssistApplicationConstants.CONVERSATION_CLOSE_REASON_TOKEN_LIMIT_REACHED);
-                return null;
-            }
-
-            return existingConversation;
+            return closeIfOverConversationCaps(agent, existingConversations[0]);
 
         } catch (Exception ex) {
             throw ex instanceof AIConversationMessageServiceException ? ex : new AIConversationMessageServiceException('Failed to get reusable conversation: ' + ex.getMessage(), ex);
         }
+    }
+
+    // The conversation the chat window has open - only continued while it's Active, the user's own and on the same Agent. Returns null (start a new one) otherwise, including when it has hit the Agent's per-conversation caps.
+    private static AIConversation__c getContinuingConversation(AIAgent__c agent, Id conversationId) {
+        try {
+
+            if (agent == null || conversationId == null || conversationId.getSobjectType() != AIConversation__c.SObjectType) return null;
+
+            List<AIConversation__c> conversations = [ SELECT Id, Status__c, MessageCount__c, ConversationTokenUsage__c
+                                                      FROM AIConversation__c
+                                                      WHERE Id =:conversationId
+                                                      AND AIAgent__c =:agent.Id
+                                                      AND Status__c =:AIAssistApplicationConstants.CONVERSATION_STATUS_ACTIVE
+                                                      AND OwnerId =:UserInfo.getUserId()
+                                                      LIMIT 1 ];
+
+            if (conversations.isEmpty()) return null;
+
+            return closeIfOverConversationCaps(agent, conversations[0]);
+
+        } catch (Exception ex) {
+            throw ex instanceof AIConversationMessageServiceException ? ex : new AIConversationMessageServiceException('Failed to get the open conversation: ' + ex.getMessage(), ex);
+        }
+    }
+
+    // Returns the conversation to keep appending to, or null once it has hit the Agent's max message or token count - it's closed here with the matching reason so the caller starts a fresh one instead of blocking the user.
+    private static AIConversation__c closeIfOverConversationCaps(AIAgent__c agent, AIConversation__c existingConversation) {
+
+        if (agent.MaxMessagesPerConversation__c != null && existingConversation.MessageCount__c != null && existingConversation.MessageCount__c >= agent.MaxMessagesPerConversation__c) {
+            updateConversationToClosed(existingConversation.Id, AIAssistApplicationConstants.CONVERSATION_CLOSE_REASON_MESSAGE_LIMIT_REACHED);
+            return null;
+        }
+
+        if (agent.MaxTokensPerConversation__c != null && existingConversation.ConversationTokenUsage__c != null && existingConversation.ConversationTokenUsage__c >= agent.MaxTokensPerConversation__c) {
+            updateConversationToClosed(existingConversation.Id, AIAssistApplicationConstants.CONVERSATION_CLOSE_REASON_TOKEN_LIMIT_REACHED);
+            return null;
+        }
+
+        return existingConversation;
     }
 
     // A rough, cheap estimate (~4 characters per token) for immediate usage-cap bookkeeping - not an exact provider-reported count, which only becomes known after the callout.
