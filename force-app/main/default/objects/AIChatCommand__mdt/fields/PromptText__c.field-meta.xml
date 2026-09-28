@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PromptText__c</fullName>
+    <description>The instructions sent to the AI model when the command is used. Never shown to the user. Read with SOQL - Custom Metadata getAll()/getInstance() cut Long Text Area values off at 255 characters.</description>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>Write the full instruction the AI should follow for this command.</inlineHelpText>
+    <label>Prompt Text</label>
+    <length>32768</length>
+    <type>LongTextArea</type>
+    <visibleLines>8</visibleLines>
+</CustomField>

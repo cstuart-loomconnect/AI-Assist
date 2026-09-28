@@ -1,0 +1,52 @@
+@import 'c/aiChatStyles';
+
+:host {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 0;
+}
+.scroll {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 16px;
+    min-height: 0;
+    padding: 12px 16px 16px;
+    overflow-y: auto;
+    transition: opacity 0.15s ease;
+}
+.scroll_dimmed {
+    opacity: 0.45;
+}
+.item {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.separator {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--aia-subtle);
+}
+.earlier {
+    align-self: center;
+    flex-shrink: 0;
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--aia-line);
+    border-radius: 999px;
+    background: var(--aia-surface);
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--aia-ink-soft);
+    cursor: pointer;
+}
+.earlier:hover:not([disabled]) {
+    border-color: var(--aia-line-strong);
+}
+.earlier:focus-visible {
+    outline: 2px solid var(--aia-accent);
+    outline-offset: 1px;
+}

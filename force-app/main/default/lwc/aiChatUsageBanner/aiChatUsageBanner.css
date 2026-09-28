@@ -1,0 +1,45 @@
+@import 'c/aiChatStyles';
+
+.banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0 12px 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+}
+.banner svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.banner_block {
+    background: var(--aia-danger-tint);
+    color: var(--aia-danger-ink);
+}
+.banner_notify {
+    background: var(--aia-warning-tint);
+    color: var(--aia-warning-ink);
+}
+.banner_conversations {
+    background: var(--aia-accent-tint);
+    color: var(--aia-accent-strong);
+}
+.text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-grow: 1;
+}
+.heading {
+    font-size: 13px;
+    font-weight: 600;
+}
+.body {
+    font-size: 12px;
+    line-height: 18px;
+}
+.dismiss {
+    width: 28px;
+    height: 28px;
+    --slds-c-icon-color-foreground-default: var(--aia-warning-ink);
+}

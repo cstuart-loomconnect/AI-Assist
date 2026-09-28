@@ -69,6 +69,12 @@ is a front-end concern.
 The canonical request/response types (Request, ToolDefinition, Response, ToolCall) live on
 AIProvider, since the provider classes and their interfaces use them too.
 
+Turn trace - executeAiMessage now also takes an AIExecutionStepTracker, timed around each data source
+read and provider callout (trace.startPhase/endPhase). It's mutated in place, not returned on
+AgentResult: the caller already holds the same reference, and reads it back afterwards to persist
+as AIExecutionStep__c rows (AIExecutionStepRecorder) and, while showLiveProgress is on, to let the
+chat window's "Working on it" card show real progress instead of a fixed placeholder.
+
 =================================================================
 =================================================================
 
@@ -83,6 +89,7 @@ Version      Date           Author                   Description
 1.7          2026-09-27     Chandler Stuart          Governor limit checks via AIGovernorLimits (headroom before each tool call, DML detection, callout budget). Tool calls capped per iteration. Tokens kept on every failure result. Removed the unused triggeringMessage parameter. PII write deferral moved from the static block into executeAiMessage.
 1.8          2026-09-27     Chandler Stuart          Blank messages skipped from history. Last iteration sent with tools disabled. Generic tool errors to the model. Tool description falls back to its name. Data Source writes rolled back via AIDataSourceWriteException. Running out of callout time is no longer retried. PII deferral switched off in a finally block.
 1.9          2026-09-27     Chandler Stuart          Request/ToolDefinition/Response/ToolCall and stringifyToolResult moved to AIProvider, which now also picks the provider's request builder and response handler.
+1.10         2026-09-28     Chandler Stuart          executeAiMessage takes an AIExecutionStepTracker, timed around each data source read and provider callout - live progress (AIAgentProgressPublisher) and the Debug Trace's per-step timing, iterations/attempt and request/response JSON (AIExecutionStepRecorder) all come from it.
 */
 
 public without sharing class AIAgentManager {
@@ -118,7 +125,8 @@ public without sharing class AIAgentManager {
 
     // Runs one full turn - callout(s), tool-calling loop, final text response - starting at attemptNumber (1 for the very first attempt; the caller increments this on every subsequent retry). Every argument is fully loaded by the caller; this class issues no SOQL of its own.
     // messageHistory must already end with the message being answered - the caller loads it up to and including that message.
-    public static AgentResult executeAiMessage(AIAgent__c agent, AIModelConfiguration__c modelConfiguration, AIPromptTemplate__c promptTemplate, AIConversation__c conversation, List<AIConversationMessage__c> messageHistory, List<AIDataSource__c> availableDataSources, List<AIWorkflowAction__c> availableWorkflowActions, Integer attemptNumber) {
+    // trace is mutated in place as the turn runs (AIExecutionStepTracker.startPhase/endPhase around each data source read and provider callout) - the caller already holds the same reference, so nothing about it needs to come back on AgentResult.
+    public static AgentResult executeAiMessage(AIAgent__c agent, AIModelConfiguration__c modelConfiguration, AIPromptTemplate__c promptTemplate, AIConversation__c conversation, List<AIConversationMessage__c> messageHistory, List<AIDataSource__c> availableDataSources, List<AIWorkflowAction__c> availableWorkflowActions, Integer attemptNumber, AIExecutionStepTracker trace) {
 
         // Declared outside the try so every failure result below - not just the successful one - reports the tokens already spent.
         Decimal totalTokensUsed = 0;
@@ -127,6 +135,9 @@ public without sharing class AIAgentManager {
 
             // PII masked by tool calls must not write to the database mid-loop - uncommitted DML blocks every later callout in this transaction. The caller saves them once the callouts are done (AIPiiMappingService.processCachedPIIMappings).
             AIPiiMappingService.isDeferringWrites = true;
+
+            // A trace that never publishes live and never captures full detail - so every call below can unconditionally use trace.startPhase/endPhase, with no separate null handling.
+            if (trace == null) trace = new AIExecutionStepTracker(conversation != null ? conversation.Id : null, null, false, false);
 
             if (agent == null) throw new AIAgentManagerException('No AI Agent provided.');
             if (modelConfiguration == null) throw new AIAgentManagerException('No AI Model Configuration provided.');
@@ -230,6 +241,9 @@ public without sharing class AIAgentManager {
             Integer configuredRetryAttempts = (modelConfiguration.RetryAttempts__c == null) ? 0 : modelConfiguration.RetryAttempts__c.intValue();
             Integer maxAttempts = 1 + configuredRetryAttempts;
 
+            trace.toolCallingIterationsMax = maxToolCallingIterations;
+            trace.attemptNumber = attemptNumber;
+
             // Tool calls run per model reply - any beyond this are skipped (AIAssistSettings__c.MaxToolCallsPerIteration__c).
             Integer maxToolCallsPerIteration = AIAssistSettingsService.getMaxToolCallsPerIteration();
 
@@ -279,6 +293,12 @@ public without sharing class AIAgentManager {
                     break;
                 }
 
+                // Only when a debug user is watching (trace.captureFullDetail) - both are already-pseudonymised text, but there's no reason to hold them in memory for every turn.
+                if (trace.captureFullDetail) {
+                    trace.lastRequestJson = requestBody;
+                    trace.sentPreviewText = buildSentPreview(providerMessages);
+                }
+
                 // [7b] Build and send the callout via the Named Credential with the trimmed timeout. A thrown callout exception (timeout, unreachable endpoint) breaks the loop as a retryable-or-failed result rather than a hard failure.
                 HttpRequest httpRequest = new HttpRequest();
                 httpRequest.setEndpoint(calloutEndpoint);
@@ -289,9 +309,12 @@ public without sharing class AIAgentManager {
                 httpRequest.setBody(requestBody);
 
                 HttpResponse httpResponse;
+                trace.startPhase('Provider callout', null);
                 try {
                     httpResponse = new Http().send(httpRequest);
+                    trace.endPhase(true);
                 } catch (Exception calloutException) {
+                    trace.endPhase(false);
 
                     // Uncommitted DML earlier in this transaction that the per-tool check missed - treated the same as a Data Source write, so it's rolled back too.
                     if (AIGovernorLimits.isUncommittedWorkException(calloutException)) {
@@ -303,6 +326,9 @@ public without sharing class AIAgentManager {
                     calloutErrorMessage = 'AI provider callout failed: ' + calloutException.getMessage();
                     break;
                 }
+
+                trace.toolCallingIterationsUsed = iteration + 1;
+                if (trace.captureFullDetail) trace.lastResponseJson = httpResponse.getBody();
 
                 // [7c] A retryable status (e.g. 429, 503 - AIAssistSettings__c.RetryableStatusCodes__c) ends this attempt so the caller can retry with fresh limits.
                 if (AIAssistSettingsService.getRetryStatusCodes().contains(httpResponse.getStatusCode())) {
@@ -349,7 +375,12 @@ public without sharing class AIAgentManager {
 
                     AIGovernorLimits.DmlSnapshot dmlBeforeTool = AIGovernorLimits.takeDmlSnapshot();
 
-                    toolResults.add(invokeTool(toolCall, dataSourceByToolName, conversation));
+                    AIDataSource__c dataSourceForTrace = dataSourceByToolName.get(toolCall.name);
+                    trace.startPhase(buildDataSourceLiveLabel(dataSourceForTrace, toolCall.name), dataSourceForTrace != null ? dataSourceForTrace.Id : null);
+
+                    Object toolResult = invokeTool(toolCall, dataSourceByToolName, conversation);
+                    trace.endPhase(toolResult != AIAssistApplicationConstants.TOOL_RESULT_FAILED);
+                    toolResults.add(toolResult);
 
                     // A Data Source that wrote to the database has blocked every later callout in this transaction - fail now with a clear reason rather than at the next callout.
                     // Thrown as AIDataSourceWriteException so it escapes the job and the whole transaction - including this write - is rolled back.
@@ -414,6 +445,31 @@ public without sharing class AIAgentManager {
             AIPlatformLogManager.logException(ex, 'AIAgentManager', 'invokeTool');
             return AIAssistApplicationConstants.TOOL_RESULT_FAILED;
         }
+    }
+
+    // The live "Working on it" label for a data source read - "Reading Contact Roles". Falls back to the raw tool name for a tool the model requested that doesn't resolve to a Data Source, so startPhase always has something to publish.
+    private static String buildDataSourceLiveLabel(AIDataSource__c dataSource, String toolName) {
+        return 'Reading ' + humaniseDeveloperName(dataSource != null ? dataSource.DeveloperName__c : toolName);
+    }
+
+    // "ContactRoles" / "Contact_Roles" -> "Contact Roles". Duplicated in miniature from AIChatDataStructure.humanise rather than shared - this class has no other reason to depend on the AIChatController family, and the function is a handful of lines.
+    private static String humaniseDeveloperName(String developerName) {
+        if (String.isBlank(developerName)) return '';
+        String spaced = developerName.replace('_', ' ').replaceAll('([a-z0-9])([A-Z])', '$1 $2').normalizeSpace();
+        return spaced.left(1).toUpperCase() + spaced.substring(1);
+    }
+
+    // The newest user-role message actually in providerMessages when this callout was built - a short, already-pseudonymised preview so a debug user can confirm masking worked without opening the PII mapping pairs.
+    private static String buildSentPreview(List<Map<String, Object>> providerMessages) {
+        for (Integer messageIndex = providerMessages.size() - 1; messageIndex >= 0; messageIndex--) {
+
+            Map<String, Object> message = providerMessages[messageIndex];
+            if (String.valueOf(message.get(AIAssistApplicationConstants.CANONICAL_ROLE_KEY)) != AIAssistApplicationConstants.CANONICAL_ROLE_USER) continue;
+
+            String content = String.valueOf(message.get(AIAssistApplicationConstants.CANONICAL_CONTENT_KEY));
+            return String.isBlank(content) ? null : content.abbreviate(200);
+        }
+        return null;
     }
 
     // Looks for a trailing {"suggested_workflow_action": "<DeveloperName>"} line, resolves it against what was actually offered, and strips it out of the visible reply.

@@ -1,0 +1,19 @@
+<template>
+    <lightning-modal-header label={labels.piiMappingsHeading}>
+        <p class="subtitle">{labels.piiMappingsSubtitle} · {conversationName}</p>
+    </lightning-modal-header>
+    <lightning-modal-body>
+        <template lwc:if={hasMappings}>
+            <pre class="mapping-json aia-mono">{mappingJson}</pre>
+        </template>
+        <template lwc:else>
+            <p class="empty">{labels.piiMappingsEmpty}</p>
+        </template>
+    </lightning-modal-body>
+    <lightning-modal-footer>
+        <template lwc:if={hasMappings}>
+            <lightning-button label={copyLabel} onclick={handleCopy} class="slds-m-right_x-small"></lightning-button>
+        </template>
+        <lightning-button variant="brand" label={labels.close} onclick={handleClose}></lightning-button>
+    </lightning-modal-footer>
+</template>

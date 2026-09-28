@@ -263,6 +263,9 @@ public without sharing class AIAssistApplicationConstants {
     public static final Integer TOOL_CALL_RESERVED_CPU_MILLISECONDS = 5000;
     public static final Integer TOOL_CALL_RESERVED_HEAP_BYTES = 2000000;
 
+    // AIGovernorLimits - Publish Immediately events (Limits.getLimitPublishImmediateDML(), 150 per transaction) are shared with AIPlatformLogManager's own logging, which must always be able to get through - so live progress (AIAgentProgressPublisher) gives up first and holds this many back for it.
+    public static final Integer PROGRESS_EVENT_RESERVED_PUBLISH_IMMEDIATE = 20;
+
     // AIGovernorLimits - the platform's message when a callout is attempted after uncommitted DML in the same transaction.
     public static final String UNCOMMITTED_WORK_ERROR_TEXT = 'uncommitted work pending';
 

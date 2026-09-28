@@ -1,0 +1,147 @@
+<template>
+    <div class="shell" style={shellStyle} onclick={handleShellClick}>
+        <template lwc:if={isTooNarrow}>
+            <c-ai-chat-state-panel variant="space" heading={labels.spaceHeading} body={labels.spaceBody}></c-ai-chat-state-panel>
+        </template>
+
+        <template lwc:elseif={isLoading}>
+            <c-ai-chat-header></c-ai-chat-header>
+            <div class="loading">
+                <lightning-spinner alternative-text="Loading AI Assist" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <template lwc:elseif={loadError}>
+            <c-ai-chat-header></c-ai-chat-header>
+            <c-ai-chat-state-panel variant="error" heading={labels.loadErrorHeading} body={loadError} action-label={labels.tryAgain} onaction={handleCheckAgain}></c-ai-chat-state-panel>
+        </template>
+
+        <template lwc:elseif={isHistoryView}>
+            <c-ai-chat-history
+                conversations={history}
+                is-loading={isHistoryLoading}
+                error-message={historyError}
+                filter={historyFilter}
+                has-record={hasRecord}
+                current-conversation-id={currentConversationId}
+                new-disabled={isNewDisabled}
+                onback={handleHistoryBack}
+                onnewconversation={handleNewConversation}
+                onfilterchange={handleHistoryFilter}
+                onopen={handleOpenConversation}
+            ></c-ai-chat-history>
+        </template>
+
+        <template lwc:else>
+            <c-ai-chat-header
+                agent-name={agentName}
+                agent-id={agentId}
+                agents={agents}
+                show-agent-line={isReady}
+                show-new={hasConversation}
+                new-disabled={isNewDisabled}
+                show-history={isReady}
+                menu-items={headerMenuItems}
+                badge={headerBadge}
+                muted={isInactive}
+                onagentselect={handleAgentSelect}
+                onnewconversation={handleNewConversation}
+                onopenhistory={handleOpenHistory}
+                onmenuselect={handleMenuSelect}
+            ></c-ai-chat-header>
+
+            <template lwc:if={isInactive}>
+                <c-ai-chat-state-panel variant="inactive" heading={labels.inactiveHeading} body={labels.inactiveBody}></c-ai-chat-state-panel>
+            </template>
+
+            <template lwc:elseif={isMaintenance}>
+                <c-ai-chat-state-panel
+                    variant="maintenance"
+                    heading={labels.maintenanceHeading}
+                    body={labels.maintenanceBody}
+                    action-label={labels.checkAgain}
+                    footer={labels.contactAdmin}
+                    onaction={handleCheckAgain}
+                ></c-ai-chat-state-panel>
+            </template>
+
+            <template lwc:elseif={isChannelDisabled}>
+                <c-ai-chat-state-panel variant="channel" heading={labels.channelHeading} body={labels.channelBody} footer={labels.contactAdmin}></c-ai-chat-state-panel>
+            </template>
+
+            <template lwc:elseif={isTerms}>
+                <c-ai-chat-terms policy-url={termsPolicyUrl} is-saving={isAcknowledging} error-message={termsError} onagree={handleAgreeTerms}></c-ai-chat-terms>
+            </template>
+
+            <template lwc:elseif={isNoAgent}>
+                <c-ai-chat-state-panel variant="noagent" heading={labels.noAgentHeading} body={labels.noAgentBody}></c-ai-chat-state-panel>
+            </template>
+
+            <template lwc:else>
+                <template lwc:if={showContextBar}>
+                    <c-ai-chat-context-bar object-label={record.objectLabel} record-name={record.recordName} pii-protected={record.piiProtected}></c-ai-chat-context-bar>
+                </template>
+
+                <template lwc:if={showNewChatsPaused}>
+                    <c-ai-chat-new-chats-paused open-conversation={openConversationSummary} oncontinue={handleOpenConversation}></c-ai-chat-new-chats-paused>
+                </template>
+                <template lwc:elseif={showEmptyState}>
+                    <c-ai-chat-empty-state
+                        greeting={agentGreeting}
+                        record-name={record.recordName}
+                        object-label={record.objectLabel}
+                        object-label-plural={record.objectLabelPlural}
+                        commands={commands}
+                        pii-protected={record.piiProtected}
+                        disabled={isComposerDisabled}
+                        oncommandselect={handleCommandSelect}
+                    ></c-ai-chat-empty-state>
+                </template>
+                <template lwc:else>
+                    <c-ai-chat-message-list
+                        items={messageItems}
+                        has-more={hasMoreMessages}
+                        is-loading-earlier={isLoadingEarlier}
+                        working={working}
+                        error-turn={errorTurn}
+                        dimmed={isCommandMenuOpen}
+                        onloadearlier={handleLoadEarlier}
+                        onretry={handleRetry}
+                        onmessageaction={handleMessageAction}
+                    ></c-ai-chat-message-list>
+                </template>
+
+                <template lwc:if={usageBannerVariant}>
+                    <c-ai-chat-usage-banner variant={usageBannerVariant} resets-in-minutes={usageResetsInMinutes} ondismiss={handleDismissNotify}></c-ai-chat-usage-banner>
+                </template>
+
+                <template lwc:if={showEndedBar}>
+                    <footer class="ended">
+                        <span class="ended-text">{labels.endedHeading}</span>
+                        <div class="ended-actions">
+                            <template lwc:if={canResumeConversation}>
+                                <button type="button" class="aia-btn aia-btn_brand" onclick={handleResume}>{labels.resume}</button>
+                            </template>
+                            <button type="button" class="aia-btn aia-btn_neutral" disabled={isStartNewDisabled} onclick={handleStartNew}>{labels.startNew}</button>
+                        </div>
+                    </footer>
+                </template>
+                <template lwc:elseif={showComposer}>
+                    <c-ai-chat-composer
+                        commands={commands}
+                        disabled={isComposerDisabled}
+                        is-working={isWorking}
+                        placeholder={composerPlaceholder}
+                        footer-text={composerFooter}
+                        usage-label={usageLabel}
+                        usage-over={isUsageOver}
+                        error-text={composerError}
+                        onsend={handleSend}
+                        onstop={handleStop}
+                        onmenutoggle={handleCommandMenuToggle}
+                    ></c-ai-chat-composer>
+                </template>
+            </template>
+        </template>
+    </div>
+</template>

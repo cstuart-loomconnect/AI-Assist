@@ -1,0 +1,217 @@
+@import 'c/aiChatStyles';
+
+.composer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 12px 10px;
+    background: var(--aia-surface);
+    border-top: 1px solid var(--aia-line);
+}
+
+.box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--aia-line-strong);
+    border-radius: 12px;
+    background: var(--aia-surface);
+}
+.box:focus-within,
+.box_focused {
+    border: 1.5px solid var(--aia-accent);
+    padding: 9.5px 11.5px;
+}
+.box_disabled {
+    background: var(--aia-surface-soft);
+}
+.input {
+    width: 100%;
+    padding: 0;
+    border: 0;
+    outline: none;
+    resize: none;
+    background: none;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--aia-ink);
+}
+.input::placeholder {
+    color: var(--aia-subtle);
+}
+.input[disabled] {
+    color: var(--aia-subtle);
+    cursor: not-allowed;
+}
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.grow {
+    flex-grow: 1;
+}
+.slash {
+    height: 28px;
+    padding: 0 8px;
+    border: 1px solid var(--aia-line);
+    border-radius: 6px;
+    background: var(--aia-surface-soft);
+    font-size: 13px;
+    color: var(--aia-muted);
+    cursor: pointer;
+}
+.slash_active {
+    border-color: var(--aia-accent);
+    background: var(--aia-accent-tint);
+    color: var(--aia-accent);
+}
+.slash:focus-visible,
+.send:focus-visible,
+.stop:focus-visible {
+    outline: 2px solid var(--aia-accent);
+    outline-offset: 2px;
+}
+.send {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--aia-accent);
+    color: #ffffff;
+    cursor: pointer;
+}
+.send:hover:not([disabled]) {
+    background: var(--aia-accent-strong);
+}
+.send_disabled {
+    background: var(--aia-line);
+    color: #8a8d98;
+    cursor: not-allowed;
+}
+.stop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 14px;
+    border: 1px solid var(--aia-line-strong);
+    border-radius: 10px;
+    background: var(--aia-surface);
+    color: var(--aia-ink);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.stop-square {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background: var(--aia-ink);
+}
+.composer-error {
+    font-size: 12px;
+    color: var(--aia-danger);
+}
+.footnote {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--aia-subtle);
+}
+.usage {
+    flex-shrink: 0;
+}
+.usage_over {
+    color: var(--aia-danger);
+    font-weight: 500;
+}
+
+/* Slash-command menu */
+.command-menu {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: calc(100% + 8px);
+    z-index: 5;
+    max-height: 320px;
+    overflow-y: auto;
+    background: var(--aia-surface);
+    border: 1px solid var(--aia-line-strong);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(28, 30, 38, 0.14);
+}
+.menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px 6px;
+}
+.menu-hint {
+    font-size: 11px;
+    color: var(--aia-subtle);
+}
+.menu-list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0 6px 6px;
+    list-style: none;
+}
+.option {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.option_active {
+    background: var(--aia-accent-tint);
+}
+.option-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.option-command {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--aia-ink);
+}
+.option_active .option-command {
+    color: var(--aia-accent);
+}
+.scope {
+    margin-left: auto;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--aia-chip);
+    font-size: 10px;
+    color: var(--aia-muted);
+    white-space: nowrap;
+}
+.scope_active {
+    background: var(--aia-surface);
+}
+.option-description {
+    font-size: 13px;
+    color: var(--aia-muted);
+}
+.option_active .option-description {
+    color: var(--aia-ink-soft);
+}
+.no-match {
+    padding: 4px 14px 12px;
+    font-size: 13px;
+    color: var(--aia-muted);
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AIUsagePolicyUrl__c</fullName>
+    <description>Link to the company AI usage policy, shown on the chat window&apos;s first-run terms screen.</description>
+    <inlineHelpText>Enter the full URL of your AI usage policy. Leave blank to show the text without a link.</inlineHelpText>
+    <label>AI Usage Policy URL</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Url</type>
+</CustomField>

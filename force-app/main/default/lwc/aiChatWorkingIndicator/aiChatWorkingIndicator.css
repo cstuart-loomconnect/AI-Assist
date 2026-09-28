@@ -1,0 +1,82 @@
+@import 'c/aiChatStyles';
+
+.steps-card {
+    background: var(--aia-surface);
+    border: 1px solid var(--aia-line);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.steps-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--aia-line-soft);
+}
+.steps-title {
+    flex-grow: 1;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--aia-ink);
+}
+.elapsed {
+    font-size: 11px;
+    color: var(--aia-subtle);
+}
+.steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 12px 14px;
+    list-style: none;
+    font-size: 13px;
+}
+.step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--aia-ink);
+}
+.step svg {
+    flex-shrink: 0;
+}
+.step_active {
+    font-weight: 600;
+    color: var(--aia-ink);
+}
+.step_active svg {
+    color: var(--aia-accent);
+}
+.step_pending {
+    color: var(--aia-subtle);
+}
+.step-label {
+    flex-grow: 1;
+}
+.spin {
+    animation: aia-spin 1s linear infinite;
+}
+@keyframes aia-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+.typing {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--aia-surface);
+    border: 1px dashed var(--aia-line-strong);
+}
+.typing-label {
+    font-size: 13px;
+    color: var(--aia-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+    .spin {
+        animation: none;
+    }
+}

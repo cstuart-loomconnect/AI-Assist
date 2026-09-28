@@ -98,6 +98,19 @@ public without sharing class AIGovernorLimits {
         }
     }
 
+    // True when enough Publish Immediately headroom (Limits.getLimitPublishImmediateDML()) is left to publish one more AIAgentProgressEvent__e. That budget is shared with AIPlatformLogManager's own logging, which must always get through - a busy turn (many tool-calling iterations, each logging its own failures) could otherwise let cosmetic live-progress events crowd out a real error being logged, or hit the platform's limit outright. Reserved via AIAssistApplicationConstants.PROGRESS_EVENT_RESERVED_PUBLISH_IMMEDIATE.
+    public static Boolean isSafeToPublishProgress() {
+
+        try {
+            Integer remainingPublishImmediate = Limits.getLimitPublishImmediateDML() - Limits.getPublishImmediateDML();
+            return remainingPublishImmediate > AIAssistApplicationConstants.PROGRESS_EVENT_RESERVED_PUBLISH_IMMEDIATE;
+
+        } catch (Exception ex) {
+            AIPlatformLogManager.logException(ex, 'AIGovernorLimits', 'isSafeToPublishProgress');
+            return false; // Skip the live update rather than risk crowding out logging.
+        }
+    }
+
     // True when enough of each limit is left to run one more tool call and still finish the turn safely.
     public static Boolean isSafeToRunToolCall() {
 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AgentDeveloperName__c</fullName>
+    <description>Limits this command to one AI Agent, by its AIAgent__c.DeveloperName__c (a name rather than an Id, so the record works in every org). Blank offers it with every Agent.</description>
+    <externalId>false</externalId>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>Enter an AI Agent&apos;s Developer Name to offer this command only with that Agent, or leave blank for all Agents.</inlineHelpText>
+    <label>Agent Developer Name</label>
+    <length>80</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

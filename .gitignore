@@ -46,3 +46,18 @@ $RECYCLE.BIN/
 **/__pycache__/
 **/.venv/
 **/venv/
+
+# Credentials and testing-only permission sets - deployed to scratch and demo orgs, never committed
+force-app/main/default/externalCredentials/
+force-app/main/default/namedCredentials/
+force-app/main/default/permissionsets/Test_Anthropic.permissionset-meta.xml
+
+# Demo / testing-only Apex - deployed to scratch and demo orgs, never committed
+force-app/main/default/classes/AIDemoOrgSetup.cls
+force-app/main/default/classes/AIDemoOrgSetup.cls-meta.xml
+force-app/main/default/classes/AIConversationSimulator.cls
+force-app/main/default/classes/AIConversationSimulator.cls-meta.xml
+force-app/main/default/classes/AIConversationScenarioStep.cls
+force-app/main/default/classes/AIConversationScenarioStep.cls-meta.xml
+force-app/main/default/classes/AiDataSourceDemoExecutor.cls
+force-app/main/default/classes/AiDataSourceDemoExecutor.cls-meta.xml

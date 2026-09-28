@@ -1,0 +1,15 @@
+<template>
+    <div class="context-bar">
+        <div class="record-chip" title={recordLabel}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5E6270" stroke-width="1.8" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h5"></path></svg>
+            <span class="slds-truncate">{recordLabel}</span>
+        </div>
+        <div class="spacer"></div>
+        <template lwc:if={piiProtected}>
+            <div class="pii-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"></path></svg>
+                {labels.piiProtected}
+            </div>
+        </template>
+    </div>
+</template>

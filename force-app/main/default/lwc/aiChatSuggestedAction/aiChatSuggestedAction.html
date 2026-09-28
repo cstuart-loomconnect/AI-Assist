@@ -1,0 +1,65 @@
+<template>
+    <template lwc:if={isVisible}>
+        <div class={containerClass}>
+            <template lwc:if={isCard}>
+                <div class="eyebrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"></path></svg>{labels.suggestedAction}</div>
+                <div class="action-text">
+                    <strong>{action.name}</strong>
+                    <template lwc:if={action.description}><span class="action-description">{action.description}</span></template>
+                </div>
+            </template>
+
+            <template lwc:if={isDone}>
+                <div class="result result_done" role="status">
+                    <lightning-icon icon-name="utility:success" size="x-small" class="success-icon"></lightning-icon>
+                    <span>{resultMessage}</span>
+                </div>
+            </template>
+            <template lwc:elseif={isConfirming}>
+                <div class="confirm" role="alertdialog" aria-label={labels.confirm}>
+                    <p class="confirm-text">{confirmationText}</p>
+                    <div class="buttons">
+                        <button type="button" class="aia-btn aia-btn_brand" disabled={isRunning} onclick={handleConfirm}>{labels.confirm}</button>
+                        <button type="button" class="aia-btn aia-btn_text" disabled={isRunning} onclick={handleCancel}>{labels.cancel}</button>
+                    </div>
+                </div>
+            </template>
+            <template lwc:elseif={isEditing}>
+                <div class="edit-form">
+                    <template for:each={fieldViews} for:item="field">
+                        <div key={field.name} class="edit-field">
+                            <template lwc:if={field.isTextarea}>
+                                <lightning-textarea label={field.label} name={field.name} value={field.value} required={field.required} field-level-help={field.helpText} data-field={field.name} onchange={handleFieldChange}></lightning-textarea>
+                            </template>
+                            <template lwc:elseif={field.isCheckbox}>
+                                <lightning-input type="checkbox" label={field.label} name={field.name} checked={field.value} field-level-help={field.helpText} data-field={field.name} onchange={handleFieldChange}></lightning-input>
+                            </template>
+                            <template lwc:else>
+                                <lightning-input type={field.inputType} label={field.label} name={field.name} value={field.value} required={field.required} field-level-help={field.helpText} data-field={field.name} onchange={handleFieldChange}></lightning-input>
+                            </template>
+                        </div>
+                    </template>
+                    <div class="buttons">
+                        <button type="button" class="aia-btn aia-btn_brand" disabled={isRunning} onclick={handleRunEdited}>{action.name}</button>
+                        <button type="button" class="aia-btn aia-btn_text" disabled={isRunning} onclick={handleCancel}>{labels.cancel}</button>
+                    </div>
+                </div>
+            </template>
+            <template lwc:else>
+                <div class="buttons">
+                    <button type="button" class="aia-btn aia-btn_brand" disabled={isRunning} onclick={handleRun}>
+                        <template lwc:if={isInline}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"></path></svg></template>
+                        {action.name}
+                    </button>
+                    <template lwc:if={hasInputs}>
+                        <button type="button" class="aia-btn aia-btn_neutral" disabled={isRunning} onclick={handleEdit}>{labels.editFirst}</button>
+                    </template>
+                    <button type="button" class="aia-btn aia-btn_text" disabled={isRunning} onclick={handleDismiss}>{labels.dismiss}</button>
+                </div>
+                <template lwc:if={isFailed}>
+                    <p class="result result_failed" role="alert">{resultMessage}</p>
+                </template>
+            </template>
+        </div>
+    </template>
+</template>

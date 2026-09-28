@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DurationMilliseconds__c</fullName>
+    <description>How long this step took, in milliseconds. Left blank for steps that aren't timed (e.g. a Suggested Action the user ran).</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Set automatically by AIAgentTurnTrace for a data source read or provider callout - the Debug Trace's per-step timing.</inlineHelpText>
+    <label>Duration (ms)</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

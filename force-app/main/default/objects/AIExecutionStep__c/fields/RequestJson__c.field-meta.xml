@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>RequestJson__c</fullName>
+    <description>Only set on a "Provider callout" step - the exact JSON body of that callout, already pseudonymised, since it's built from the same masked values sent to the provider.</description>
+    <inlineHelpText>Left blank for a data source step. Only captured when the running user has AIUserSettings__c.DebugModeEnabled__c, to avoid the storage cost for everyone else.</inlineHelpText>
+    <label>Request JSON</label>
+    <length>131072</length>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>3</visibleLines>
+</CustomField>

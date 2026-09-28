@@ -1,0 +1,109 @@
+@import 'c/aiChatStyles';
+
+.trace {
+    border: 1px solid var(--aia-debug-line);
+    border-radius: 10px;
+    background: var(--aia-debug-bg);
+    color: var(--aia-debug-ink);
+    font-size: 11px;
+    line-height: 17px;
+    overflow: hidden;
+}
+.trace-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--aia-debug-line);
+}
+.trace-title {
+    flex-grow: 1;
+    font-weight: 500;
+    color: #ffffff;
+}
+.status {
+    padding: 0 6px;
+    border-radius: 4px;
+}
+.status_ok {
+    background: #1f4f37;
+    color: #a7e3c1;
+}
+.status_error {
+    background: #6e2412;
+    color: #f6c2b4;
+}
+.muted {
+    color: var(--aia-debug-muted);
+}
+.failed {
+    color: #f6c2b4;
+}
+.trace-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 12px;
+    margin: 0;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--aia-debug-line);
+}
+.trace-grid dt {
+    color: var(--aia-debug-muted);
+}
+.trace-grid dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.trace-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--aia-debug-line);
+    list-style: none;
+}
+.trace-step {
+    display: flex;
+    gap: 8px;
+}
+.grow {
+    flex-grow: 1;
+}
+.sent-preview {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--aia-debug-line);
+    color: var(--aia-debug-muted);
+    overflow-wrap: anywhere;
+}
+.ids {
+    padding: 10px 12px;
+    color: var(--aia-debug-muted);
+    overflow-wrap: anywhere;
+}
+.trace-actions {
+    display: flex;
+    gap: 6px;
+    padding: 0 12px 10px;
+}
+.trace-button {
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid #3a3e50;
+    border-radius: 6px;
+    background: none;
+    color: var(--aia-debug-ink);
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+}
+.trace-button_end {
+    margin-left: auto;
+}
+.trace-button:hover {
+    border-color: var(--aia-debug-muted);
+}
+.loading {
+    padding: 10px 12px;
+    color: var(--aia-debug-muted);
+}

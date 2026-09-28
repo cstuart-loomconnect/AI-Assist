@@ -1,0 +1,99 @@
+@import 'c/aiChatStyles';
+
+:host {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 0;
+}
+.terms {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 20px;
+    padding: 28px 20px 20px;
+    overflow-y: auto;
+}
+.terms-intro {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.eyebrow-accent {
+    color: var(--aia-accent);
+}
+.terms-heading {
+    margin: 0;
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: 600;
+    color: var(--aia-ink);
+}
+.terms-points {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.terms-point {
+    display: flex;
+    gap: 12px;
+}
+.point-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--aia-chip);
+}
+.point-icon_success {
+    background: var(--aia-success-tint);
+}
+.point-icon_accent {
+    background: var(--aia-accent-tint);
+}
+.accent-icon {
+    --slds-c-icon-color-foreground-default: var(--aia-accent);
+}
+.point-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.point-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--aia-ink);
+}
+.point-body {
+    font-size: 13px;
+    line-height: 19px;
+    color: var(--aia-muted);
+}
+.spacer {
+    flex-grow: 1;
+}
+.agree-text {
+    font-size: 13px;
+    line-height: 19px;
+    color: var(--aia-ink);
+}
+.agree a {
+    color: var(--aia-accent);
+}
+.agree .slds-checkbox_faux {
+    width: 18px;
+    height: 18px;
+}
+.agree input:checked + .slds-checkbox__label .slds-checkbox_faux {
+    background: var(--aia-accent);
+    border-color: var(--aia-accent);
+}
+.error {
+    font-size: 12px;
+}

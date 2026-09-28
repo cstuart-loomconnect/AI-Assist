@@ -1,0 +1,61 @@
+<template>
+    <header class="header">
+        <button type="button" class="aia-icon-btn back" aria-label={labels.back} title={labels.back} onclick={handleBack}>
+            <lightning-icon icon-name="utility:chevronleft" size="x-small"></lightning-icon>
+        </button>
+        <div class="title">{labels.conversations}</div>
+        <button type="button" class="aia-btn aia-btn_brand new" disabled={newDisabled} onclick={handleNew}>
+            <lightning-icon icon-name="utility:add" size="xx-small"></lightning-icon>
+            {labels.newShort}
+        </button>
+    </header>
+
+    <div class="filters">
+        <div class="search">
+            <lightning-icon icon-name="utility:search" size="xx-small" class="search-icon"></lightning-icon>
+            <label class="slds-assistive-text" for="history-search">{labels.searchConversations}</label>
+            <input id="history-search" type="search" class="search-input" placeholder={labels.searchConversations} value={searchTerm} oninput={handleSearch} />
+        </div>
+        <template lwc:if={hasRecord}>
+            <div class="scope" role="group" aria-label="Filter conversations">
+                <button type="button" class="aia-pill scope-pill" aria-pressed={thisRecordPressed} data-filter="record" onclick={handleFilter}>{labels.thisRecord}</button>
+                <button type="button" class="aia-pill scope-pill" aria-pressed={allRecordsPressed} data-filter="all" onclick={handleFilter}>{labels.allRecords}</button>
+            </div>
+        </template>
+    </div>
+
+    <main class="list">
+        <template lwc:if={isLoading}>
+            <lightning-spinner alternative-text="Loading conversations" size="small"></lightning-spinner>
+        </template>
+        <template lwc:elseif={errorMessage}>
+            <p class="empty slds-text-color_error">{errorMessage}</p>
+        </template>
+        <template lwc:elseif={hasGroups}>
+            <template for:each={groups} for:item="group">
+                <div key={group.label} class="group">
+                    <div class="aia-eyebrow group-label">{group.label}</div>
+                    <template for:each={group.items} for:item="conversation">
+                        <button key={conversation.id} type="button" class={conversation.className} data-id={conversation.id} onclick={handleOpen}>
+                            <span class="row">
+                                <span class={conversation.titleClass}>{conversation.title}</span>
+                                <span class="date">{conversation.dateLabel}</span>
+                            </span>
+                            <span class="row">
+                                <span class="meta">{conversation.metaLabel}</span>
+                                <template lwc:if={conversation.showStatus}>
+                                    <span class={conversation.status.className}>{conversation.status.label}</span>
+                                </template>
+                            </span>
+                        </button>
+                    </template>
+                </div>
+            </template>
+        </template>
+        <template lwc:else>
+            <p class="empty">{emptyMessage}</p>
+        </template>
+    </main>
+
+    <footer class="footer">{labels.retentionNote}</footer>
+</template>

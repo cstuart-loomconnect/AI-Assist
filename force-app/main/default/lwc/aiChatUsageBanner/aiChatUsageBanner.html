@@ -1,0 +1,22 @@
+<template>
+    <div class={bannerClass} role="status">
+        <template lwc:if={isBlock}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A2381E" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+        </template>
+        <template lwc:elseif={isNotify}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A3412" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 3l9 16H3l9-16z"></path><path d="M12 10v4M12 17v.5"></path></svg>
+        </template>
+        <template lwc:else>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F2B8F" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.5"></path></svg>
+        </template>
+        <div class="text">
+            <span class="heading">{heading}</span>
+            <span class="body">{body}</span>
+        </div>
+        <template lwc:if={isNotify}>
+            <button type="button" class="aia-icon-btn aia-icon-btn_small dismiss" aria-label={labels.dismiss} title={labels.dismiss} onclick={handleDismiss}>
+                <lightning-icon icon-name="utility:close" size="xx-small"></lightning-icon>
+            </button>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,39 @@
+@import 'c/aiChatStyles';
+
+.context-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--aia-surface);
+    border-bottom: 1px solid var(--aia-line);
+}
+.record-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: var(--aia-chip);
+    font-size: 12px;
+    color: var(--aia-ink);
+}
+.record-chip svg {
+    flex-shrink: 0;
+}
+.spacer {
+    flex-grow: 1;
+}
+.pii-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: var(--aia-success-tint);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--aia-success);
+}

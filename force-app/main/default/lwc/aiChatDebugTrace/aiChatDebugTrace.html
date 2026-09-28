@@ -1,0 +1,58 @@
+<template>
+    <div class="trace aia-mono">
+        <div class="trace-header">
+            <span class="trace-title">{labels.requestTrace}</span>
+            <template lwc:if={trace}>
+                <span class={statusClass}>{statusLabel}</span>
+                <span class="muted">{durationLabel}</span>
+            </template>
+        </div>
+        <template lwc:if={trace}>
+            <dl class="trace-grid">
+                <dt>model config</dt><dd>{modelLabel}</dd>
+                <dt>tokens in / out</dt><dd>{tokensLabel}</dd>
+                <dt>tool calls</dt><dd>{trace.toolCalls}</dd>
+                <template lwc:if={hasIterations}>
+                    <dt>{labels.toolIterations}</dt><dd>{iterationsLabel}</dd>
+                </template>
+                <template lwc:if={hasAttempts}>
+                    <dt>{labels.attempts}</dt><dd>{trace.attemptNumber}</dd>
+                </template>
+                <dt>pii masked</dt><dd>{piiLabel}</dd>
+            </dl>
+            <template lwc:if={hasSteps}>
+                <ol class="trace-steps">
+                    <template for:each={stepViews} for:item="step">
+                        <li key={step.key} class="trace-step"><span class="grow">{step.text}</span><span class={step.statusClass}>{step.durationLabel}</span></li>
+                    </template>
+                </ol>
+            </template>
+            <template lwc:if={hasSentPreview}>
+                <div class="sent-preview">{labels.sentPreviewPrefix} "{trace.sentPreviewText}"</div>
+            </template>
+            <div class="ids">conversation {trace.conversationName} · {trace.conversationPublicId}</div>
+            <div class="trace-actions">
+                <template lwc:if={hasRequestJson}>
+                    <button type="button" class="trace-button" onclick={handleDownloadRequest}>{labels.requestJson}</button>
+                </template>
+                <template lwc:if={hasResponseJson}>
+                    <button type="button" class="trace-button" onclick={handleDownloadResponse}>{labels.responseJson}</button>
+                </template>
+                <button type="button" class="trace-button" onclick={handleCopyIds}>{copyLabel}</button>
+                <button type="button" class="trace-button" onclick={handleViewPiiMappings}>{labels.piiMappings}</button>
+                <button type="button" class="trace-button trace-button_end" onclick={handleCloseTrace}>{labels.closeTrace}</button>
+            </div>
+        </template>
+        <template lwc:else>
+            <div class="loading">
+                <template lwc:if={errorMessage}>{errorMessage}</template>
+                <template lwc:else>Loading…</template>
+            </div>
+            <template lwc:if={errorMessage}>
+                <div class="trace-actions">
+                    <button type="button" class="trace-button trace-button_end" onclick={handleCloseTrace}>{labels.closeTrace}</button>
+                </div>
+            </template>
+        </template>
+    </div>
+</template>

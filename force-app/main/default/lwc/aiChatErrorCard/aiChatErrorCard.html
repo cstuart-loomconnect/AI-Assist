@@ -1,0 +1,24 @@
+<template>
+    <div class="error-card" role="alert">
+        <div class="error-heading">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5E6270" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0M12 19h.01M3 3l18 18"></path></svg>
+            {labels.providerErrorHeading}
+        </div>
+        <div class="error-body">{labels.providerErrorBody}</div>
+        <template lwc:if={debugDetail}>
+            <pre class="aia-mono debug-detail">{debugDetail}</pre>
+        </template>
+        <div class="error-actions">
+            <button type="button" class="aia-btn aia-btn_brand" disabled={isRetrying} onclick={handleRetry}>
+                <lightning-icon icon-name="utility:refresh" size="xx-small"></lightning-icon>
+                {labels.tryAgain}
+            </button>
+            <template lwc:if={reference}>
+                <span class="aia-mono reference">{labels.ref} {reference}</span>
+            </template>
+        </div>
+        <template lwc:if={retryError}>
+            <p class="retry-error">{retryError}</p>
+        </template>
+    </div>
+</template>

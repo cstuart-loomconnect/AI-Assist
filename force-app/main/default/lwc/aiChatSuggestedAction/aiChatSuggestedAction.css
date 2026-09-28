@@ -1,0 +1,81 @@
+@import 'c/aiChatStyles';
+
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--aia-surface);
+    border: 1px solid var(--aia-accent-border);
+    border-radius: 12px;
+}
+.inline {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--aia-accent);
+}
+.action-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--aia-ink);
+}
+.action-description {
+    font-size: 13px;
+    line-height: 19px;
+    color: var(--aia-muted);
+}
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.inline .aia-btn {
+    height: 32px;
+    padding: 0 12px;
+}
+.confirm {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.confirm-text {
+    margin: 0;
+    font-size: 13px;
+    line-height: 19px;
+    color: var(--aia-ink);
+}
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.result {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 13px;
+    line-height: 19px;
+}
+.result_done {
+    color: var(--aia-success);
+}
+.result_failed {
+    color: var(--aia-danger);
+}
+.success-icon {
+    --slds-c-icon-color-foreground-default: var(--aia-success);
+}

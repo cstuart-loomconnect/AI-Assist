@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AvailableTo__c</fullName>
+    <description>Who can see and use this command, by the user&apos;s AI Assist User Type (User.AIAssistUserType__c). Each level includes the ones above it.</description>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>All Users: everyone with AI Assist. Super Users and Admins: Super User or Admin user types. Admins Only: Admin user type.</inlineHelpText>
+    <label>Available To</label>
+    <required>true</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>All Users</fullName>
+                <default>true</default>
+                <label>All Users</label>
+            </value>
+            <value>
+                <fullName>Super Users and Admins</fullName>
+                <default>false</default>
+                <label>Super Users and Admins</label>
+            </value>
+            <value>
+                <fullName>Admins Only</fullName>
+                <default>false</default>
+                <label>Admins Only</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

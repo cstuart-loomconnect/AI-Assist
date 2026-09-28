@@ -1,0 +1,24 @@
+<template>
+    <main class={scrollClass} aria-live="polite" aria-relevant="additions" onscroll={handleScroll}>
+        <template lwc:if={hasMore}>
+            <button type="button" class="earlier" disabled={isLoadingEarlier} onclick={handleLoadEarlier}>{labels.showEarlier}</button>
+        </template>
+
+        <template for:each={items} for:item="item">
+            <div key={item.id} class="item">
+                <template lwc:if={item.separatorLabel}>
+                    <div class="separator">{item.separatorLabel}</div>
+                </template>
+                <c-ai-chat-message message={item}></c-ai-chat-message>
+            </div>
+        </template>
+
+        <template lwc:if={working}>
+            <c-ai-chat-working-indicator mode={working.mode} label={working.label} elapsed-label={working.elapsedLabel} steps={working.steps}></c-ai-chat-working-indicator>
+        </template>
+
+        <template lwc:if={errorTurn}>
+            <c-ai-chat-error-card reference={errorTurn.reference} debug-detail={errorTurn.debugDetail} is-retrying={errorTurn.isRetrying} retry-error={errorTurn.retryError} onretry={handleRetry}></c-ai-chat-error-card>
+        </template>
+    </main>
+</template>

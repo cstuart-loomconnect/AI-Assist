@@ -1,0 +1,24 @@
+<template>
+    <main class="paused">
+        <div class="intro">
+            <h1 class="heading">{labels.newChatsPausedHeading}</h1>
+            <p class="body">{labels.newChatsPausedBody}</p>
+        </div>
+
+        <template lwc:if={openConversation}>
+            <div class="open">
+                <div class="aia-eyebrow">{labels.openOnRecord}</div>
+                <button type="button" class="open-card" onclick={handleContinue}>
+                    <span class="open-text">
+                        <span class="open-title slds-truncate">{openConversation.title}</span>
+                        <span class="open-meta">{metaLabel}</span>
+                    </span>
+                    <span class="continue">{labels.continueLabel}</span>
+                </button>
+            </div>
+        </template>
+
+        <div class="spacer"></div>
+        <div class="contact">{labels.noOpenConversation}</div>
+    </main>
+</template>

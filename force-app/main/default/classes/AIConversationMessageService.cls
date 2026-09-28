@@ -28,6 +28,7 @@ Version      Date           Author                   Description
 1.3          2026-09-27     Chandler Stuart          One message processed per conversation at a time (AIConversationLockService). Retries moved to AiMessageProcessingFinalizer - AIMessageCalloutEvent__e removed. Failed turns record their tokens via a System message.
 1.4          2026-09-27     Chandler Stuart          Failed turns show the user a generic message; the detailed error goes only into the failed-turn System message and the logs.
 1.5          2026-09-27     Chandler Stuart          sendMessage overload continues a known conversation by Id (the chat window). Added retryLatestMessage (Try again / Regenerate). New conversations are refused while AIAssistUISettings__c.DisableUserInitiatedChat__c is on.
+1.6          2026-09-28     Chandler Stuart          handleAgentResult/processValidAIMessage take an optional AIExecutionStepTracker, recorded onto the reply via AIExecutionStepRecorder once it exists. The 2-arg overloads are kept for existing callers that have no trace to pass.
 */
 
 public without sharing class AIConversationMessageService {
@@ -134,9 +135,14 @@ public without sharing class AIConversationMessageService {
 
     // Evaluates one final AgentResult from AIAgentManager.executeAiMessage and performs whichever update follows - the manager itself never touches the database or the event bus. Retryable results never reach here; AiMessageProcessingQueueable hands those to AiMessageProcessingFinalizer to schedule.
     public static void handleAgentResult(Id conversationId, AIAgentManager.AgentResult result) {
+        handleAgentResult(conversationId, result, null);
+    }
+
+    // As above, but with the turn's AIExecutionStepTracker - read back into the AIExecutionStep__c rows recorded on the reply (AIExecutionStepRecorder) once it exists.
+    public static void handleAgentResult(Id conversationId, AIAgentManager.AgentResult result, AIExecutionStepTracker trace) {
         try {
 
-            if (result.isSuccessful) { processValidAIMessage(conversationId, result); return; }
+            if (result.isSuccessful) { processValidAIMessage(conversationId, result, trace); return; }
 
             // A failed turn still spent tokens (earlier iterations, earlier attempts) - record them, with the detailed error, before telling the UI.
             processFailedAIMessageTokens(conversationId, result.totalTokensUsed, result.errorMessage);
@@ -152,6 +158,11 @@ public without sharing class AIConversationMessageService {
 
     // Inserts the AI Agent's reply and publishes AIMessageReadyEvent__e so the chat LWC's empApi subscription picks it up.
     public static void processValidAIMessage(Id conversationId, AIAgentManager.AgentResult result) {
+        processValidAIMessage(conversationId, result, null);
+    }
+
+    // As above, but also records trace's steps against the reply (AIExecutionStepRecorder) - a Master-Detail child needs a real parent Id, so this can't happen any earlier than here.
+    public static void processValidAIMessage(Id conversationId, AIAgentManager.AgentResult result, AIExecutionStepTracker trace) {
         try {
 
             AIConversationMessage__c replyMessage = new AIConversationMessage__c(
@@ -164,6 +175,8 @@ public without sharing class AIConversationMessageService {
 
             Database.SaveResult replyMessageSaveResult = Database.insert(replyMessage, false);
             if (!replyMessageSaveResult.isSuccess()) throw new AIConversationMessageServiceException('Failed to insert reply message: ' + replyMessageSaveResult.getErrors()[0].getMessage());
+
+            AIExecutionStepRecorder.record(replyMessage.Id, trace);
 
             EventBus.publish(new AIMessageReadyEvent__e(
                 AIConversationId__c = conversationId,

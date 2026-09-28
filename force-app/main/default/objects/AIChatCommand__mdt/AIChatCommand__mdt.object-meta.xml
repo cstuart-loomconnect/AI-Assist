@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Slash commands offered in the AI Assist chat window - the command the user types (e.g. /risk-check), the hidden prompt it sends, where it&apos;s offered (object, Agent) and who can use it. Admin-configurable in Setup, so commands can be added without a deployment. Read by AIChatController.</description>
+    <label>AI Chat Command</label>
+    <pluralLabel>AI Chat Commands</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

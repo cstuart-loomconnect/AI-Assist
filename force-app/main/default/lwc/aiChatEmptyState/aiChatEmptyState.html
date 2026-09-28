@@ -1,0 +1,43 @@
+<template>
+    <main class="empty">
+        <div class="intro">
+            <div class="aia-logo aia-logo_soft intro-logo" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8h16M4 16h16M8 4v16M16 4v16"></path></svg>
+            </div>
+            <h1 class="greeting">{greetingText}</h1>
+            <template lwc:if={recordName}>
+                <div class="working-on">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h5"></path></svg>
+                    <span class="slds-truncate">{labels.workingOn} {recordName}</span>
+                </div>
+            </template>
+        </div>
+
+        <template lwc:if={hasSuggestions}>
+            <div class="suggestions">
+                <div class="aia-eyebrow">{suggestionsHeading}</div>
+                <template for:each={suggestions} for:item="command">
+                    <button key={command.id} type="button" class="suggestion" data-command={command.command} disabled={disabled} onclick={handleSuggestion}>
+                        <span class="aia-mono suggestion-command">{command.command}</span>
+                        <span class="suggestion-description">{command.description}</span>
+                    </button>
+                </template>
+            </div>
+        </template>
+
+        <div class="spacer"></div>
+
+        <template lwc:if={piiProtected}>
+            <div class="pii-banner">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F6F4A" stroke-width="1.8" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"></path></svg>
+                <div>
+                    <span>{labels.piiBanner} </span>
+                    <button type="button" class="pii-link" aria-expanded={explanationExpanded} onclick={toggleExplanation}>{labels.piiHowItWorks}</button>
+                    <template lwc:if={isExplanationOpen}>
+                        <p class="pii-explanation">{labels.piiExplanation}</p>
+                    </template>
+                </div>
+            </div>
+        </template>
+    </main>
+</template>

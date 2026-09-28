@@ -1,0 +1,25 @@
+<template>
+    <div class="feedback">
+        <div class="feedback-header">
+            <span class="feedback-heading">{labels.feedbackHeading}</span>
+            <button type="button" class="aia-icon-btn aia-icon-btn_small" aria-label={labels.close} title={labels.close} onclick={handleSkip}>
+                <lightning-icon icon-name="utility:close" size="xx-small"></lightning-icon>
+            </button>
+        </div>
+        <div class="reasons" role="group" aria-label={labels.feedbackHeading}>
+            <template for:each={reasonViews} for:item="reason">
+                <button key={reason.value} type="button" class="aia-pill" aria-pressed={reason.pressed} data-value={reason.value} onclick={handleReason}>{reason.value}</button>
+            </template>
+        </div>
+        <div class="slds-form-element">
+            <label class="slds-form-element__label comment-label" for="feedback-comment">{labels.feedbackMore}</label>
+            <div class="slds-form-element__control">
+                <textarea id="feedback-comment" class="slds-textarea comment" rows="3" maxlength="200" oninput={handleComment}></textarea>
+            </div>
+        </div>
+        <div class="feedback-actions">
+            <button type="button" class="aia-btn aia-btn_text" disabled={isSubmitting} onclick={handleSkip}>{labels.feedbackSkip}</button>
+            <button type="button" class="aia-btn aia-btn_brand" disabled={isSubmitting} onclick={handleSubmit}>{labels.feedbackSend}</button>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,33 @@
+<template>
+    <template lwc:if={isSteps}>
+        <div class="steps-card" role="status" aria-live="polite">
+            <div class="steps-header">
+                <span class="aia-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+                <span class="steps-title">{labels.workingHeading}</span>
+                <span class="aia-mono elapsed">{elapsedLabel}</span>
+            </div>
+            <ol class="steps-list">
+                <template for:each={stepViews} for:item="step">
+                    <li key={step.key} class={step.className}>
+                        <template lwc:if={step.isDone}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F6F4A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>
+                        </template>
+                        <template lwc:elseif={step.isActive}>
+                            <svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"></path></svg>
+                        </template>
+                        <template lwc:else>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B9B7AF" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle></svg>
+                        </template>
+                        <span class="step-label">{step.label}</span>
+                    </li>
+                </template>
+            </ol>
+        </div>
+    </template>
+    <template lwc:else>
+        <div class="typing" role="status" aria-live="polite">
+            <span class="aia-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+            <span class="typing-label">{label}</span>
+        </div>
+    </template>
+</template>

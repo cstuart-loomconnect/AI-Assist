@@ -1,0 +1,46 @@
+@import 'c/aiChatStyles';
+
+.feedback {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+    background: var(--aia-surface);
+    border: 1px solid var(--aia-line);
+    border-radius: 12px;
+}
+.feedback-header {
+    display: flex;
+    align-items: center;
+}
+.feedback-heading {
+    flex-grow: 1;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--aia-ink);
+}
+.reasons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.comment-label {
+    font-size: 12px;
+    color: var(--aia-muted);
+}
+.comment {
+    border-color: var(--aia-line-strong);
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 19px;
+    resize: none;
+}
+.comment:focus {
+    border-color: var(--aia-accent);
+    box-shadow: 0 0 0 1px var(--aia-accent);
+}
+.feedback-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}

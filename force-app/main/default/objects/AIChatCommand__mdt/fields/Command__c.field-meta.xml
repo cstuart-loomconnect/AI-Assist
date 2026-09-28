@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Command__c</fullName>
+    <description>The command the user types, including the leading slash - letters, numbers, hyphens and underscores only (for example /risk-check).</description>
+    <externalId>false</externalId>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>Enter the command with its leading slash, such as /risk-check. No spaces.</inlineHelpText>
+    <label>Command</label>
+    <length>41</length>
+    <required>true</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

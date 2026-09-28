@@ -32,6 +32,7 @@ Version      Date           Author                   Description
 1.2          2026-09-27     Chandler Stuart          Saves deferred PII mappings after the callouts. Carries prior attempts' token usage across retries.
 1.3          2026-09-27     Chandler Stuart          Retries and lock hand-off moved to AiMessageProcessingFinalizer (replaces AIMessageCalloutEvent__e). Message history is the newest 50 up to the triggering message. A deleted triggering message now fails the turn visibly.
 1.4          2026-09-27     Chandler Stuart          AIDataSourceWriteException is rethrown so the whole job rolls back, undoing a Data Source's write.
+1.5          2026-09-28     Chandler Stuart          Builds the turn's AIExecutionStepTracker before calling executeAiMessage - live progress follows AIAssistUISettings__c.ShowExecutionTraceToUser__c, the heavier detail follows the running user's own AIUserSettings__c.DebugModeEnabled__c (isDebugModeEnabled). Passed through to handleAgentResult so a successful turn's steps get recorded.
 
 */
 
@@ -88,7 +89,10 @@ public without sharing class AiMessageProcessingQueueable implements Queueable, 
             List<AIDataSource__c> availableDataSources = loadAvailableDataSources(agent.Id);
             List<AIWorkflowAction__c> availableWorkflowActions = loadAvailableWorkflowActions(agent.Id);
 
-            AIAgentManager.AgentResult result = AIAgentManager.executeAiMessage(agent, modelConfiguration, promptTemplate, conversation, messageHistory, availableDataSources, availableWorkflowActions, attemptNumber);
+            // Live progress (the working indicator's steps) follows the org-wide setting; the heavier per-step timing, request/response JSON and sent preview only get captured for a user with debug mode on.
+            AIExecutionStepTracker trace = new AIExecutionStepTracker(conversationId, triggeringMessageId, AIAssistUISettings__c.getInstance().ShowExecutionTraceToUser__c == true, isDebugModeEnabled());
+
+            AIAgentManager.AgentResult result = AIAgentManager.executeAiMessage(agent, modelConfiguration, promptTemplate, conversation, messageHistory, availableDataSources, availableWorkflowActions, attemptNumber, trace);
             result.totalTokensUsed += priorAttemptTokensUsed;
 
             // PII mappings created by tool calls were held in memory so they couldn't block the next callout - every callout is done now, so persist them before any other DML.
@@ -101,7 +105,7 @@ public without sharing class AiMessageProcessingQueueable implements Queueable, 
                 return;
             }
 
-            AIConversationMessageService.handleAgentResult(conversation.Id, result);
+            AIConversationMessageService.handleAgentResult(conversation.Id, result, trace);
 
         } catch (AIAgentManager.AIDataSourceWriteException dataSourceWriteException) {
             // Rethrown on purpose, unlogged - escaping the job rolls back the Data Source's write, and the finalizer logs it once and fails the turn.
@@ -111,6 +115,19 @@ public without sharing class AiMessageProcessingQueueable implements Queueable, 
         } catch (Exception ex) {
             AIPlatformLogManager.logException(ex, 'AiMessageProcessingQueueable', 'execute');
             AIConversationMessageService.processInvalidAIMessage(conversationId, AIAssistApplicationConstants.MESSAGE_PROCESSING_GENERIC_FAILURE_MESSAGE);
+        }
+    }
+
+    // Queueable jobs run as the user who enqueued them, so this is the chat user who sent triggeringMessage - not an "Automated Process" user. Gates the AIExecutionStepTracker detail only they should incur the storage cost for.
+    @TestVisible private static Boolean isDebugModeEnabled() {
+        try {
+
+            List<AIUserSettings__c> userSettings = [ SELECT DebugModeEnabled__c FROM AIUserSettings__c WHERE User__c = :UserInfo.getUserId() LIMIT 1 ];
+            return !userSettings.isEmpty() && userSettings[0].DebugModeEnabled__c == true;
+
+        } catch (Exception ex) {
+            AIPlatformLogManager.logException(ex, 'AiMessageProcessingQueueable', 'isDebugModeEnabled');
+            return false;
         }
     }
 

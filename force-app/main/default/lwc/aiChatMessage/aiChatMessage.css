@@ -1,0 +1,206 @@
+@import 'c/aiChatStyles';
+
+:host {
+    display: block;
+}
+
+.notice {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--aia-subtle);
+}
+
+/* User */
+.user-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    margin-left: auto;
+    max-width: 82%;
+}
+.user-bubble {
+    padding: 10px 14px;
+    background: var(--aia-accent);
+    color: #ffffff;
+    border-radius: 14px 14px 4px 14px;
+    font-size: 14px;
+    line-height: 20px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.user-bubble_sending {
+    opacity: 0.7;
+}
+.user-bubble_blocked {
+    background: var(--aia-surface);
+    color: var(--aia-ink);
+    border: 1.5px solid var(--aia-warning-border);
+}
+.command {
+    font-size: 13px;
+}
+.not-sent {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--aia-warning);
+}
+.meta {
+    font-size: 11px;
+    color: var(--aia-subtle);
+}
+.blocked-card {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: var(--aia-warning-tint);
+    border-radius: 10px;
+}
+.blocked-card svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.blocked-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.blocked-eyebrow {
+    color: var(--aia-warning-strong);
+}
+.blocked-text {
+    font-size: 13px;
+    line-height: 19px;
+    color: var(--aia-warning-ink);
+}
+.blocked-actions {
+    display: flex;
+    gap: 8px;
+}
+.blocked-edit {
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--aia-warning-border);
+    border-radius: 8px;
+    background: var(--aia-surface);
+    color: var(--aia-warning-strong);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.blocked-why {
+    height: 32px;
+    padding: 0 8px;
+    border: 0;
+    background: none;
+    color: var(--aia-warning-strong);
+    font-family: inherit;
+    font-size: 13px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* AI Agent */
+.agent {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 100%;
+}
+.agent-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.agent-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--aia-accent-tint);
+    color: var(--aia-accent);
+}
+.agent-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--aia-ink);
+}
+.agent-bubble {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+    background: var(--aia-surface);
+    border: 1px solid var(--aia-line);
+    border-radius: 4px 14px 14px 14px;
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--aia-ink);
+    overflow-wrap: anywhere;
+}
+.rich {
+    font-size: 14px;
+    line-height: 21px;
+}
+.sources {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-top: 4px;
+    border-top: 1px solid var(--aia-line-soft);
+}
+.sources-label {
+    padding-top: 6px;
+    font-size: 11px;
+    color: var(--aia-muted);
+}
+.source-chip {
+    margin-top: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--aia-chip);
+    font-size: 11px;
+    color: var(--aia-ink);
+}
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-top: -4px;
+}
+.tool_helpful {
+    background: var(--aia-success-tint);
+    color: var(--aia-success);
+}
+.tool_not-helpful {
+    background: var(--aia-danger-tint);
+    color: var(--aia-danger);
+}
+.toolbar-time {
+    padding-left: 6px;
+}
+.grow {
+    flex-grow: 1;
+}
+.thanks {
+    font-size: 12px;
+    color: var(--aia-success);
+}
+.trace-link {
+    align-self: flex-start;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 11px;
+    color: var(--aia-muted);
+    text-decoration: underline;
+    cursor: pointer;
+}

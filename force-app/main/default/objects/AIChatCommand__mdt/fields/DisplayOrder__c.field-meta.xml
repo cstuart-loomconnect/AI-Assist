@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DisplayOrder__c</fullName>
+    <description>Sort order in the command list and new-conversation suggestions - lowest first. Blank sorts last.</description>
+    <externalId>false</externalId>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>Lower numbers appear first. The first three for an object are suggested on a new conversation.</inlineHelpText>
+    <label>Display Order</label>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

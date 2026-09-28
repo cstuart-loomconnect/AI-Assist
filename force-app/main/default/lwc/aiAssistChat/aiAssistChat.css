@@ -1,0 +1,88 @@
+@import 'c/aiChatStyles';
+
+:host {
+    display: block;
+    height: 100%;
+}
+
+/*
+Design tokens for the whole chat window. Custom properties inherit through every child
+component's shadow root, so the children only ever reference var(--aia-*).
+--aia-accent is set inline from the accentColor design property; its tints are derived
+from it so a different brand colour keeps the same relationships.
+*/
+.shell {
+    --aia-accent: #3040c4;
+    --aia-accent-strong: color-mix(in srgb, var(--aia-accent) 70%, #000000);
+    --aia-accent-mid: color-mix(in srgb, var(--aia-accent) 50%, #ffffff);
+    --aia-accent-border: color-mix(in srgb, var(--aia-accent) 25%, #ffffff);
+    --aia-accent-tint: color-mix(in srgb, var(--aia-accent) 8%, #ffffff);
+
+    --aia-ink: #1c1e26;
+    --aia-ink-soft: #3f4350;
+    --aia-muted: #5e6270;
+    --aia-subtle: #6b6f7c;
+    --aia-faint: #b9b7af;
+
+    --aia-bg: #f6f5f1;
+    --aia-surface: #ffffff;
+    --aia-surface-soft: #fafaf7;
+    --aia-chip: #f0efea;
+    --aia-line: #e4e2da;
+    --aia-line-strong: #d8d6ce;
+    --aia-line-soft: #efede6;
+
+    --aia-success: #1f6f4a;
+    --aia-success-ink: #1f4f37;
+    --aia-success-tint: #e8f3ec;
+
+    --aia-warning: #9a3412;
+    --aia-warning-strong: #7c2d12;
+    --aia-warning-ink: #5c2408;
+    --aia-warning-border: #c2410c;
+    --aia-warning-tint: #fdf0e6;
+
+    --aia-danger: #a2381e;
+    --aia-danger-ink: #6e2412;
+    --aia-danger-tint: #fbe9e4;
+
+    --aia-debug-bg: #1c1e26;
+    --aia-debug-line: #2e3140;
+    --aia-debug-ink: #d9dbe3;
+    --aia-debug-muted: #9ba0b0;
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--aia-bg);
+    border: 1px solid var(--aia-line);
+    border-radius: 12px;
+    color: var(--aia-ink);
+    font-size: 14px;
+}
+
+.loading {
+    position: relative;
+    flex-grow: 1;
+}
+
+.ended {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    background: var(--aia-surface);
+    border-top: 1px solid var(--aia-line);
+}
+.ended-text {
+    font-size: 13px;
+    color: var(--aia-muted);
+}
+.ended-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}

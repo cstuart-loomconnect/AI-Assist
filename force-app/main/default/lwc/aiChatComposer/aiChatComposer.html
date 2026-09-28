@@ -1,0 +1,78 @@
+<template>
+    <footer class="composer">
+        <template lwc:if={isMenuOpen}>
+            <div class="command-menu" onmousedown={preventBlur}>
+                <div class="menu-header">
+                    <span class="aia-eyebrow">{labels.commands}</span>
+                    <span class="menu-hint">{labels.commandsHint}</span>
+                </div>
+                <template lwc:if={hasMatches}>
+                    <ul class="menu-list" role="listbox" id="command-list" aria-label={labels.commands}>
+                        <template for:each={matchViews} for:item="command">
+                            <li key={command.key} id={command.optionId} class={command.className} role="option" aria-selected={command.selected} data-index={command.index} onclick={handleCommandClick} onmouseenter={handleCommandHover}>
+                                <div class="option-top">
+                                    <span class="aia-mono option-command">{command.before}<strong>{command.match}</strong>{command.after}</span>
+                                    <span class={command.scopeClass}>{command.scopeLabel}</span>
+                                </div>
+                                <template lwc:if={command.description}>
+                                    <div class="option-description">{command.description}</div>
+                                </template>
+                            </li>
+                        </template>
+                    </ul>
+                </template>
+                <template lwc:else>
+                    <div class="no-match">{labels.noCommands}</div>
+                </template>
+            </div>
+        </template>
+
+        <div class={boxClass}>
+            <label class="slds-assistive-text" for="composer-input">{labels.messageLabel}</label>
+            <textarea
+                id="composer-input"
+                class="input"
+                rows="2"
+                maxlength={maxLength}
+                placeholder={effectivePlaceholder}
+                disabled={isInputDisabled}
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded={menuExpanded}
+                aria-controls="command-list"
+                aria-activedescendant={activeOptionId}
+                oninput={handleInput}
+                onkeydown={handleKeyDown}
+                onblur={handleBlur}
+            ></textarea>
+            <div class="controls">
+                <template lwc:if={isWorking}>
+                    <div class="grow"></div>
+                    <button type="button" class="stop" aria-label={labels.stop} onclick={handleStop}>
+                        <span class="stop-square" aria-hidden="true"></span>{labels.stop}
+                    </button>
+                </template>
+                <template lwc:else>
+                    <template lwc:if={hasCommands}>
+                        <button type="button" class={slashClass} aria-label={labels.commands} title={labels.commands} disabled={disabled} onclick={handleSlash}>/</button>
+                    </template>
+                    <div class="grow"></div>
+                    <button type="button" class={sendClass} aria-label={labels.send} title={labels.send} disabled={isSendDisabled} onclick={handleSendClick}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+                    </button>
+                </template>
+            </div>
+        </div>
+
+        <template lwc:if={errorText}>
+            <div class="composer-error" role="alert">{errorText}</div>
+        </template>
+
+        <div class="footnote">
+            <span>{footerText}</span>
+            <template lwc:if={usageLabel}>
+                <span class={usageClass}>{usageLabel}</span>
+            </template>
+        </div>
+    </footer>
+</template>
