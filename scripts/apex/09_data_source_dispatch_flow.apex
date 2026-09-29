@@ -4,7 +4,8 @@ System.debug('=== STEP 0: Setup ===');
 
 AIAssistSettings__c settings = AIAssistSettings__c.getOrgDefaults();
 settings.IsApplicationActive__c = true;
-settings.DisableExceptionLogging__c = false;
+settings.IsExceptionLoggingEnabled__c = true;
+settings.IsPlatformLoggingEnabled__c = true;
 upsert settings;
 
 Account testAccount = new Account(Name = 'Manual Test Account ' + DateTime.now().getTime());

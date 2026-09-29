@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsUserInitiatedChatEnabled__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description>Whether users can start new conversations. Unchecked, new conversations are refused while existing open conversations can continue.</description>
+    <inlineHelpText>Turn this off to block new conversations without disrupting ones already in progress.</inlineHelpText>
+    <label>Is User Initiated Chat Enabled</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsExceptionLoggingEnabled__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description>When checked, AIPlatformLogManager publishes AIPlatformLogEvent__e for every AI Assist exception. Unchecked, no log events are published and no AIPlatformLog__c records are written.</description>
+    <inlineHelpText>Turn this off only to silence AI Assist exception logging temporarily, for example during a bulk data load.</inlineHelpText>
+    <label>Is Exception Logging Enabled</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

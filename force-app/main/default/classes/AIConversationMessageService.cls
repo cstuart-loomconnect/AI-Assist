@@ -27,7 +27,7 @@ Version      Date           Author                   Description
 1.2          2026-09-27     Chandler Stuart          Retry event carries PriorAttemptTokensUsed__c so tokens spent before a retry aren't lost.
 1.3          2026-09-27     Chandler Stuart          One message processed per conversation at a time (AIConversationLockService). Retries moved to AiMessageProcessingFinalizer - AIMessageCalloutEvent__e removed. Failed turns record their tokens via a System message.
 1.4          2026-09-27     Chandler Stuart          Failed turns show the user a generic message; the detailed error goes only into the failed-turn System message and the logs.
-1.5          2026-09-27     Chandler Stuart          sendMessage overload continues a known conversation by Id (the chat window). Added retryLatestMessage (Try again / Regenerate). New conversations are refused while AIAssistUISettings__c.DisableUserInitiatedChat__c is on.
+1.5          2026-09-27     Chandler Stuart          sendMessage overload continues a known conversation by Id (the chat window). Added retryLatestMessage (Try again / Regenerate). New conversations are refused while AIAssistUISettings__c.IsUserInitiatedChatEnabled__c is off.
 1.6          2026-09-28     Chandler Stuart          handleAgentResult/processValidAIMessage take an optional AIExecutionStepTracker, recorded onto the reply via AIExecutionStepRecorder once it exists. The 2-arg overloads are kept for existing callers that have no trace to pass.
 */
 
@@ -56,7 +56,7 @@ public without sharing class AIConversationMessageService {
             AIConversation__c conversation = conversationId != null ? getContinuingConversation(agent, conversationId) : getReusableConversation(agent, relatedRecordId);
             Boolean isNewConversation = conversation == null;
 
-            if (isNewConversation && AIAssistUISettings__c.getInstance().DisableUserInitiatedChat__c == true) throw new AIConversationMessageServiceException(AIAssistApplicationConstants.NEW_CONVERSATIONS_PAUSED_MESSAGE);
+            if (isNewConversation && AIAssistSettingsService.readUiSettings().IsUserInitiatedChatEnabled__c == false) throw new AIConversationMessageServiceException(AIAssistApplicationConstants.NEW_CONVERSATIONS_PAUSED_MESSAGE);
 
             Boolean withinUsageLimits = isWithinUsageLimits(userSettings, isNewConversation);
             if (!withinUsageLimits) throw new AIConversationMessageServiceException('You have reached your usage limit.');

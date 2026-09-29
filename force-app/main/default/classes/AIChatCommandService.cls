@@ -20,6 +20,7 @@ AIChatController appends when sending a command, so the mechanics of "is this te
 
 Version      Date           Author                   Description
 1.0          2026-09-28     Chandler Stuart          Split out of AIChatController.
+1.1          2026-09-29     Chandler Stuart          The running user's AIAssistUserType__c is read WITH SYSTEM_MODE - AI Assist Users have no access to the field, so the chat window failed to load for them.
 */
 
 public with sharing class AIChatCommandService {
@@ -67,7 +68,8 @@ public with sharing class AIChatCommandService {
         List<AIAgent__c> agents = [ SELECT DeveloperName__c FROM AIAgent__c WHERE Id = :agentId LIMIT 1 ];
         String agentDeveloperName = agents.isEmpty() ? null : agents[0].DeveloperName__c;
 
-        String userType = [ SELECT AIAssistUserType__c FROM User WHERE Id = :UserInfo.getUserId() ].AIAssistUserType__c;
+        // System mode - AI Assist Users aren't granted User.AIAssistUserType__c, and SOQL at this API version enforces field access, which failed the whole chat context. Only their own row is read.
+        String userType = [ SELECT AIAssistUserType__c FROM User WHERE Id = :UserInfo.getUserId() WITH SYSTEM_MODE ].AIAssistUserType__c;
 
         List<AIChatCommand__mdt> usableCommands = new List<AIChatCommand__mdt>();
 

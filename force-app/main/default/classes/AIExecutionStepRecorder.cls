@@ -20,9 +20,14 @@ turn: there's no reply message to attach the steps to.
 
 Version      Date           Author                   Description
 1.0          2026-09-28     Chandler Stuart          Initial development.
+1.1          2026-09-29     Chandler Stuart          Request/response JSON and sent preview cut to their field lengths - an over-length request failed the callout step's insert, so the Debug Trace lost it.
 */
 
 public without sharing class AIExecutionStepRecorder {
+
+    // RequestJson__c / ResponseJson__c are Long Text Area(131072) - a long conversation's request can be bigger, and an over-length value would fail the step's insert and lose it from the Debug Trace.
+    private static final Integer JSON_FIELD_LENGTH = 131072;
+    private static final Integer PREVIEW_FIELD_LENGTH = 255;
 
     public static void record(Id replyMessageId, AIExecutionStepTracker trace) {
         try {
@@ -52,9 +57,9 @@ public without sharing class AIExecutionStepRecorder {
                 );
 
                 if (trace.captureFullDetail && stepIndex == lastCalloutIndex) {
-                    step.RequestJson__c = trace.lastRequestJson;
-                    step.ResponseJson__c = trace.lastResponseJson;
-                    step.SentPreviewText__c = trace.sentPreviewText;
+                    step.RequestJson__c = trace.lastRequestJson == null ? null : trace.lastRequestJson.left(JSON_FIELD_LENGTH);
+                    step.ResponseJson__c = trace.lastResponseJson == null ? null : trace.lastResponseJson.left(JSON_FIELD_LENGTH);
+                    step.SentPreviewText__c = trace.sentPreviewText == null ? null : trace.sentPreviewText.left(PREVIEW_FIELD_LENGTH);
                 }
 
                 stepsToInsert.add(step);

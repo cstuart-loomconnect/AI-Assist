@@ -55,11 +55,11 @@ export default class AiAppSettings extends LightningElement {
     }
 
     get exceptionChecked() {
-        return String(!!this.settings.disableExceptionLogging);
+        return String(!!this.settings.isExceptionLoggingEnabled);
     }
 
     get platformChecked() {
-        return String(!!this.settings.disablePlatformLogs);
+        return String(!!this.settings.isPlatformLoggingEnabled);
     }
 
     get timeoutLabel() {

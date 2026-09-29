@@ -23,6 +23,7 @@ Version      Date               Author                   Description
 1.2          2026-09-27         Chandler Stuart          testScenario10 covers getPiiMappings.
 1.3          2026-09-27         Chandler Stuart          Commands are in-memory AIChatCommand__mdt records (AIChatCommandService.testCommands) - scenario 1 also covers Agent, AvailableTo__c and display order filtering; scenario 12 the AvailableTo__c levels.
 1.4          2026-09-28         Chandler Stuart          AIChatController split into AIChatDataStructure and eight services - references updated to where each type/method now lives; no scenario or assertion changed.
+1.5          2026-09-29         Chandler Stuart          Added testScenario14 (debug trace with execution steps, failure detail scoped to the turn), testScenario15 (feedback / retry gates) testScenario16 (user settings read for a user who doesn't own their row) and testScenario17 (the chat as an AI Assist User with only the AIAssistUser permission set).
 */
 
 @IsTest private class AIChatControllerTest {
@@ -40,18 +41,28 @@ Version      Date               Author                   Description
     // testScenario11: closeConversation, openConversation, resumeConversation and getConversationHistory - including refusing another user's conversation and a resume the Agent doesn't allow.
     // testScenario12: Helper parsing - input schemas become form fields, command bodies are split for display, Developer Names are humanised, AvailableTo__c levels include the ones above them.
     // testScenario13: A reply saved with fake PII values is shown and exported with the real values, longest fake value first, while the saved reply keeps the fake values.
+    // testScenario14: Debug mode - a reply with execution steps (provider callouts, one failed) returns its steps, status, iterations and request/response JSON; failure detail ignores a System message from an earlier turn.
+    // testScenario15: submitFeedback is refused while IsFeedbackEnabled__c is off, and retryLatestMessage is refused during maintenance.
+    // testScenario16: An AI Assist User whose AIUserSettings__c row is owned by someone else (the admin who set them up) still gets their own settings - debug mode shows in the chat context.
+    // testScenario17: A Standard User with only the AIAssistUser permission set can agree the terms, load a READY context on a PII-protected record, rate a reply, and open its debug trace and failure detail - SOQL at this API version enforces object/field access, so every field the chat reads must be granted or read in system mode.
 
     @TestSetup static void setup() {
 
         AIAssistSettings__c settings = AIAssistSettings__c.getOrgDefaults();
         settings.IsApplicationActive__c = true;
-        settings.DisableExceptionLogging__c = false;
+        settings.IsExceptionLoggingEnabled__c = true;
+        settings.IsPlatformLoggingEnabled__c = true;
         settings.CurrentTermsVersion__c = '2.0';
         upsert settings;
 
         AIAssistUISettings__c uiSettings = AIAssistUISettings__c.getOrgDefaults();
         uiSettings.IsMaintenanceMode__c = false;
         uiSettings.MaxVisibleMessageHistory__c = 2;
+        // getOrgDefaults() doesn't load field defaults for a new row - the default-on switches are set as a real org would have them.
+        uiSettings.IsUserInitiatedChatEnabled__c = true;
+        uiSettings.IsFeedbackEnabled__c = true;
+        uiSettings.AllowInlineWorkflowActions__c = true;
+        uiSettings.TypingIndicatorEnabled__c = true;
         upsert uiSettings;
     }
 
@@ -533,5 +544,156 @@ Version      Date               Author                   Description
         public Object execute(Id recordId, Map<String, Object> inputParameters) {
             return 'Task created: ' + inputParameters.get('subject');
         }
+    }
+
+    @IsTest static void testScenario14() {
+
+        AIAgent__c agent = createAgent(null, null);
+        AIConversation__c conversation = createConversation(agent.Id, null);
+
+        AIConversationMessage__c earlierFailure = createMessage(conversation.Id, AIAssistApplicationConstants.SENDER_SYSTEM, 'AI response failed: an earlier turn');
+        Test.setCreatedDate(earlierFailure.Id, System.now().addMinutes(-10));
+
+        createMessage(conversation.Id, AIAssistApplicationConstants.SENDER_USER, 'Question');
+        AIConversationMessage__c reply = createMessage(conversation.Id, AIAssistApplicationConstants.SENDER_AI_AGENT, 'Answer');
+
+        insert new List<AIExecutionStep__c>{
+            new AIExecutionStep__c(AIConversationMessage__c = reply.Id, StepOrder__c = 1, Status__c = AIAssistApplicationConstants.EXECUTION_STEP_STATUS_FAILED, DurationMilliseconds__c = 120, ToolCallingIterationsUsed__c = 2, ToolCallingIterationsMax__c = 5, AttemptNumber__c = 2),
+            new AIExecutionStep__c(AIConversationMessage__c = reply.Id, StepOrder__c = 2, Status__c = AIAssistApplicationConstants.EXECUTION_STEP_STATUS_SUCCESS, DurationMilliseconds__c = 900, ToolCallingIterationsUsed__c = 2, ToolCallingIterationsMax__c = 5, AttemptNumber__c = 2,
+                                   RequestJson__c = '{"model":"test"}', ResponseJson__c = '{"ok":true}', SentPreviewText__c = 'Question')
+        };
+
+        AIUserSettings__c userSettings = AIAssistTestDataFactory.createAIUserSettings(UserInfo.getUserId(), false);
+        userSettings.IsActive__c = true;
+        userSettings.DebugModeEnabled__c = true;
+        insert userSettings;
+
+        Test.startTest();
+            AIChatDataStructure.DebugTrace trace = AIChatController.getDebugTrace(reply.Id);
+            AIChatDataStructure.FailureDetail detail = AIChatController.getFailureDetail(conversation.Id);
+        Test.stopTest();
+
+        Assert.areEqual(2, trace.steps.size(), 'Both execution steps should be in the trace.');
+        Assert.areEqual('Provider callout', trace.steps[0].label, 'A step with no Data Source or Workflow Action is a provider callout.');
+        Assert.isFalse(trace.isSuccess, 'A failed step should mark the trace as failed.');
+        Assert.areEqual(0, trace.toolCalls, 'Provider callouts are not tool calls.');
+        Assert.areEqual(2, trace.toolCallingIterationsUsed, 'Iterations used should come from the steps.');
+        Assert.areEqual(5, trace.toolCallingIterationsMax, 'Iterations max should come from the steps.');
+        Assert.areEqual(2, trace.attemptNumber, 'The attempt number should come from the steps.');
+        Assert.areEqual('{"model":"test"}', trace.requestJson, 'The request JSON should be returned.');
+        Assert.areEqual('{"ok":true}', trace.responseJson, 'The response JSON should be returned.');
+        Assert.areEqual('Question', trace.sentPreviewText, 'The sent preview should be returned.');
+        Assert.isNull(detail.debugDetail, 'A System message from an earlier turn should not be shown as this turn\'s failure.');
+    }
+
+    @IsTest static void testScenario15() {
+
+        AIAgent__c agent = createAgent(null, null);
+        AIConversation__c conversation = createConversation(agent.Id, null);
+        createMessage(conversation.Id, AIAssistApplicationConstants.SENDER_USER, 'Question');
+        AIConversationMessage__c reply = createMessage(conversation.Id, AIAssistApplicationConstants.SENDER_AI_AGENT, 'Answer');
+
+        AIAssistUISettings__c uiSettings = AIAssistUISettings__c.getOrgDefaults();
+        uiSettings.IsFeedbackEnabled__c = false;
+        uiSettings.IsMaintenanceMode__c = true;
+        update uiSettings;
+
+        Test.startTest();
+
+            try {
+                AIChatController.submitFeedback(reply.Id, AIAssistApplicationConstants.FEEDBACK_RATING_HELPFUL, null, null);
+                Assert.fail('Feedback should be refused while it is turned off.');
+            } catch (AuraHandledException ex) {
+                Assert.isTrue(ex.getMessage().contains('Feedback is turned off'), 'The refusal should say feedback is off.');
+            }
+
+            try {
+                AIChatController.retryLatestMessage(conversation.Id);
+                Assert.fail('Retry should be refused during maintenance.');
+            } catch (AuraHandledException ex) {
+                Assert.isTrue(ex.getMessage().contains('maintenance'), 'The refusal should mention maintenance.');
+            }
+
+        Test.stopTest();
+
+        Assert.areEqual(0, [SELECT COUNT() FROM AIFeedback__c], 'No feedback should be saved.');
+    }
+
+    @IsTest static void testScenario16() {
+
+        User aiUser = AIAssistTestDataFactory.createStandardUsers(null, 1, true)[0];
+
+        // Inserted by the running (admin) user, so the admin owns it - as AIAssistUserTriggerHandler's queueable does.
+        AIUserSettings__c userSettings = AIAssistTestDataFactory.createAIUserSettings(aiUser.Id, false);
+        userSettings.IsActive__c = true;
+        userSettings.DebugModeEnabled__c = true;
+        userSettings.ConversationExportEnabled__c = true;
+        insert userSettings;
+
+        AIUserSettings__c visibleSettings;
+
+        Test.startTest();
+            System.runAs(aiUser) {
+                visibleSettings = AIChatStateService.getUserSettings();
+            }
+        Test.stopTest();
+
+        Assert.isNotNull(visibleSettings, 'The user should see their own settings row even though they don\'t own it.');
+        Assert.isTrue(AIChatStateService.buildUserState(visibleSettings).debugMode, 'Debug mode should come through for the user.');
+        Assert.isTrue(AIChatStateService.buildUserState(visibleSettings).exportEnabled, 'Export should come through for the user.');
+    }
+
+    @IsTest static void testScenario17() {
+
+        User aiUser = AIAssistTestDataFactory.createStandardUsers(null, 1, true)[0];
+        PermissionSet userPermissionSet = [ SELECT Id FROM PermissionSet WHERE Name = :AIAssistApplicationConstants.PERMISSION_SET_USER LIMIT 1 ];
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            insert new PermissionSetAssignment(AssigneeId = aiUser.Id, PermissionSetId = userPermissionSet.Id);
+        }
+
+        // Owned by the admin, as AIAssistUserTriggerHandler's queueable does.
+        AIUserSettings__c userSettings = AIAssistTestDataFactory.createAIUserSettings(aiUser.Id, false);
+        userSettings.IsActive__c = true;
+        userSettings.DebugModeEnabled__c = true;
+        insert userSettings;
+
+        Account account = AIAssistTestDataFactory.createAccounts(1, true)[0];
+        insert new AIPIIRegistry__c(ObjectAPIName__c = 'Account', Active__c = true, SyncStatus__c = AIAssistApplicationConstants.PII_SYNC_STATUS_SYNCED);
+        AIAgent__c agent = createAgent('Account', AIAssistApplicationConstants.CONVERSATION_LOAD_TRIGGER_ON_PAGE_LOAD);
+
+        AIConversation__c conversation;
+        AIConversationMessage__c reply;
+
+        System.runAs(aiUser) {
+            conversation = AIAssistTestDataFactory.createAIConversations(agent.Id, 1, false)[0];
+            conversation.RelatedRecordId__c = account.Id;
+            conversation.RelatedObjectAPIName__c = 'Account';
+            insert conversation;
+            createMessage(conversation.Id, AIAssistApplicationConstants.SENDER_USER, 'Question');
+            reply = createMessage(conversation.Id, AIAssistApplicationConstants.SENDER_AI_AGENT, 'Answer');
+        }
+
+        insert new AIExecutionStep__c(AIConversationMessage__c = reply.Id, StepOrder__c = 1, Status__c = AIAssistApplicationConstants.EXECUTION_STEP_STATUS_SUCCESS, DurationMilliseconds__c = 500, RequestJson__c = '{"model":"test"}');
+
+        AIChatDataStructure.ChatContext context;
+        AIChatDataStructure.DebugTrace trace;
+
+        Test.startTest();
+            System.runAs(aiUser) {
+                AIChatController.acknowledgeTerms();
+                context = AIChatController.getChatContext(account.Id, 'Account', AIAssistApplicationConstants.CHANNEL_RECORD_PAGE_CHAT, null);
+                AIChatController.submitFeedback(reply.Id, AIAssistApplicationConstants.FEEDBACK_RATING_HELPFUL, null, null);
+                trace = AIChatController.getDebugTrace(reply.Id);
+                AIChatController.getFailureDetail(conversation.Id);
+            }
+        Test.stopTest();
+
+        Assert.areEqual(AIAssistApplicationConstants.CHAT_STATE_READY, context.state, 'The AI Assist User should reach a READY chat.');
+        Assert.isTrue(context.user.debugMode, 'Debug mode should come through from the user\'s settings.');
+        Assert.isTrue(context.record.piiProtected, 'The PII badge should show without access to AIPIIRegistry__c.');
+        Assert.areEqual(conversation.Id, context.conversation.id, 'The Active conversation should auto-load.');
+        Assert.areEqual(1, [SELECT COUNT() FROM AIFeedback__c WHERE AIConversationMessage__c = :reply.Id], 'The rating should be saved.');
+        Assert.areEqual(1, trace.steps.size(), 'The debug trace should load with its step.');
+        Assert.areEqual('{"model":"test"}', trace.requestJson, 'The request JSON should be readable.');
     }
 }

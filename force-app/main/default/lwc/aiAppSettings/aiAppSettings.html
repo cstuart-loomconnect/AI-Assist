@@ -97,10 +97,10 @@
                     <section class="aic-card" aria-labelledby="h-log">
                         <div class="aic-card__header"><h2 class="aic-card__title" id="h-log">Logging</h2></div>
                         <div class="aic-card__body">
-                            <div class="trow"><span class="tt"><b>Disable Exception Logging</b><span>Stops publishing log events.</span></span>
-                                <button type="button" class="aic-switch" role="switch" aria-checked={exceptionChecked} aria-label="Disable Exception Logging" data-field="disableExceptionLogging" onclick={handleToggle}></button></div>
-                            <div class="trow"><span class="tt"><b>Disable Platform Logs</b><span>Stops writing AI Platform Log records.</span></span>
-                                <button type="button" class="aic-switch" role="switch" aria-checked={platformChecked} aria-label="Disable Platform Logs" data-field="disablePlatformLogs" onclick={handleToggle}></button></div>
+                            <div class="trow"><span class="tt"><b>Is Exception Logging Enabled</b><span>Publishes a log event for every AI Assist error.</span></span>
+                                <button type="button" class="aic-switch" role="switch" aria-checked={exceptionChecked} aria-label="Is Exception Logging Enabled" data-field="isExceptionLoggingEnabled" onclick={handleToggle}></button></div>
+                            <div class="trow"><span class="tt"><b>Is Platform Logging Enabled</b><span>Writes log events as AI Platform Log records.</span></span>
+                                <button type="button" class="aic-switch" role="switch" aria-checked={platformChecked} aria-label="Is Platform Logging Enabled" data-field="isPlatformLoggingEnabled" onclick={handleToggle}></button></div>
                             <div class="slds-form-element">
                                 <label class="slds-form-element__label" for="a-audit">Audit Logging Record</label>
                                 <div class="slds-select_container">

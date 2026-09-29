@@ -30,8 +30,8 @@ public without sharing class AIPlatformLogManager {
             return;
         }
 
-        // Check AIAssistSettings__c.DisableExceptionLogging__c is true, if so, skip logging
-        if (AIAssistSettingsService.isExceptionLoggingDisabled()) {
+        // Skip logging when AIAssistSettings__c.IsExceptionLoggingEnabled__c is off
+        if (!AIAssistSettingsService.isExceptionLoggingEnabled()) {
             System.debug('Exception logging is disabled. Skipping log entry for exception.');
             return;
         }
@@ -75,8 +75,8 @@ public without sharing class AIPlatformLogManager {
             return;
         }
 
-        // Check AIAssistSettings__c.DisableExceptionLogging__c is true, if so, skip logging
-        if (AIAssistSettingsService.isExceptionLoggingDisabled()) {
+        // Skip logging when AIAssistSettings__c.IsExceptionLoggingEnabled__c is off
+        if (!AIAssistSettingsService.isExceptionLoggingEnabled()) {
             System.debug('Exception logging is disabled. Skipping log entry for save results.');
             return;
         }
@@ -140,8 +140,8 @@ public without sharing class AIPlatformLogManager {
             return;
         }
 
-        // Check AIAssistSettings__c.DisableExceptionLogging__c is true, if so, skip logging
-        if (AIAssistSettingsService.isExceptionLoggingDisabled()) {
+        // Skip logging when AIAssistSettings__c.IsExceptionLoggingEnabled__c is off
+        if (!AIAssistSettingsService.isExceptionLoggingEnabled()) {
             System.debug('Exception logging is disabled. Skipping log entry for delete results.');
             return;
         }
@@ -205,8 +205,8 @@ public without sharing class AIPlatformLogManager {
             return;
         }
 
-        // Check AIAssistSettings__c.DisableExceptionLogging__c is true, if so, skip logging
-        if (AIAssistSettingsService.isExceptionLoggingDisabled()) {
+        // Skip logging when AIAssistSettings__c.IsExceptionLoggingEnabled__c is off
+        if (!AIAssistSettingsService.isExceptionLoggingEnabled()) {
             System.debug('Exception logging is disabled. Skipping log entry for upsert results.');
             return;
         }
@@ -270,8 +270,8 @@ public without sharing class AIPlatformLogManager {
             return;
         }
 
-        // Check AIAssistSettings__c.DisableExceptionLogging__c is true, if so, skip logging
-        if (AIAssistSettingsService.isExceptionLoggingDisabled()) {
+        // Skip logging when AIAssistSettings__c.IsExceptionLoggingEnabled__c is off
+        if (!AIAssistSettingsService.isExceptionLoggingEnabled()) {
             System.debug('Exception logging is disabled. Skipping log entries for custom messages.');
             return;
         }

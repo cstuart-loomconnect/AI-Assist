@@ -30,13 +30,14 @@ Version      Date               Author                   Description
     // testScenario8: handleAgentResult with a failed result records the tokens spent as a System message; a failed result with no tokens records nothing.
     // testScenario9: sendMessage with a conversation Id continues that conversation while it's Active, owned by the user and on the same Agent; a closed one, or one over the Agent's message cap (closed with Message Limit Reached), starts a new conversation instead.
     // testScenario10: retryLatestMessage re-runs the newest user message once the lock is free, and refuses while it's still locked, for a closed conversation and for one with no user message.
-    // testScenario11: While AIAssistUISettings__c.DisableUserInitiatedChat__c is on, a message that would start a new conversation is refused, but an open conversation can still be continued.
+    // testScenario11: While AIAssistUISettings__c.IsUserInitiatedChatEnabled__c is off, a message that would start a new conversation is refused, but an open conversation can still be continued.
 
     @TestSetup static void setup() {
 
         AIAssistSettings__c settings = AIAssistSettings__c.getOrgDefaults();
         settings.IsApplicationActive__c = true;
-        settings.DisableExceptionLogging__c = false;
+        settings.IsExceptionLoggingEnabled__c = true;
+        settings.IsPlatformLoggingEnabled__c = true;
         upsert settings;
     }
 
@@ -407,7 +408,7 @@ Version      Date               Author                   Description
         AIConversationMessage__c opened = AIConversationMessageService.sendMessage(agent.Id, 'Before the pause', AIAssistApplicationConstants.CHANNEL_UTILITY_BAR, null, null);
 
         AIAssistUISettings__c uiSettings = AIAssistUISettings__c.getOrgDefaults();
-        uiSettings.DisableUserInitiatedChat__c = true;
+        uiSettings.IsUserInitiatedChatEnabled__c = false;
         upsert uiSettings;
 
         Test.startTest();

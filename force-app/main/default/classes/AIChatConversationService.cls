@@ -23,6 +23,7 @@ locking, async job) - this class only translates its records into what the chat 
 
 Version      Date           Author                   Description
 1.0          2026-09-28     Chandler Stuart          Split out of AIChatController.
+1.1          2026-09-29     Chandler Stuart          Message queries run WITH SYSTEM_MODE - their Execution Step subquery reads AIDataSource__r, which AI Assist Users can't access, so the conversation failed to load for them.
 */
 
 public with sharing class AIChatConversationService {
@@ -180,6 +181,8 @@ public with sharing class AIChatConversationService {
         return view;
     }
 
+    // The message queries below run WITH SYSTEM_MODE: SOQL at this API version enforces object/field access, and the Sources chips read AIDataSource__r.DeveloperName__c,
+    // which AI Assist Users have no access to (Data Source configuration isn't theirs to see). Sharing still applies - with sharing, and every caller has checked ownership.
     // One page of displayable messages, oldest first. Queried newest-first with one extra row to learn whether there are more. System messages (failed-turn audit rows) are never shown.
     public static AIChatDataStructure.MessagePage loadMessagePage(Id conversationId, Id beforeMessageId, Integer pageSize, AIChatDataStructure.UserState user, AIChatDataStructure.UiSettings ui) {
 
@@ -195,6 +198,7 @@ public with sharing class AIChatConversationService {
                                 (SELECT Rating__c FROM AIFeedbacks__r WHERE CreatedById = :userId ORDER BY CreatedDate DESC LIMIT 1)
                             FROM AIConversationMessage__c
                             WHERE AIConversation__c = :conversationId AND Sender__c IN :visibleSenders
+                            WITH SYSTEM_MODE
                             ORDER BY CreatedDate DESC, Id DESC
                             LIMIT :rowsToQuery ];
         } else {
@@ -207,6 +211,7 @@ public with sharing class AIChatConversationService {
                             FROM AIConversationMessage__c
                             WHERE AIConversation__c = :conversationId AND Sender__c IN :visibleSenders
                             AND (CreatedDate < :boundaryDate OR (CreatedDate = :boundaryDate AND Id < :beforeMessageId))
+                            WITH SYSTEM_MODE
                             ORDER BY CreatedDate DESC, Id DESC
                             LIMIT :rowsToQuery ];
         }
@@ -238,6 +243,7 @@ public with sharing class AIChatConversationService {
                              (SELECT Rating__c FROM AIFeedbacks__r WHERE CreatedById = :userId ORDER BY CreatedDate DESC LIMIT 1)
                          FROM AIConversationMessage__c
                          WHERE AIConversation__c = :conversationId AND Sender__c IN :visibleSenders
+                         WITH SYSTEM_MODE
                          ORDER BY CreatedDate ASC, Id ASC
                          LIMIT 200 ];
         } else {
@@ -249,6 +255,7 @@ public with sharing class AIChatConversationService {
                          FROM AIConversationMessage__c
                          WHERE AIConversation__c = :conversationId AND Sender__c IN :visibleSenders
                          AND (CreatedDate > :boundaryDate OR (CreatedDate = :boundaryDate AND Id > :afterMessageId))
+                         WITH SYSTEM_MODE
                          ORDER BY CreatedDate ASC, Id ASC
                          LIMIT 200 ];
         }

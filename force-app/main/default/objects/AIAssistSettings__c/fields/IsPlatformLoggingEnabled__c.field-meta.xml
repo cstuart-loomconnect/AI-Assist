@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsPlatformLoggingEnabled__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description>When checked, published AIPlatformLogEvent__e events are written to AIPlatformLog__c records. Unchecked, the events are dropped and no AIPlatformLog__c records are created org-wide.</description>
+    <inlineHelpText>Use with caution - turning this off removes visibility into failures across the whole application until turned back on.</inlineHelpText>
+    <label>Is Platform Logging Enabled</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

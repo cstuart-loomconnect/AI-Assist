@@ -21,6 +21,7 @@ processCachedPIIMappings() once all callouts are finished.
 Version      Author                   Description
 1.0          Chandler Stuart          Initial development
 1.1          Chandler Stuart          isDeferringWrites/processCachedPIIMappings() - no DML mid tool-calling loop, which would block the next callout.
+1.2          Chandler Stuart          getMappingRecord reads WITH SYSTEM_MODE - SOQL at this API version enforces field access, and AI Assist Users aren't granted AIPIIMapping__c, so replies weren't restored to real values for them.
 
 */
 
@@ -105,7 +106,8 @@ public without sharing class AIPiiMappingService {
             if (conversationId == null || conversationId.getSobjectType() != AIConversation__c.SObjectType) return null;
 
             if (conversationIdToPIIMapping == null || !conversationIdToPIIMapping.containsKey(conversationId)) {
-                List<AIPIIMapping__c> existing = [SELECT Id, MappingJson__c FROM AIPIIMapping__c WHERE AIConversation__c =:conversationId LIMIT 1];
+                // System mode - AI Assist Users aren't granted AIPIIMapping__c (it holds real values), but their own replies are masked and restored through it.
+                List<AIPIIMapping__c> existing = [SELECT Id, MappingJson__c FROM AIPIIMapping__c WHERE AIConversation__c =:conversationId WITH SYSTEM_MODE LIMIT 1];
                 conversationIdToPIIMapping.put(conversationId, existing.isEmpty() ? null : existing[0]);
             }
 

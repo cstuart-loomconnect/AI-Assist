@@ -286,7 +286,7 @@ public without sharing class AIAssistApplicationConstants {
     public static final String WORKFLOW_ACTION_SUGGESTION_ONLY_REPLY = 'Here\'s a suggested next step.'; // Shown when the model's reply was only a Workflow Action suggestion, so the saved reply is never blank.
     public static final String WORKFLOW_ACTION_PROMPT_JSON_INSTRUCTION = 'To suggest one, end your reply with a line containing only {"' + SUGGESTED_WORKFLOW_ACTION_JSON_KEY + '":"<DeveloperName>"}; otherwise omit it.';
 
-    // AIConversationMessageService - thrown when a new conversation is needed while AIAssistUISettings__c.DisableUserInitiatedChat__c is on.
+    // AIConversationMessageService - thrown when a new conversation is needed while AIAssistUISettings__c.IsUserInitiatedChatEnabled__c is off.
     public static final String NEW_CONVERSATIONS_PAUSED_MESSAGE = 'New conversations are paused by your admin.';
 
     // AIFeedback__c.Rating__c

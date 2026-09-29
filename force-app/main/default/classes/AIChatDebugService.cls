@@ -20,6 +20,7 @@ read for display or export, without needing to hold them itself.
 Version      Date           Author                   Description
 1.0          2026-09-28     Chandler Stuart          Split out of AIChatController.
 1.1          2026-09-28     Chandler Stuart          getDebugTrace also reads AIExecutionStep__c's DurationMilliseconds__c, ToolCallingIterationsUsed__c/Max__c, AttemptNumber__c, SentPreviewText__c, RequestJson__c and ResponseJson__c - written by AIExecutionStepRecorder, only present for a reply captured with debug mode on.
+1.2          2026-09-29     Chandler Stuart          getDebugTrace queries AIDataSource__c / AIWorkflowAction__c - a reply with any execution step made the trace fail to load ("Something went wrong") in debug mode. Failure detail only reads a System message from the failed turn itself. Model configuration, PII mapping count and log reference read WITH SYSTEM_MODE - SOQL at this API version enforces object/field access, which failed the trace for AI Assist Users.
 */
 
 public with sharing class AIChatDebugService {
@@ -48,8 +49,9 @@ public with sharing class AIChatDebugService {
             trace.durationMs = reply.CreatedDate.getTime() - promptMessages[0].CreatedDate.getTime();
         }
 
+        // System mode - AI Assist Users have no access to AIModelConfiguration__c, and a debug user only needs its names here.
         List<AIConversation__c> conversations = [ SELECT AIAgent__r.AIModelConfiguration__r.DeveloperName__c, AIAgent__r.AIModelConfiguration__r.AIProvider__c, AIAgent__r.AIModelConfiguration__r.ModelIdentifier__c
-                                                  FROM AIConversation__c WHERE Id = :reply.AIConversation__c LIMIT 1 ];
+                                                  FROM AIConversation__c WHERE Id = :reply.AIConversation__c WITH SYSTEM_MODE LIMIT 1 ];
 
         if (!conversations.isEmpty() && conversations[0].AIAgent__r != null && conversations[0].AIAgent__r.AIModelConfiguration__r != null) {
             AIModelConfiguration__c modelConfiguration = conversations[0].AIAgent__r.AIModelConfiguration__r;
@@ -58,9 +60,10 @@ public with sharing class AIChatDebugService {
             trace.model = modelConfiguration.ModelIdentifier__c;
         }
 
-        for (AIExecutionStep__c step : [ SELECT StepOrder__c, Status__c, StepDetail__c, DurationMilliseconds__c, AIDataSource__r.DeveloperName__c, AIWorkflowAction__r.ActionName__c,
+        // AIDataSource__c / AIWorkflowAction__c are read below and by toExecutionStep - selecting only their __r fields leaves the Id fields unqueried, which throws.
+        for (AIExecutionStep__c step : [ SELECT StepOrder__c, Status__c, StepDetail__c, DurationMilliseconds__c, AIDataSource__c, AIDataSource__r.DeveloperName__c, AIWorkflowAction__c, AIWorkflowAction__r.ActionName__c,
                                                  ToolCallingIterationsUsed__c, ToolCallingIterationsMax__c, AttemptNumber__c, SentPreviewText__c, RequestJson__c, ResponseJson__c
-                                         FROM AIExecutionStep__c WHERE AIConversationMessage__c = :reply.Id ORDER BY StepOrder__c ]) {
+                                         FROM AIExecutionStep__c WHERE AIConversationMessage__c = :reply.Id WITH SYSTEM_MODE ORDER BY StepOrder__c ]) {
             trace.steps.add(AIChatConversationService.toExecutionStep(step));
             if (step.AIDataSource__c != null) trace.toolCalls++;
             if (step.Status__c == AIAssistApplicationConstants.EXECUTION_STEP_STATUS_FAILED) trace.isSuccess = false;
@@ -100,8 +103,16 @@ public with sharing class AIChatDebugService {
         detail.reference = new SystemContext().getLatestLogReference(UserInfo.getUserId());
 
         if (includeDebugDetail) {
+
+            // Only a System message written at or after the newest user message belongs to this turn - an older one is an earlier turn's failure and would mislead.
+            List<AIConversationMessage__c> latestUserMessages = [ SELECT CreatedDate FROM AIConversationMessage__c
+                                                                  WHERE AIConversation__c = :conversationId AND Sender__c = :AIAssistApplicationConstants.SENDER_USER
+                                                                  ORDER BY CreatedDate DESC, Id DESC LIMIT 1 ];
+            Datetime turnStartedAt = latestUserMessages.isEmpty() ? Datetime.newInstance(0) : latestUserMessages[0].CreatedDate;
+
             List<AIConversationMessage__c> failedTurns = [ SELECT MessageBody__c FROM AIConversationMessage__c
                                                            WHERE AIConversation__c = :conversationId AND Sender__c = :AIAssistApplicationConstants.SENDER_SYSTEM
+                                                           AND CreatedDate >= :turnStartedAt
                                                            ORDER BY CreatedDate DESC, Id DESC LIMIT 1 ];
             if (!failedTurns.isEmpty()) detail.debugDetail = failedTurns[0].MessageBody__c;
         }
@@ -113,7 +124,8 @@ public with sharing class AIChatDebugService {
 
         Integer mappedValues = 0;
 
-        for (AIPIIMapping__c mapping : [ SELECT MappingJson__c FROM AIPIIMapping__c WHERE AIConversation__c = :conversationId ]) {
+        // System mode for object/field access only - AI Assist Users aren't granted AIPIIMapping__c, since it holds real values. Sharing still applies, so only the user's own conversation is read.
+        for (AIPIIMapping__c mapping : [ SELECT MappingJson__c FROM AIPIIMapping__c WHERE AIConversation__c = :conversationId WITH SYSTEM_MODE ]) {
             if (String.isBlank(mapping.MappingJson__c)) continue;
             try {
                 Object parsed = JSON.deserializeUntyped(mapping.MappingJson__c);
@@ -160,14 +172,14 @@ public with sharing class AIChatDebugService {
         }
     }
 
-    // AIPlatformLog__c rows are created by the platform event trigger, so the user usually can't see them through sharing - only the reference is read, for the user's own most recent log.
+    // AIPlatformLog__c rows are created by the platform event trigger, so the user usually can't see them through sharing (or have access to the object at all) - only the reference is read, for the user's own most recent log.
     private without sharing class SystemContext {
 
         public String getLatestLogReference(Id userId) {
 
             Datetime since = System.now().addMinutes(-15);
 
-            List<AIPlatformLog__c> logs = [ SELECT Name FROM AIPlatformLog__c WHERE User__c = :userId AND CreatedDate >= :since ORDER BY CreatedDate DESC LIMIT 1 ];
+            List<AIPlatformLog__c> logs = [ SELECT Name FROM AIPlatformLog__c WHERE User__c = :userId AND CreatedDate >= :since WITH SYSTEM_MODE ORDER BY CreatedDate DESC LIMIT 1 ];
             return logs.isEmpty() ? null : logs[0].Name;
         }
     }

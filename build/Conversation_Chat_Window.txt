@@ -30,7 +30,7 @@ Narrower than that, the window shows "This chat needs more room" instead of rend
 [x] Day separator ("Today · 13:02")
 [x] Token count per reply + daily usage meter in the footer ("12.4k / 50k today", red at the limit)
 [x] Regenerate on the newest reply (re-runs the newest user message)
-[~] Sources chips on a reply - shown from the reply's AIExecutionStep__c Data Sources; nothing writes those steps during a turn yet
+[x] Sources chips on a reply - shown from the reply's AIExecutionStep__c Data Sources (written by AIExecutionStepRecorder after each turn)
 [x] Agent picker - active Agents for the object first, then general Agents; switching loads that Agent's conversation
 [x] New conversation (+) - ends the open conversation, then starts fresh
 [x] More menu - Export conversation (ConversationExportEnabled__c), End conversation
@@ -64,7 +64,7 @@ Narrower than that, the window shows "This chat needs more room" instead of rend
 ---------- Trust moments & edge states ----------
 [x] First-run terms - three points, policy link (AIUsagePolicyUrl__c), checkbox, Agree and continue -> AITermsAcknowledgment__c
 [x] Terms re-shown when CurrentTermsVersion__c changes
-[~] Working - step card (ShowExecutionTraceToUser__c) with elapsed timer; steps are generic because AIAgentManager doesn't record steps as it runs
+[x] Working - step card (ShowExecutionTraceToUser__c) with elapsed timer and live steps (AIAgentProgressEvent__e from AIExecutionStepTracker)
 [x] Working - typing indicator (TypingIndicatorEnabled__c), or nothing when both are off
 [~] Stop - stops waiting in the window only; the reply is still generated and saved (no backend cancel)
 [x] Thumbs-down feedback - reason chips, optional comment, Skip / Send feedback
@@ -74,11 +74,11 @@ Narrower than that, the window shows "This chat needs more room" instead of rend
 ---------- Settings-driven states ----------
 [x] Maintenance mode (IsMaintenanceMode__c) - badge, message, Check again, contact admin footer
 [x] App inactive (IsApplicationActive__c) - muted logo, Off badge, message
-[x] New chats disabled (DisableUserInitiatedChat__c) - "Open on this record" with Continue; also enforced in AIConversationMessageService
+[x] New chats disabled (IsUserInitiatedChatEnabled__c off) - "Open on this record" with Continue; also enforced in AIConversationMessageService
 [x] Usage limit - Block New Messages: red banner with time until reset, composer paused, + disabled
 [x] Usage limit - Notify Only: dismissible warning, can keep going
 [x] Usage limit - Block New Conversations Only: blue banner, finish the open conversation only
-[~] Debug mode (DebugModeEnabled__c) - DEBUG badge, request trace per reply (model config, tokens, tool calls, PII masked, steps, copy ids, pii mappings modal, close trace), failure detail on errors; request.json / response.json aren't stored so aren't offered
+[x] Debug mode (DebugModeEnabled__c) - DEBUG badge, request trace per reply (model config, tokens, tool calls, iterations, attempts, PII masked, timed steps, sent preview, request.json / response.json, copy ids, pii mappings modal, close trace), failure detail for the failed turn
 [x] Channel not allowed (AllowedChannels__c) - "AI Assist isn't available here"
 [x] No active Agent for the object
 [x] Not enough room on the record page
@@ -92,3 +92,11 @@ Narrower than that, the window shows "This chat needs more room" instead of rend
 - Fonts: the design's Instrument Sans / IBM Plex Mono aren't loaded (Lightning's CSP blocks Google Fonts) - Salesforce Sans and the SLDS monospace stack are used.
 - Debug mode keeps the full composer (slash commands still work) and swaps the disclaimer for "Debug mode is on for your user only."
 - Usage meter says "today" as in the design, but counts the same window the limits enforce (LAST_N_DAYS:1 - yesterday and today).
+
+---------- Access (SOQL at API 67.0 enforces object and field access) ----------
+- Every field the chat reads is either granted in AIAssistUser / AIAssistAdminUser / AIAssistSuperUser, or read WITH SYSTEM_MODE
+  where users shouldn't hold the access themselves (own AIUserSettings__c row, own User.AIAssistUserType__c, AIPIIRegistry__c badge,
+  AIPIIMapping__c, AIModelConfiguration__c names in the debug trace, AI Platform Log reference, Execution Step Data Source names).
+- AIChatControllerTest.testScenario17 runs the chat as a Standard User with only AIAssistUser - keep it passing when adding fields.
+- Scenario walkthrough for testing every state: build/Chat_Window_Scenarios.txt
+

@@ -25,10 +25,11 @@ Version      Date           Author                   Description
     // testScenario1: Test logging a single exception and verify that the log record is inserted correctly.
     // testScenario2: Test logging an exception with a blank className and verify that no log record is inserted.
     // testScenario3: Test logging a null exception and verify that no log record is inserted.
-    // testScenario4: Test logging an exception when DisablePlatformLogs__c is true and verify that no log record is inserted.
+    // testScenario4: Test logging an exception when IsExceptionLoggingEnabled__c is off and verify that no log record is inserted.
     // testScenario5: Test logging a custom message and verify that the log record is inserted correctly with the provided details.
     // testScenario6: Test logging an exception when IsApplicationActive__c is false and verify that no log record is inserted.
     // testScenario7: Test logging an exception whose message is over 255 characters and verify the log is still inserted, with the message truncated and kept in full in ExceptionLogDetail__c.
+    // testScenario8: Test logging an exception when IsPlatformLoggingEnabled__c is off - the event is published but no AIPlatformLog__c record is written.
 
     private class TestLoggingException extends Exception {}
 
@@ -36,7 +37,8 @@ Version      Date           Author                   Description
 
         AIAssistSettings__c settings = AIAssistSettings__c.getOrgDefaults();
         settings.IsApplicationActive__c = true;
-        settings.DisableExceptionLogging__c = false;
+        settings.IsExceptionLoggingEnabled__c = true;
+        settings.IsPlatformLoggingEnabled__c = true;
         upsert settings;
     }
 
@@ -84,9 +86,9 @@ Version      Date           Author                   Description
 
     @IsTest static void testScenario4() {
 
-        // Set DisableExceptionLogging__c to true to test that logging is skipped
+        // Turn IsExceptionLoggingEnabled__c off to test that logging is skipped
         AIAssistSettings__c settings = AIAssistSettings__c.getOrgDefaults();
-        settings.DisableExceptionLogging__c = true;
+        settings.IsExceptionLoggingEnabled__c = false;
             upsert settings;
 
         Test.startTest();
@@ -96,7 +98,7 @@ Version      Date           Author                   Description
 
         Test.stopTest();
 
-        Assert.areEqual(0, [SELECT COUNT() FROM AIPlatformLog__c], 'No record should be inserted when DisableExceptionLogging__c is true.');
+        Assert.areEqual(0, [SELECT COUNT() FROM AIPlatformLog__c], 'No record should be inserted when IsExceptionLoggingEnabled__c is off.');
 
     }
 
@@ -108,7 +110,7 @@ Version      Date           Author                   Description
             AIPlatformLogManager.logCustomMessage('Custom warning', 'Additional detail text', 'CustomClass', 'customMethod', fakeRecordId);
         Test.stopTest();
 
-        List<AIPlatformLog__c> logs = [SELECT ExceptionType__c, ExceptionMessage__c, ExceptionLogDetail__c, RelatedRecordId__c FROM AIPlatformLog__c];
+        List<AIPlatformLog__c> logs = [SELECT ExceptionType__c, ExceptionMessage__c, ExceptionLogDetail__c, RelatedRecordId__c FROM AIPlatformLog__c WITH SYSTEM_MODE];
 
         Assert.areEqual(1, logs.size(), 'Expected exactly one log record to be inserted for the custom message.');
         Assert.areEqual('Custom Message', logs[0].ExceptionType__c);
@@ -120,7 +122,7 @@ Version      Date           Author                   Description
 
     @IsTest static void testScenario6() {
 
-        // Set DisableExceptionLogging__c to true to test that logging is skipped
+        // Turn IsApplicationActive__c off to test that logging is skipped
         AIAssistSettings__c settings = AIAssistSettings__c.getOrgDefaults();
         settings.IsApplicationActive__c = false;
             upsert settings;
@@ -132,7 +134,7 @@ Version      Date           Author                   Description
 
         Test.stopTest();
 
-        Assert.areEqual(0, [SELECT COUNT() FROM AIPlatformLog__c], 'No record should be inserted when DisableExceptionLogging__c is true.');
+        Assert.areEqual(0, [SELECT COUNT() FROM AIPlatformLog__c], 'No record should be inserted when IsApplicationActive__c is off.');
 
 
     }
@@ -147,11 +149,28 @@ Version      Date           Author                   Description
 
         Test.stopTest();
 
-        List<AIPlatformLog__c> logs = [SELECT ExceptionMessage__c, ExceptionLogDetail__c FROM AIPlatformLog__c];
+        List<AIPlatformLog__c> logs = [SELECT ExceptionMessage__c, ExceptionLogDetail__c FROM AIPlatformLog__c WITH SYSTEM_MODE];
 
         Assert.areEqual(1, logs.size(), 'An over-length message should still be logged, not silently dropped.');
         Assert.areEqual(longMessage.left(255), logs[0].ExceptionMessage__c, 'The message should be truncated to the field length.');
         Assert.isTrue(logs[0].ExceptionLogDetail__c.contains(longMessage), 'The full message should be kept in ExceptionLogDetail__c.');
+
+    }
+
+    @IsTest static void testScenario8() {
+
+        AIAssistSettings__c settings = AIAssistSettings__c.getOrgDefaults();
+        settings.IsPlatformLoggingEnabled__c = false;
+        upsert settings;
+
+        Test.startTest();
+
+            try { throw new TestLoggingException('Published but not written'); }
+            catch (Exception e) { AIPlatformLogManager.logException(e, 'SomeClass', 'someMethod'); }
+
+        Test.stopTest();
+
+        Assert.areEqual(0, [SELECT COUNT() FROM AIPlatformLog__c], 'No record should be inserted when IsPlatformLoggingEnabled__c is off.');
 
     }
 }

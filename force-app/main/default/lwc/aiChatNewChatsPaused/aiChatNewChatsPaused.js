@@ -1,7 +1,7 @@
 import { LightningElement, api } from 'lwc';
 import { LABELS, formatTime } from 'c/aiChatUtils';
 
-// Shown instead of a new conversation while AIAssistUISettings__c.DisableUserInitiatedChat__c is on - offers the Active conversation on this record, if there is one.
+// Shown instead of a new conversation while AIAssistUISettings__c.IsUserInitiatedChatEnabled__c is off - offers the Active conversation on this record, if there is one.
 export default class AiChatNewChatsPaused extends LightningElement {
     @api openConversation;
 

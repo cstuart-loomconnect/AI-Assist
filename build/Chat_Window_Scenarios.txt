@@ -1,0 +1,310 @@
+AI ASSIST - CHAT WINDOW: HOW TO GET EVERY SCENARIO
+
+How to put the chat window into each state it can show, for testing and demos.
+Each scenario lists what to set, then what you should see. Undo the setting afterwards.
+
+Where settings live (AI Assist Console > AI Settings):
+  App Settings   - AIAssistSettings__c org defaults
+  UI Settings    - AIAssistUISettings__c at Org / Profile / User level (User beats Profile beats Org)
+  User Settings  - each user's AIUserSettings__c row
+  Usage Terms    - CurrentTermsVersion__c and AIUsagePolicyUrl__c
+  PII Registry   - AIPIIRegistry__c objects and Sync
+Agents, Workflow Actions and Data Sources are edited in the Console's Agent screens.
+Slash commands are AIChatCommand__mdt records (Setup > Custom Metadata Types > AI Chat Command > Manage Records).
+
+Test as a real end user, not only as an admin: a user with just the AIAssistUser permission set
+sees what most people see. Set the user's AI Assist User Type (User record) so they get their
+AIUserSettings__c row and permission set.
+
+Settings are read on every call - after changing one, press "Check again" / reload the page.
+Most per-user scenarios are easiest to test by setting the UI Setting at User level for your own
+user, so nobody else is affected.
+
+
+==================================================================
+1. PLACEMENT
+==================================================================
+
+1.1 Utility bar
+    Set:  App Manager > the app > Utility Items > add "AI Assist Chat" (channel Utility Bar), 400 x 760.
+    See:  Chat follows the record you navigate to. A new reply while the panel is closed highlights the utility item.
+
+1.2 Record page
+    Set:  Lightning App Builder > record page > drag "AI Assist Chat" into a region at least 320px wide.
+    See:  Chat is fixed to that record.
+
+1.3 Not enough room
+    Set:  Put the component in a narrow sidebar (under 320px).
+    See:  "This chat needs more room".
+
+1.4 No record (home / list page in the utility bar)
+    See:  Placeholder "Ask anything, or type / for commands", no context strip, greeting "What can I help you with?".
+
+
+==================================================================
+2. BLOCKING STATES (whole window replaced) - checked in this order
+==================================================================
+
+2.1 App inactive
+    Set:  App Settings > Is Application Active = Off.
+    See:  Muted logo, "Off" badge, "AI Assist is turned off". Sending / Try again are refused too.
+
+2.2 Maintenance mode
+    Set:  UI Settings > Is Maintenance Mode = On (Org, or your Profile/User only).
+    See:  "Maintenance" badge, "AI Assist is down for maintenance", Check again, contact-admin footer.
+          A window left open also refuses Send, Try again and Regenerate.
+
+2.3 Channel not allowed
+    Set:  User Settings > Allowed Channels = only "Record Page Chat", then open the utility bar chat
+          (or only "Utility Bar" and open the record-page chat).
+    See:  "AI Assist isn't available here".
+
+2.4 First-run terms
+    Set:  A user who has never agreed, or Usage Terms > publish a new version (CurrentTermsVersion__c changes).
+    See:  Three points, policy link (AIUsagePolicyUrl__c), checkbox, "Agree and continue".
+          Agreeing writes an AITermsAcknowledgment__c and opens the chat.
+
+2.5 No AI agent
+    Set:  Open a record whose object has no active Agent, with no active general Agent
+          (Agent with blank Object Type) either - deactivate them.
+    See:  "No AI agent is set up here".
+
+2.6 Couldn't load
+    See:  "AI Assist couldn't load" + Try again - shown when the context call itself fails.
+          Should not happen for a correctly set-up user; if it does, check AI Platform Logs.
+
+
+==================================================================
+3. NEW CONVERSATION
+==================================================================
+
+3.1 Empty state with greeting
+    Set:  Agent > Greeting Message set (blank gives "What do you need on this <object>?").
+    See:  Greeting, "Working on <record>", up to 3 suggested commands.
+
+3.2 Suggested commands
+    Set:  AIChatCommand__mdt records, Is Active on, Object API Name = the record's object (or blank for any),
+          Agent Developer Name blank or the Agent's, Available To covering the user's type.
+    See:  Record-specific commands first, up to 3.
+
+3.3 PII banner and "PII protected" badge
+    Set:  PII Registry > add the object, Active, run Sync until Sync Status = Synced.
+    See:  Green banner with "How this works" on the empty state; "PII protected" badge on the context strip.
+
+3.4 Agent picker
+    Set:  Two or more active Agents for the object (or object + general).
+    See:  Chevron next to the Agent name; switching loads that Agent's conversation.
+
+3.5 Conversation load trigger
+    Set:  Agent > Conversation Load Trigger.
+          On Page Load / On Chat Window Open - an Active conversation on the record opens automatically.
+          Manual Only - it doesn't; open it from History (or the "Open on this record" card in 5.1).
+
+
+==================================================================
+4. CONVERSATION
+==================================================================
+
+4.1 Regular chat
+    Send a message. See your bubble, then the AI reply (markdown), copy button, token count, usage meter
+    "12.4k / 50k today" in the footer. Day separator "Today · 13:02" above the first message.
+
+4.2 Timestamps
+    Set:  UI Settings > Show Timestamp On Messages = On.
+    See:  A time under each message.
+
+4.3 Show earlier messages
+    Set:  UI Settings > Max Visible Message History = 2 (blank = 20), use a conversation with more messages.
+    See:  "Show earlier messages" at the top; pages back keeping your scroll position.
+
+4.4 Thumbs up / down
+    Set:  UI Settings > Is Feedback Enabled = On (default).
+    See:  Thumbs on each reply. Thumbs down opens "What went wrong?" with reason chips, comment, Skip / Send.
+    Off:  Thumbs hidden, and a rating is refused server-side.
+
+4.5 Regenerate
+    See:  Refresh icon on the newest reply only (conversation Active, nothing running). Re-runs your last message.
+
+4.6 Sources chips
+    Set:  An Agent with a Data Source the model calls (e.g. ask for the record's contacts).
+    See:  "Sources" chips under that reply.
+
+4.7 Export
+    Set:  User Settings > Conversation Export Enabled = On.
+    See:  More menu (three dots) > Export conversation - downloads a .txt transcript with real PII values.
+
+4.8 End conversation
+    See:  More menu > End conversation - "This conversation has ended." bar.
+
+4.9 New conversation (+)
+    See:  Ends the open conversation and shows a fresh one. Disabled while a reply is running, while new chats
+          are paused (5.1), or while new conversations are blocked by a limit (7.3).
+
+4.10 Agent message / token cap reached
+    Set:  Agent > Max Messages Per Conversation = 2 (or Max Tokens Per Conversation low), keep chatting.
+    See:  "New conversation started" notice; the old one closes with "Limit reached" in History.
+
+
+==================================================================
+5. SETTINGS-DRIVEN STATES INSIDE THE CHAT
+==================================================================
+
+5.1 New chats paused
+    Set:  UI Settings > Is User Initiated Chat Enabled = Off.
+    See:  "New conversations are paused" with "Open on this record" / Continue when the record has an
+          Active conversation (use a Manual Only Agent, or it auto-opens instead). + and "Start a new
+          conversation" are disabled. An open conversation can still be continued.
+
+5.2 Working - step card
+    Set:  UI Settings > Show Execution Trace To User = On.
+    See:  "Working on it" card with an elapsed timer and live steps ("Reading Contact Roles"...), ending in
+          "Write the answer".
+
+5.3 Working - typing indicator
+    Set:  Show Execution Trace To User = Off, Typing Indicator Enabled = On.
+    See:  Dots with "Working on <record>…".
+
+5.4 Working - nothing
+    Set:  Both off.
+    See:  No indicator; the composer still shows Stop.
+
+5.5 Stop
+    See:  Press Stop while working - "Stopped waiting…" notice. The reply is still generated and appears
+          when it arrives.
+
+
+==================================================================
+6. SUGGESTED ACTIONS
+==================================================================
+
+6.1 Suggested action card
+    Set:  Agent linked to an active Workflow Action (Agent Workflow Action); UI Settings > Allow Inline
+          Workflow Actions = On; User Settings > Workflow Actions Enabled = On. Ask for something that action does.
+    See:  "Suggested action" card - run / Edit first / Dismiss. Done after it runs (and after reload).
+
+6.2 Edit first
+    Set:  Workflow Action > Input Schema with fields (text, number, date, date-time, checkbox, long text).
+    See:  "Edit first" opens a form built from the schema.
+
+6.3 Confirmation step
+    Set:  Workflow Action > Requires Confirmation = On, Confirmation Message set.
+    See:  Confirm / Cancel before it runs.
+
+6.4 Inline buttons
+    Set:  UI Settings > Suggested Actions Display = Inline Buttons.
+    See:  Just the action buttons under the reply, no card.
+
+6.5 Hidden
+    Set:  Allow Inline Workflow Actions = Off, or the user's Workflow Actions Enabled = Off.
+    See:  No card; running one is refused server-side too.
+
+
+==================================================================
+7. USAGE LIMITS (User Settings)
+==================================================================
+
+Set a limit the user has already passed - e.g. Max Tokens Per 24 Hours = 1 after one exchange, or
+Max Concurrent Conversations = 1 with one Active conversation, or Max Conversations Per 24 Hours = 1.
+Then pick Usage Limit Reached Behavior:
+
+7.1 Block New Messages
+    See:  Red banner "You've reached your daily limit" with time until reset; composer paused; + disabled.
+
+7.2 Notify Only
+    See:  Dismissible warning "You're over your daily limit"; you can keep going.
+
+7.3 Block New Conversations Only
+    See:  Blue banner; you can finish the open conversation but not start a new one.
+
+The footer meter turns red at the limit. The window counts the same LAST_N_DAYS:1 window the limits enforce.
+
+
+==================================================================
+8. SLASH COMMANDS
+==================================================================
+
+8.1 Command list
+    Type "/" or press the "/" button. Substring match with highlight ("/ri" -> /risk-check, /brief),
+    scope tag, arrow keys / Enter / Tab / Escape; the conversation dims behind the list.
+
+8.2 Command sent
+    Pick one and send - the bubble shows only the command (monospace); its hidden Prompt Text goes with it.
+
+8.3 Unknown command
+    Send "/nope" - refused with "/nope isn't a command here", text kept in the box.
+
+
+==================================================================
+9. HISTORY
+==================================================================
+
+9.1 History list
+    Press the clock icon. Conversations grouped Today / Yesterday / Earlier this week / Older;
+    search by title or Agent; This record / All records.
+
+9.2 Status badges
+    Active (open); Timed out (closed by the idle-timeout batch); Limit reached (4.10); Archived.
+
+9.3 Continue or start new
+    Open a closed conversation - "This conversation has ended." with Continue conversation when the
+    Agent has Allow Conversation Resume on (and is active), otherwise only Start a new conversation.
+
+
+==================================================================
+10. ERRORS AND REFUSALS
+==================================================================
+
+10.1 Provider error
+    Set:  Point the Agent's Model Configuration at a bad endpoint / Named Credential, or set
+          App Settings > Callout Timeout Milliseconds = 1000 against a slow model.
+    See:  "Couldn't reach the AI service" card, Try again, "Ref <AI Platform Log name>".
+          (The Ref needs Is Exception Logging Enabled and Is Platform Logging Enabled on.)
+          If the reply arrives late anyway, the card goes away and the reply shows.
+
+10.2 "Not sent" - blocked
+    Set:  With the chat open, deactivate the Agent (or turn Is User Initiated Chat Enabled off before the
+          first message of a new conversation), then send.
+    See:  "Not sent" bubble, "Blocked by a company rule" card, Edit message, Why?.
+          AIViolationRule__c rules aren't checked before sending yet, so they don't produce this.
+
+10.3 Usage refusal while sending
+    Set:  Reach a limit (section 7) in another tab, then send from a window that still thinks you're fine.
+    See:  "Not sent" with the limit message; the banner refreshes.
+
+
+==================================================================
+11. DEBUG MODE
+==================================================================
+
+Set:  User Settings > Debug Mode Enabled = On (per user - no one else sees it).
+Then send a NEW message - request detail is only captured for replies generated while debug mode is on.
+
+11.1 Badge and footer
+    See:  "DEBUG" badge in the header; footer says "Debug mode is on for your user only."
+
+11.2 Request trace
+    See:  The newest reply opens its trace automatically; older replies have "Show request trace".
+          Trace shows status (200 / ERR), duration, model config (provider · config · model),
+          tokens in / out, tool calls, tool iterations, attempts, PII masked count, each step with
+          its time, "sent:" preview (already masked), conversation name / public id.
+
+11.3 Trace buttons
+    request.json / response.json - download the provider request and response (only on replies made
+                                   with debug mode on; very long ones are cut to 131,072 characters)
+    copy ids                     - conversation, public id, user message and reply Ids
+    pii mappings                 - modal with real value -> masked value pairs for the conversation
+                                   ("Nothing has been masked" when there are none - use a PII-protected
+                                   record, 3.3, to see pairs)
+    close trace                  - puts "Show request trace" back
+
+11.4 Failure detail
+    Cause a provider error (10.1) with debug mode on.
+    See:  The error card also shows the failure detail recorded for that turn.
+
+
+==================================================================
+12. LOGGING SWITCHES (App Settings) - affect the Ref in 10.1
+==================================================================
+
+Is Exception Logging Enabled = Off  - no AIPlatformLogEvent__e is published; no Ref.
+Is Platform Logging Enabled = Off   - events are published but no AI Platform Log records are written; no Ref.

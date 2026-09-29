@@ -712,6 +712,7 @@ export default class AiAssistChat extends LightningElement {
             const isAnswered = newest && newest.sender === 'agent';
 
             if (isAnswered && freshMessages.some((message) => message.sender === 'agent')) {
+                this.errorTurn = null; // A reply that arrived after the window gave up on it - the failed card no longer applies.
                 this.highlightUtility();
                 this.loadLatestTrace();
             }

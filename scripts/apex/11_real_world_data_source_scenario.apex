@@ -22,7 +22,8 @@ System.debug('=== Activating the application ===');
 
 AIAssistSettings__c settings = AIAssistSettings__c.getOrgDefaults();
 settings.IsApplicationActive__c = true;
-settings.DisableExceptionLogging__c = false;
+settings.IsExceptionLoggingEnabled__c = true;
+settings.IsPlatformLoggingEnabled__c = true;
 upsert settings;
 
 System.debug('=== Registering PII fields - Account.Name and Contact.Name/Email/Phone ===');

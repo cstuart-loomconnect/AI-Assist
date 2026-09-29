@@ -90,7 +90,7 @@ public without sharing class AiMessageProcessingQueueable implements Queueable, 
             List<AIWorkflowAction__c> availableWorkflowActions = loadAvailableWorkflowActions(agent.Id);
 
             // Live progress (the working indicator's steps) follows the org-wide setting; the heavier per-step timing, request/response JSON and sent preview only get captured for a user with debug mode on.
-            AIExecutionStepTracker trace = new AIExecutionStepTracker(conversationId, triggeringMessageId, AIAssistUISettings__c.getInstance().ShowExecutionTraceToUser__c == true, isDebugModeEnabled());
+            AIExecutionStepTracker trace = new AIExecutionStepTracker(conversationId, triggeringMessageId, AIAssistSettingsService.readUiSettings().ShowExecutionTraceToUser__c == true, isDebugModeEnabled());
 
             AIAgentManager.AgentResult result = AIAgentManager.executeAiMessage(agent, modelConfiguration, promptTemplate, conversation, messageHistory, availableDataSources, availableWorkflowActions, attemptNumber, trace);
             result.totalTokensUsed += priorAttemptTokensUsed;

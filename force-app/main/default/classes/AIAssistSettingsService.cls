@@ -17,6 +17,7 @@ Version      Author                   Description
 1.2          Chandler Stuart          Added getRetryStatusCodes (blank = never retry) and getCalloutTimeoutMilliseconds (blank throws) - moved out of AIAgentManager's hard-coded constants and AIModelConfiguration__c.SystemTimeoutSeconds__c.
 1.3          Chandler Stuart          Added getDefaultMaxToolCallingIterations and getMaxToolCallingIterationsCap - blank or below 1 falls back to the AIAssistApplicationConstants default.
 1.4          Chandler Stuart          Added getMaxToolCallsPerIteration and getProcessingLockMinutes.
+1.5          Chandler Stuart          DisableExceptionLogging__c / DisablePlatformLogs__c replaced by IsExceptionLoggingEnabled__c / IsPlatformLoggingEnabled__c - isExceptionLoggingDisabled is now isExceptionLoggingEnabled, added isPlatformLoggingEnabled. Added readAppSettings / readUiSettings - field defaults when no settings row applies.
 */
 
 public without sharing class AIAssistSettingsService {
@@ -33,14 +34,39 @@ public without sharing class AIAssistSettingsService {
 
     public static AIAssistSettings__c getSettings() {
         if (cachedSettings == null) {
-            cachedSettings = AIAssistSettings__c.getOrgDefaults();
+            cachedSettings = readAppSettings();
         }
         return cachedSettings;
     }
 
-    public static Boolean isExceptionLoggingDisabled() {
-        Boolean disabled = getSettings().DisableExceptionLogging__c;
-        return disabled == true;
+    // Uncached org defaults, for callers that must see a change made earlier in the same transaction (the chat window). With no org row yet, getOrgDefaults()
+    // returns every checkbox as false - so the "Is ... Enabled" switches would all read as off - so the field defaults are loaded instead.
+    public static AIAssistSettings__c readAppSettings() {
+        AIAssistSettings__c orgDefaults = AIAssistSettings__c.getOrgDefaults();
+        return orgDefaults != null && orgDefaults.Id != null ? orgDefaults : (AIAssistSettings__c) AIAssistSettings__c.SObjectType.newSObject(null, true);
+    }
+
+    // The running user's AIAssistUISettings__c (User, then Profile, then Org level), uncached. As readAppSettings: with no row at any of those levels, the field
+    // defaults - otherwise IsUserInitiatedChatEnabled__c, IsFeedbackEnabled__c and the other default-on switches all read as off.
+    public static AIAssistUISettings__c readUiSettings() {
+
+        AIAssistUISettings__c merged = AIAssistUISettings__c.getInstance();
+        if (merged != null && merged.Id != null) return merged;
+
+        Set<Id> hierarchyOwnerIds = new Set<Id>{ UserInfo.getUserId(), UserInfo.getProfileId(), UserInfo.getOrganizationId() };
+        Boolean hasAnyRow = [ SELECT COUNT() FROM AIAssistUISettings__c WHERE SetupOwnerId IN :hierarchyOwnerIds WITH SYSTEM_MODE ] > 0;
+
+        return hasAnyRow ? merged : (AIAssistUISettings__c) AIAssistUISettings__c.SObjectType.newSObject(null, true);
+    }
+
+    // Blank counts as on - logging is only off when IsExceptionLoggingEnabled__c is explicitly unchecked.
+    public static Boolean isExceptionLoggingEnabled() {
+        return getSettings().IsExceptionLoggingEnabled__c != false;
+    }
+
+    // Blank counts as on - AIPlatformLog__c records are only skipped when IsPlatformLoggingEnabled__c is explicitly unchecked.
+    public static Boolean isPlatformLoggingEnabled() {
+        return getSettings().IsPlatformLoggingEnabled__c != false;
     }
 
     // Parses AIProviderSuccessStatusCodes__c (e.g. "200,201") - blank or non-numeric entries are skipped, and an empty result falls back to the code default so a bad setting never fails every response.

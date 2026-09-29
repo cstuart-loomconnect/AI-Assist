@@ -14,6 +14,7 @@ before the general ones, then agentKey (an AIAgent__c Id or DeveloperName__c) if
 
 Version      Date           Author                   Description
 1.0          2026-09-28     Chandler Stuart          Split out of AIChatController.
+1.1          2026-09-29     Chandler Stuart          PII-protected badge reads AIPIIRegistry__c WITH SYSTEM_MODE - AI Assist Users have no access to it, which failed the whole chat context load.
 */
 
 public with sharing class AIChatContextService {
@@ -38,7 +39,8 @@ public with sharing class AIChatContextService {
         record.objectLabel = objectDescribe.getLabel();
         record.objectLabelPlural = objectDescribe.getLabelPlural();
         record.recordName = getRecordName(typedRecordId, objectDescribe);
-        record.piiProtected = [ SELECT COUNT() FROM AIPIIRegistry__c WHERE ObjectAPIName__c = :record.objectApiName AND Active__c = true AND SyncStatus__c = :AIAssistApplicationConstants.PII_SYNC_STATUS_SYNCED ] > 0;
+        // System mode - AIPIIRegistry__c is admin configuration AI Assist Users have no access to; only whether the object is protected is read.
+        record.piiProtected = [ SELECT COUNT() FROM AIPIIRegistry__c WHERE ObjectAPIName__c = :record.objectApiName AND Active__c = true AND SyncStatus__c = :AIAssistApplicationConstants.PII_SYNC_STATUS_SYNCED WITH SYSTEM_MODE ] > 0;
 
         return record;
     }

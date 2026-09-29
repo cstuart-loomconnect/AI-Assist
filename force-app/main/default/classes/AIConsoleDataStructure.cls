@@ -788,8 +788,8 @@ public class AIConsoleDataStructure {
         @AuraEnabled public Decimal callsPerIteration;
         @AuraEnabled public Decimal globalTokenBudget;
         @AuraEnabled public Decimal tokensToday = 0;
-        @AuraEnabled public Boolean disableExceptionLogging = false;
-        @AuraEnabled public Boolean disablePlatformLogs = false;
+        @AuraEnabled public Boolean isExceptionLoggingEnabled = true;
+        @AuraEnabled public Boolean isPlatformLoggingEnabled = true;
         @AuraEnabled public String auditLoggingRecordId;
         @AuraEnabled public List<Option> agentOptions = new List<Option>();
         @AuraEnabled public Decimal maxPiiRegistryObjects;

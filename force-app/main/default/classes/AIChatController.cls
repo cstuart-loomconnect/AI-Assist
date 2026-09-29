@@ -36,7 +36,7 @@ AIChatConversationService.
 
 Every conversation-bound method only acts on conversations the running user owns, checked by
 AIChatConversationService.assertOwnsConversation / assertOwnsAgentMessage. App settings are read
-straight from AIAssistSettings__c.getOrgDefaults() rather than a per-transaction cache, so a
+through AIAssistSettingsService.readAppSettings() / readUiSettings() rather than a per-transaction cache, so a
 settings change is always reflected on the next call.
 
 =================================================================
@@ -48,6 +48,7 @@ Version      Date           Author                   Description
 1.2          2026-09-27     Chandler Stuart          Added getPiiMappings - debug mode's PII masking pairs for the Debug Trace's "pii mappings" modal.
 1.3          2026-09-27     Chandler Stuart          Slash commands read from AIChatCommand__mdt (replaces the AIChatCommand__c object) - Agent by Developer Name, and limited by AvailableTo__c to the user's AI Assist User Type.
 1.4          2026-09-28     Chandler Stuart          Split into AIChatDataStructure and eight services (see above) - this class keeps only the @AuraEnabled entry points the aiAssistChat LWC family imports by name, plus the exception translation every one of them shares.
+1.5          2026-09-29     Chandler Stuart          submitFeedback refused while AIAssistUISettings__c.IsFeedbackEnabled__c is off (matching runSuggestedAction's gate). retryLatestMessage refused while the app is off or in maintenance (matching sendMessage).
 */
 
 public with sharing class AIChatController {
@@ -64,8 +65,8 @@ public with sharing class AIChatController {
             AIChatDataStructure.ChatContext context = new AIChatDataStructure.ChatContext();
             context.channel = channel;
 
-            AIAssistSettings__c appSettings = AIAssistSettings__c.getOrgDefaults();
-            AIAssistUISettings__c uiSettings = AIAssistUISettings__c.getInstance();
+            AIAssistSettings__c appSettings = AIAssistSettingsService.readAppSettings();
+            AIAssistUISettings__c uiSettings = AIAssistSettingsService.readUiSettings();
             AIUserSettings__c userSettings = AIChatStateService.getUserSettings();
 
             context.ui = AIChatStateService.buildUiSettings(uiSettings);
@@ -111,7 +112,7 @@ public with sharing class AIChatController {
 
             AIChatConversationService.assertOwnsConversation(conversationId);
 
-            AIAssistUISettings__c uiSettings = AIAssistUISettings__c.getInstance();
+            AIAssistUISettings__c uiSettings = AIAssistSettingsService.readUiSettings();
             AIChatDataStructure.UiSettings ui = AIChatStateService.buildUiSettings(uiSettings);
             AIChatDataStructure.UserState user = AIChatStateService.buildUserState(AIChatStateService.getUserSettings());
 
@@ -129,7 +130,7 @@ public with sharing class AIChatController {
 
             AIConversation__c conversation = AIChatConversationService.assertOwnsConversation(conversationId);
 
-            AIAssistUISettings__c uiSettings = AIAssistUISettings__c.getInstance();
+            AIAssistUISettings__c uiSettings = AIAssistSettingsService.readUiSettings();
             AIUserSettings__c userSettings = AIChatStateService.getUserSettings();
 
             AIChatDataStructure.ConversationUpdate conversationUpdate = new AIChatDataStructure.ConversationUpdate();
@@ -158,9 +159,9 @@ public with sharing class AIChatController {
 
             if (String.isBlank(text)) return failSend(result, AIAssistApplicationConstants.CHAT_SEND_STATUS_ERROR, 'Type a message first.');
 
-            AIAssistSettings__c appSettings = AIAssistSettings__c.getOrgDefaults();
+            AIAssistSettings__c appSettings = AIAssistSettingsService.readAppSettings();
             if (appSettings.IsApplicationActive__c == false) return failSend(result, AIAssistApplicationConstants.CHAT_SEND_STATUS_BLOCKED, 'AI Assist is turned off.');
-            if (AIAssistUISettings__c.getInstance().IsMaintenanceMode__c == true) return failSend(result, AIAssistApplicationConstants.CHAT_SEND_STATUS_BLOCKED, 'AI Assist is down for maintenance.');
+            if (AIAssistSettingsService.readUiSettings().IsMaintenanceMode__c == true) return failSend(result, AIAssistApplicationConstants.CHAT_SEND_STATUS_BLOCKED, 'AI Assist is down for maintenance.');
 
             String messageBody = text;
 
@@ -200,9 +201,16 @@ public with sharing class AIChatController {
         try {
 
             AIChatConversationService.assertOwnsConversation(conversationId);
+
+            // Same gates as sendMessage - a window left open when AI Assist was switched off or into maintenance mustn't keep re-running turns.
+            if (AIAssistSettingsService.readAppSettings().IsApplicationActive__c == false) throw new AIChatDataStructure.AIChatControllerException('AI Assist is turned off.');
+            if (AIAssistSettingsService.readUiSettings().IsMaintenanceMode__c == true) throw new AIChatDataStructure.AIChatControllerException('AI Assist is down for maintenance.');
+
             AIConversationMessageService.retryLatestMessage(conversationId);
 
         } catch (AIConversationMessageService.AIConversationMessageServiceException refusal) {
+            throw newAuraException(refusal.getMessage());
+        } catch (AIChatDataStructure.AIChatControllerException refusal) {
             throw newAuraException(refusal.getMessage());
         } catch (Exception ex) {
             throw toAuraException(ex, 'retryLatestMessage');
@@ -229,7 +237,7 @@ public with sharing class AIChatController {
 
             AIChatConversationService.assertOwnsConversation(conversationId);
 
-            AIChatDataStructure.UiSettings ui = AIChatStateService.buildUiSettings(AIAssistUISettings__c.getInstance());
+            AIChatDataStructure.UiSettings ui = AIChatStateService.buildUiSettings(AIAssistSettingsService.readUiSettings());
             AIChatDataStructure.UserState user = AIChatStateService.buildUserState(AIChatStateService.getUserSettings());
 
             return AIChatConversationService.buildConversationView(conversationId, ui.messagePageSize, user, ui);
@@ -266,10 +274,12 @@ public with sharing class AIChatController {
         }
     }
 
-    // Thumbs up / down on an AI reply.
+    // Thumbs up / down on an AI reply. Only while AIAssistUISettings__c.IsFeedbackEnabled__c is on for the user.
     @AuraEnabled
     public static void submitFeedback(Id messageId, String rating, String reason, String comment) {
         try {
+
+            if (!AIChatStateService.buildUiSettings(AIAssistSettingsService.readUiSettings()).feedbackEnabled) throw new AIChatDataStructure.AIChatControllerException('Feedback is turned off.');
 
             AIChatFeedbackService.submitFeedback(messageId, rating, reason, comment);
 
@@ -299,7 +309,7 @@ public with sharing class AIChatController {
 
             AIConversationMessage__c message = AIChatConversationService.assertOwnsAgentMessage(messageId);
 
-            AIChatDataStructure.UiSettings ui = AIChatStateService.buildUiSettings(AIAssistUISettings__c.getInstance());
+            AIChatDataStructure.UiSettings ui = AIChatStateService.buildUiSettings(AIAssistSettingsService.readUiSettings());
             AIChatDataStructure.UserState user = AIChatStateService.buildUserState(AIChatStateService.getUserSettings());
 
             if (!ui.inlineActionsEnabled || !user.workflowActionsEnabled) throw new AIChatDataStructure.AIChatControllerException('Suggested actions are turned off for you.');

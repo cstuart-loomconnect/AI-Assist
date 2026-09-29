@@ -14,6 +14,10 @@
     </classAccesses>
     <customMetadataTypeAccesses>
         <enabled>true</enabled>
+        <name>AIChatCommand__mdt</name>
+    </customMetadataTypeAccesses>
+    <customMetadataTypeAccesses>
+        <enabled>true</enabled>
         <name>AINavTabSection__mdt</name>
     </customMetadataTypeAccesses>
     <customMetadataTypeAccesses>
@@ -34,8 +38,18 @@
     </customMetadataTypeAccesses>
     <description>For administrators who build and maintain AI Agents and their supporting configuration, with read-only visibility into platform logs, violations, conversations and terms acknowledgments.</description>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>AIConversation__c.PublicId__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>AIDataSource__c.SourceName__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>AIPlatformLog__c.ExceptionLogDetail__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

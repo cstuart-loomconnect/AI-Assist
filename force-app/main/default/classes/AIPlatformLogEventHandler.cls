@@ -12,6 +12,7 @@ It processes the events and persists them as AIPlatformLog__c records for furthe
 
 Version      Author                   Description
 1.0          Chandler Stuart          Initial development
+1.1          Chandler Stuart          No AIPlatformLog__c records are written while AIAssistSettings__c.IsPlatformLoggingEnabled__c is off.
 */
 
 public without sharing class AIPlatformLogEventHandler {
@@ -24,6 +25,9 @@ public without sharing class AIPlatformLogEventHandler {
             List<AIPlatformLog__c> logs = new List<AIPlatformLog__c>();
 
             if (events == null || events.isEmpty()) return;
+
+            // AIAssistSettings__c.IsPlatformLoggingEnabled__c off - the events are dropped rather than written as records.
+            if (!AIAssistSettingsService.isPlatformLoggingEnabled()) return;
 
             for (AIPlatformLogEvent__e event : events) {
                 AIPlatformLog__c log = new AIPlatformLog__c();

@@ -32,7 +32,7 @@ public with sharing class AIConsoleSettingsService {
 
     public static AIConsoleDataStructure.AppSettingsView getAppSettings() {
 
-        AIAssistSettings__c settings = AIAssistSettings__c.getOrgDefaults();
+        AIAssistSettings__c settings = AIAssistSettingsService.readAppSettings();
         AIConsoleDataStructure.AppSettingsView view = new AIConsoleDataStructure.AppSettingsView();
 
         view.isApplicationActive = settings.IsApplicationActive__c != false;
@@ -46,8 +46,8 @@ public with sharing class AIConsoleSettingsService {
         view.callsPerIteration = settings.MaxToolCallsPerIteration__c;
         view.globalTokenBudget = settings.GlobalTokenBudgetPerDay__c;
         view.tokensToday = AITokenUsageService.getGlobalUsage(System.today(), System.today());
-        view.disableExceptionLogging = settings.DisableExceptionLogging__c == true;
-        view.disablePlatformLogs = settings.DisablePlatformLogs__c == true;
+        view.isExceptionLoggingEnabled = settings.IsExceptionLoggingEnabled__c != false;
+        view.isPlatformLoggingEnabled = settings.IsPlatformLoggingEnabled__c != false;
         view.auditLoggingRecordId = settings.AuditLoggingRecordId__c;
         view.maxPiiRegistryObjects = settings.MaxPIIRegistryObjects__c;
         view.toolingApiVersion = settings.ToolingAPIVersion__c;
@@ -95,8 +95,8 @@ public with sharing class AIConsoleSettingsService {
         settings.MaxToolCallingIterationsCap__c = view.iterationsCap;
         settings.MaxToolCallsPerIteration__c = view.callsPerIteration;
         settings.GlobalTokenBudgetPerDay__c = view.globalTokenBudget;
-        settings.DisableExceptionLogging__c = view.disableExceptionLogging == true;
-        settings.DisablePlatformLogs__c = view.disablePlatformLogs == true;
+        settings.IsExceptionLoggingEnabled__c = view.isExceptionLoggingEnabled != false;
+        settings.IsPlatformLoggingEnabled__c = view.isPlatformLoggingEnabled != false;
         settings.AuditLoggingRecordId__c = String.isBlank(view.auditLoggingRecordId) ? null : view.auditLoggingRecordId;
         settings.MaxPIIRegistryObjects__c = view.maxPiiRegistryObjects;
         settings.ToolingAPIVersion__c = view.toolingApiVersion;
@@ -118,13 +118,13 @@ public with sharing class AIConsoleSettingsService {
     // =============================================================
 
     private static final List<String> UI_FIELDS = new List<String>{
-        'IsMaintenanceMode__c', 'DisableUserInitiatedChat__c', 'IsFeedbackEnabled__c', 'AllowInlineWorkflowActions__c', 'SuggestedActionsDisplay__c',
+        'IsMaintenanceMode__c', 'IsUserInitiatedChatEnabled__c', 'IsFeedbackEnabled__c', 'AllowInlineWorkflowActions__c', 'SuggestedActionsDisplay__c',
         'TypingIndicatorEnabled__c', 'ShowExecutionTraceToUser__c', 'ShowTimestampOnMessages__c', 'MaxVisibleMessageHistory__c'
     };
 
     private static final Map<String, String> UI_HELP = new Map<String, String>{
         'IsMaintenanceMode__c' => 'Shows a maintenance screen instead of the chat.',
-        'DisableUserInitiatedChat__c' => 'No new conversations. Open ones can carry on.',
+        'IsUserInitiatedChatEnabled__c' => 'Users can start new conversations. Off, open ones can still carry on.',
         'IsFeedbackEnabled__c' => 'Thumbs up and down under replies.',
         'AllowInlineWorkflowActions__c' => 'Suggested actions can be run from the chat.',
         'SuggestedActionsDisplay__c' => 'How suggested actions look.',
@@ -159,7 +159,9 @@ public with sharing class AIConsoleSettingsService {
 
         if (resolvedLevel == AIConsoleConstants.LEVEL_PROFILE) view.userCount = [ SELECT COUNT() FROM User WHERE ProfileId = :view.ownerId AND IsActive = true ];
 
+        // No org row yet - show the field defaults, which is what the chat window uses (AIAssistSettingsService.readUiSettings).
         AIAssistUISettings__c orgDefaults = AIAssistUISettings__c.getOrgDefaults();
+        if (orgDefaults == null || orgDefaults.Id == null) orgDefaults = (AIAssistUISettings__c) AIAssistUISettings__c.SObjectType.newSObject(null, true);
         AIAssistUISettings__c inherited = orgDefaults;
         String inheritedFrom = 'Org default';
         AIAssistUISettings__c profileRow;
@@ -238,7 +240,7 @@ public with sharing class AIConsoleSettingsService {
     }
 
     private static AIAssistUISettings__c levelRow(String ownerId) {
-        List<AIAssistUISettings__c> rows = [ SELECT Id, SetupOwnerId, IsMaintenanceMode__c, DisableUserInitiatedChat__c, IsFeedbackEnabled__c, AllowInlineWorkflowActions__c, SuggestedActionsDisplay__c,
+        List<AIAssistUISettings__c> rows = [ SELECT Id, SetupOwnerId, IsMaintenanceMode__c, IsUserInitiatedChatEnabled__c, IsFeedbackEnabled__c, AllowInlineWorkflowActions__c, SuggestedActionsDisplay__c,
                                                     TypingIndicatorEnabled__c, ShowExecutionTraceToUser__c, ShowTimestampOnMessages__c, MaxVisibleMessageHistory__c
                                              FROM AIAssistUISettings__c WHERE SetupOwnerId = :ownerId LIMIT 1 ];
         return rows.isEmpty() ? null : rows[0];

@@ -42,7 +42,7 @@ public with sharing class AIChatFeedbackService {
         insert new AITermsAcknowledgment__c(
             User__c = UserInfo.getUserId(),
             AcknowledgedDate__c = System.now(),
-            TermsVersion__c = AIChatStateService.getCurrentTermsVersion(AIAssistSettings__c.getOrgDefaults()),
+            TermsVersion__c = AIChatStateService.getCurrentTermsVersion(AIAssistSettingsService.readAppSettings()),
             SignatureText__c = UserInfo.getName().left(120)
         );
     }
