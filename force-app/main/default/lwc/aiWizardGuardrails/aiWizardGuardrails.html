@@ -1,0 +1,114 @@
+<template>
+    <div class="step">
+        <section class="aic-card" aria-labelledby="s-rules">
+            <div class="aic-card__header">
+                <h2 class="aic-card__title" id="s-rules">{rulesTitle}</h2>
+                <span class="aic-weak">Checked on every message to this agent</span>
+                <button type="button" class="slds-button slds-button_neutral aic-btn_small" onclick={handleNew}>New rule</button>
+            </div>
+            <table class="slds-table aic-table">
+                <thead><tr>
+                    <th class="aic-th" scope="col">Rule Name</th><th class="aic-th" scope="col">Detection</th><th class="aic-th" scope="col">Violation Type Produced</th>
+                    <th class="aic-th" scope="col">When it fires</th><th class="aic-th" scope="col">Active</th>
+                </tr></thead>
+                <tbody>
+                    <template for:each={ruleRows} for:item="rule">
+                        <tr key={rule.id} class={rule.rowClass}>
+                            <td class="td"><a href="#" class="aic-bold" data-id={rule.id} onclick={handleSelect}>{rule.name}</a><template lwc:if={rule.isEditing}> <span class="aic-weak">· editing</span></template></td>
+                            <td class="td">{rule.detectionLabel}</td>
+                            <td class="td">{rule.violationTypeLabel}</td>
+                            <td class="td"><span class={rule.firesClass}>{rule.firesLabel}</span></td>
+                            <td class="td"><button type="button" class="aic-switch" role="switch" aria-checked={rule.activeChecked} aria-label={rule.switchLabel} data-id={rule.id} data-active={rule.isActive} onclick={handleToggle} disabled={busy}></button></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            <template lwc:if={noRules}><p class="aic-empty">No rules yet. Add at least one that blocks requests before going live.</p></template>
+        </section>
+
+        <template lwc:if={editor}>
+            <div class="bottom">
+                <section class="aic-card editor" aria-labelledby="s-edit">
+                    <div class="aic-card__header">
+                        <h2 class="aic-card__title" id="s-edit">{editorTitle}</h2>
+                        <template lwc:if={editor.id}><button type="button" class="slds-button slds-button_neutral aic-btn_small" onclick={handleDelete} disabled={busy}>Delete</button></template>
+                        <button type="button" class="slds-button slds-button_brand aic-btn_small" onclick={handleSaveRule} disabled={busy}>Save rule</button>
+                    </div>
+                    <div class="aic-card__body">
+                        <div class="aic-grid2">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="r-name"><abbr class="slds-required" title="required">* </abbr>Rule Name</label>
+                                <input id="r-name" class="slds-input" maxlength="80" value={editor.name} oninput={handleName} />
+                                <div class="aic-help">Name it after the behaviour it catches.</div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="r-dev"><abbr class="slds-required" title="required">* </abbr>Developer Name</label>
+                                <input id="r-dev" class="slds-input aic-mono" maxlength="75" value={editor.developerName} oninput={handleDeveloperName} />
+                            </div>
+                        </div>
+                        <fieldset class="slds-form-element">
+                            <legend class="slds-form-element__label"><abbr class="slds-required" title="required">* </abbr>Detection Method</legend>
+                            <div class="cards">
+                                <template for:each={detectionCards} for:item="card">
+                                    <label key={card.value} class={card.cardClass}>
+                                        <input type="radio" name="detection" value={card.value} checked={card.checked} onchange={handleDetection} />
+                                        <span class="aic-option__text"><span class="aic-bold">{card.label}</span><span class="aic-weak">{card.description}</span></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </fieldset>
+                        <template lwc:if={isAiEvaluated}>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="r-inst"><abbr class="slds-required" title="required">* </abbr>AI Detection Instruction</label>
+                                <textarea id="r-inst" class="slds-textarea" rows="3" value={editor.instruction} data-field="instruction" oninput={handleInput}></textarea>
+                            </div>
+                        </template>
+                        <div class="aic-grid2">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="r-tag"><abbr class="slds-required" title="required">* </abbr>Signal Tag</label>
+                                <input id="r-tag" class="slds-input aic-mono" maxlength="40" value={editor.signalTag} oninput={handleSignalTag} />
+                                <div class="aic-help">{signalHelp}</div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="r-type"><abbr class="slds-required" title="required">* </abbr>Violation Type Produced</label>
+                                <div class="slds-select_container">
+                                    <select id="r-type" class="slds-select" data-field="violationType" onchange={handleInput}>
+                                        <template for:each={violationTypeChoices} for:item="option">
+                                            <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                        </template>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="block">
+                            <span class="aic-option__text"><span class="aic-bold">Block Request</span><span class="aic-weak">Stop the reply and show the user why. Off: log a violation and carry on.</span></span>
+                            <button type="button" class="aic-switch" role="switch" aria-checked={blockChecked} aria-label="Block Request" onclick={handleBlockToggle}></button>
+                        </div>
+                        <template lwc:if={isAiEvaluated}>
+                            <div class="aic-banner aic-banner_warning"><c-ai-console-icon name="warningFilled" size="16" stroke-width="1.6"></c-ai-console-icon><span>AI-evaluated rules can fire by mistake. Consider logging only for a week, check the Violations list, then turn on blocking.</span></div>
+                        </template>
+                    </div>
+                </section>
+
+                <section class="aic-card preview-card" aria-labelledby="s-see">
+                    <div class="aic-card__header"><h2 class="aic-card__title" id="s-see">What the user sees</h2></div>
+                    <div class="preview">
+                        <template lwc:if={editor.blockRequest}>
+                            <div class="sent">
+                                <div class="bubble-blocked">[A message that breaks this rule]</div>
+                                <span class="not-sent">Not sent</span>
+                            </div>
+                            <div class="reason">{blockReason}</div>
+                            <div class="note">Logged to Violations with the user, the conversation and “Request Blocked”.</div>
+                        </template>
+                        <template lwc:else>
+                            <div class="sent"><div class="bubble-plain">[A message that breaks this rule]</div></div>
+                            <div class="aic-bubble">The agent replies as normal.</div>
+                            <div class="note">Logged to Violations for review. The user isn’t told.</div>
+                        </template>
+                    </div>
+                </section>
+            </div>
+        </template>
+    </div>
+</template>

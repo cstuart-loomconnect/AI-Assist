@@ -1,0 +1,97 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: block;
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-content: start;
+}
+.span2 {
+    grid-row: span 2;
+}
+.radios {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.legend {
+    font-size: 13px;
+    color: var(--aic-weak);
+    margin: 0 0 6px;
+    padding: 0;
+}
+.radio {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    cursor: pointer;
+}
+.text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+.text b {
+    font-weight: 700;
+}
+.text span {
+    font-size: 13px;
+    color: var(--aic-weak);
+}
+.rows {
+    display: flex;
+    flex-direction: column;
+}
+.trow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--aic-line);
+}
+.trow.top {
+    align-items: flex-start;
+}
+.grow {
+    flex-grow: 1;
+}
+.inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.small-number {
+    width: 90px;
+}
+.two {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+.note {
+    font-size: 13px;
+    line-height: 17px;
+    color: var(--aic-weak);
+    padding: 10px 12px;
+    background: var(--aic-gray);
+    border-radius: 4px;
+}
+.example {
+    display: flex;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid var(--aic-line);
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 17px;
+    color: var(--aic-ink);
+}
+.example c-ai-console-icon {
+    color: var(--aic-weak);
+}

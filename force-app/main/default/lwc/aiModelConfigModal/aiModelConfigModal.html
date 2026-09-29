@@ -1,0 +1,121 @@
+<template>
+    <lightning-modal-header label={label}></lightning-modal-header>
+    <lightning-modal-body>
+        <template lwc:if={isLoading}>
+            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+        <template lwc:else>
+            <div class="form">
+                <template lwc:if={error}>
+                    <div class="aic-banner aic-banner_error" role="alert"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span>{error}</span></div>
+                </template>
+
+                <fieldset class="slds-form-element">
+                    <legend class="slds-form-element__label"><abbr class="slds-required" title="required">* </abbr>AI Provider</legend>
+                    <div class="providers">
+                        <template for:each={providerOptions} for:item="provider">
+                            <label key={provider.value} class={provider.cardClass}>
+                                <input type="radio" name="provider" value={provider.value} checked={provider.checked} onchange={handleProvider} />
+                                <span class="aic-option__text"><b>{provider.label}</b><span class="aic-weak">{provider.description}</span></span>
+                            </label>
+                        </template>
+                    </div>
+                </fieldset>
+
+                <div class="aic-grid2">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="m-name"><abbr class="slds-required" title="required">* </abbr>Configuration Name</label>
+                        <div class="slds-form-element__control"><input id="m-name" class="slds-input" value={model.name} data-field="name" oninput={handleName} /></div>
+                    </div>
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="m-dev"><abbr class="slds-required" title="required">* </abbr>Developer Name</label>
+                        <div class="slds-form-element__control"><input id="m-dev" class="slds-input aic-mono" value={model.developerName} data-field="developerName" oninput={handleDeveloperName} /></div>
+                    </div>
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="m-model"><abbr class="slds-required" title="required">* </abbr>Model Identifier</label>
+                        <div class="slds-form-element__control"><input id="m-model" class="slds-input aic-mono" value={model.modelIdentifier} data-field="modelIdentifier" oninput={handleInput} /></div>
+                        <div class="aic-help">The exact model string the provider expects.</div>
+                    </div>
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="m-nc"><abbr class="slds-required" title="required">* </abbr>Named Credential</label>
+                        <div class="slds-form-element__control">
+                            <template lwc:if={hasCredentialOptions}>
+                                <div class="slds-select_container">
+                                    <select id="m-nc" class="slds-select" data-field="namedCredential" onchange={handleInput}>
+                                        <template for:each={credentialOptions} for:item="option">
+                                            <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                        </template>
+                                    </select>
+                                </div>
+                            </template>
+                            <template lwc:else>
+                                <input id="m-nc-text" aria-label="Named Credential" class="slds-input aic-mono" value={model.namedCredential} data-field="namedCredential" oninput={handleInput} />
+                            </template>
+                        </div>
+                        <div class="aic-help">Holds the API key. Set up in Setup › Named Credentials.</div>
+                    </div>
+                </div>
+
+                <div class="group">
+                    <h3 class="aic-caps">Endpoint</h3>
+                    <div class="aic-grid3">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="m-path">Api Path</label>
+                            <div class="slds-form-element__control"><input id="m-path" class="slds-input aic-mono" value={model.apiPath} data-field="apiPath" oninput={handleInput} /></div>
+                        </div>
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="m-hn">Api Version Header Name</label>
+                            <div class="slds-form-element__control"><input id="m-hn" class="slds-input aic-mono" value={model.headerName} data-field="headerName" oninput={handleInput} /></div>
+                        </div>
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="m-hv">Api Version Header Value</label>
+                            <div class="slds-form-element__control"><input id="m-hv" class="slds-input aic-mono" value={model.headerValue} data-field="headerValue" oninput={handleInput} /></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group">
+                    <h3 class="aic-caps">Generation</h3>
+                    <div class="aic-grid3">
+                        <div class="slds-form-element">
+                            <div class="slider-head"><label class="slds-form-element__label" for="m-temp">Temperature</label><span class="aic-bold small">{temperatureLabel}</span></div>
+                            <input id="m-temp" class="slider" type="range" min="0" max="1" step="0.1" value={model.temperature} data-field="temperature" oninput={handleNumber} />
+                            <div class="slider-ends"><span>Consistent</span><span>Varied</span></div>
+                        </div>
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="m-max">Maximum Output Tokens</label>
+                            <div class="slds-form-element__control"><input id="m-max" class="slds-input" type="number" min="1" value={model.maxOutputTokens} data-field="maxOutputTokens" oninput={handleNumber} /></div>
+                        </div>
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="m-retry">Retry Attempts</label>
+                            <div class="slds-form-element__control"><input id="m-retry" class="slds-input" type="number" min="0" max="10" value={model.retryAttempts} data-field="retryAttempts" oninput={handleNumber} /></div>
+                            <div class="aic-help">On a timeout, 429 or 5xx.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test">
+                    <lightning-button label="Test connection" onclick={handleTest} disabled={isTesting}></lightning-button>
+                    <template lwc:if={isTesting}><span class="aic-weak">Sending a test prompt…</span></template>
+                    <template lwc:elseif={testResult}>
+                        <template lwc:if={testResult.success}>
+                            <span class="test-ok"><c-ai-console-icon name="check" size="14" stroke-width="3"></c-ai-console-icon>{testSummary}</span>
+                        </template>
+                        <template lwc:else>
+                            <span class="test-fail"><c-ai-console-icon name="errorCircle" size="14"></c-ai-console-icon>{testSummary}</span>
+                        </template>
+                    </template>
+                    <span class="aic-weak">Sends a one-line prompt. Counts towards today’s tokens.</span>
+                </div>
+            </div>
+        </template>
+    </lightning-modal-body>
+    <lightning-modal-footer>
+        <div class="footer">
+            <label class="active"><input type="checkbox" class="aic-checkbox" checked={model.isActive} onchange={handleActive} />Active</label>
+            <div class="spacer"></div>
+            <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+            <lightning-button variant="brand" label="Save" onclick={handleSave} disabled={isSaving}></lightning-button>
+        </div>
+    </lightning-modal-footer>
+</template>

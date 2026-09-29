@@ -1,0 +1,141 @@
+<template>
+    <div class="layout">
+        <div class="left">
+            <section class="aic-card" aria-labelledby="s-list">
+                <div class="aic-card__header"><h2 class="aic-card__title" id="s-list">{listTitle}</h2><button type="button" class="slds-button slds-button_neutral aic-btn_small" onclick={handleNew}>New</button></div>
+                <div class="templates">
+                    <template for:each={templateRows} for:item="template">
+                        <a key={template.key} href="#" class={template.itemClass} aria-current={template.current} data-id={template.key} onclick={handleSelect}>
+                            <span class="tpl__top"><span class="aic-bold grow">{template.name}</span><span class={template.badgeClass}>{template.statusLabel}</span></span>
+                            <span class="aic-weak">{template.criteriaSummary}</span>
+                        </a>
+                    </template>
+                    <template lwc:if={noTemplates}><p class="aic-weak empty">No templates yet. Every agent needs at least one active template.</p></template>
+                </div>
+            </section>
+
+            <section class="aic-card" aria-labelledby="s-nomatch">
+                <div class="aic-card__header"><h2 class="aic-card__title" id="s-nomatch">When no template matches</h2></div>
+                <fieldset class="nomatch">
+                    <legend class="slds-assistive-text">No Match Behavior</legend>
+                    <label class="radio"><input type="radio" class="aic-radio" name="nm" value={closestValue} checked={isClosest} onchange={handleNoMatch} /><span class="aic-option__text"><span class="aic-bold">Use the closest match</span><span class="aic-weak">Picks the template whose criteria come nearest to the record.</span></span></label>
+                    <label class="radio"><input type="radio" class="aic-radio" name="nm" value={fallbackValue} checked={isFallback} onchange={handleNoMatch} /><span class="aic-option__text"><span class="aic-bold">Show the fallback message</span><span class="aic-weak">Replies with the message set in Basics.</span></span></label>
+                </fieldset>
+            </section>
+
+            <div class="aic-banner aic-banner_info"><c-ai-console-icon name="info" size="16"></c-ai-console-icon><span>Templates are checked most specific first. A template with no criteria is the catch-all.</span></div>
+        </div>
+
+        <template lwc:if={editor}>
+            <section class="aic-card editor" aria-labelledby="s-edit">
+                <div class="aic-card__header">
+                    <h2 class="aic-card__title" id="s-edit">{editorTitle}</h2>
+                    <span class="aic-weak">{activeLabel}</span>
+                    <button type="button" class="aic-switch" role="switch" aria-checked={activeChecked} aria-label="Active" onclick={handleActiveToggle}></button>
+                    <template lwc:if={editor.id}>
+                        <button type="button" class="slds-button slds-button_neutral aic-btn_small" onclick={handleClone} disabled={busy}>Clone</button>
+                        <button type="button" class="slds-button slds-button_neutral aic-btn_small" onclick={handleDelete} disabled={busy}>Delete</button>
+                    </template>
+                    <button type="button" class="slds-button slds-button_brand aic-btn_small" onclick={handleSaveTemplate} disabled={busy}>Save</button>
+                </div>
+                <div class="aic-card__body body">
+                    <div class="aic-grid2">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="t-name"><abbr class="slds-required" title="required">* </abbr>Template Name</label>
+                            <input id="t-name" class="slds-input" maxlength="80" value={editor.name} oninput={handleName} />
+                        </div>
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="t-dev"><abbr class="slds-required" title="required">* </abbr>Developer Name</label>
+                            <input id="t-dev" class="slds-input aic-mono" maxlength="75" value={editor.developerName} oninput={handleDeveloperName} />
+                        </div>
+                    </div>
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="t-desc">Description</label>
+                        <input id="t-desc" class="slds-input" value={editor.description} data-field="description" oninput={handleInput} />
+                    </div>
+
+                    <div class="group">
+                        <h3 class="aic-caps">When to use this template</h3>
+                        <div class="criteria">
+                            <div class="criteria__logic">
+                                <span>Use when</span>
+                                <div class="slds-select_container logic">
+                                    <select class="slds-select small-select" aria-label="Match logic" onchange={handleLogic}>
+                                        <option value="any" selected={isAny}>any condition</option>
+                                        <option value="all" selected={isAll}>all conditions</option>
+                                    </select>
+                                </div>
+                                <span>is true</span>
+                            </div>
+                            <template for:each={conditionRows} for:item="condition">
+                                <div key={condition.key} class="condition">
+                                    <div class="slds-select_container field">
+                                        <select class="slds-select" aria-label="Field" data-index={condition.index} data-prop="field" onchange={handleCondition}>
+                                            <option value="">Pick a field</option>
+                                            <template for:each={condition.fieldChoices} for:item="option">
+                                                <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div class="slds-select_container operator">
+                                        <select class="slds-select" aria-label="Operator" data-index={condition.index} data-prop="operator" onchange={handleCondition}>
+                                            <template for:each={condition.operatorChoices} for:item="option">
+                                                <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <input class="slds-input grow" aria-label="Value" value={condition.value} data-index={condition.index} data-prop="value" oninput={handleCondition} />
+                                    <button type="button" class="aic-x" aria-label="Remove condition" data-index={condition.index} onclick={handleRemoveCondition}><c-ai-console-icon name="close" size="14"></c-ai-console-icon></button>
+                                </div>
+                            </template>
+                            <div><button type="button" class="slds-button slds-button_neutral aic-btn_small" onclick={handleAddCondition}>Add condition</button></div>
+                        </div>
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="t-kw">Trigger Keywords</label>
+                            <div class="keywords">
+                                <template for:each={keywordPills} for:item="keyword">
+                                    <span key={keyword.value} class="pill">{keyword.value}<button type="button" class="aic-x" aria-label={keyword.removeLabel} data-value={keyword.value} onclick={handleRemoveKeyword}><c-ai-console-icon name="close" size="10" stroke-width="2.4"></c-ai-console-icon></button></span>
+                                </template>
+                                <input id="t-kw" class="keyword-input" placeholder="Type and press Enter" value={keywordDraft} oninput={handleKeywordDraft} onkeydown={handleKeywordKey} />
+                            </div>
+                            <div class="aic-help">A quick pre-filter. Messages containing these words lean towards this template.</div>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <h3 class="aic-caps">Instructions to the AI</h3>
+                        <div class="aic-grid2">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="t-ctx">System Context</label>
+                                <textarea id="t-ctx" class="slds-textarea" rows="3" value={editor.systemContext} data-field="systemContext" oninput={handleInput}></textarea>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="t-tone">Tone</label>
+                                <textarea id="t-tone" class="slds-textarea" rows="3" value={editor.tone} data-field="tone" oninput={handleInput}></textarea>
+                            </div>
+                        </div>
+                        <div class="slds-form-element">
+                            <div class="prompt-head"><label class="slds-form-element__label grow" for="t-prompt"><abbr class="slds-required" title="required">* </abbr>AI Prompt</label><span class="aic-weak">{promptCount}</span></div>
+                            <textarea id="t-prompt" class="slds-textarea" rows="5" maxlength="32768" value={editor.prompt} data-field="prompt" oninput={handleInput}></textarea>
+                        </div>
+                        <div class="exclusions">
+                            <div class="slds-form-element grow">
+                                <label class="slds-form-element__label" for="t-ex">AI Exclusion Rules</label>
+                                <textarea id="t-ex" class="slds-textarea" rows="2" value={editor.exclusions} data-field="exclusions" oninput={handleInput}></textarea>
+                            </div>
+                            <div class="slds-form-element length">
+                                <label class="slds-form-element__label" for="t-len">Max Response Length</label>
+                                <div class="length__row"><input id="t-len" class="slds-input" type="number" min="1" value={editor.maxResponseLength} oninput={handleLength} /><span class="aic-weak">words</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </template>
+        <template lwc:else>
+            <section class="aic-card editor empty-editor">
+                <p class="aic-empty">Pick a template, or add a new one.</p>
+            </section>
+        </template>
+    </div>
+</template>

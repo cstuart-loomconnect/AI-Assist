@@ -1,0 +1,41 @@
+<template>
+    <div class="wizard">
+        <c-ai-wizard-header state={state} step={currentStep} busy={busy} onstepselect={handleStepSelect} onsaveexit={handleSaveExit} onagents={handleCancel}></c-ai-wizard-header>
+
+        <div class="body">
+            <main class="main">
+                <template lwc:if={error}>
+                    <div class="aic-banner aic-banner_error" role="alert"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span class="grow">{error}</span>
+                        <button type="button" class="aic-x" aria-label="Dismiss" onclick={handleDismissError}><c-ai-console-icon name="close" size="12"></c-ai-console-icon></button>
+                    </div>
+                </template>
+                <template lwc:if={isLoading}>
+                    <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner></div>
+                </template>
+                <template lwc:elseif={isStep1}><c-ai-wizard-basics class="current-step" state={state} onstatechange={handleStateChange}></c-ai-wizard-basics></template>
+                <template lwc:elseif={isStep2}><c-ai-wizard-templates class="current-step" state={state} onstatechange={handleStateChange}></c-ai-wizard-templates></template>
+                <template lwc:elseif={isStep3}><c-ai-wizard-data-sources class="current-step" state={state} onstatechange={handleStateChange}></c-ai-wizard-data-sources></template>
+                <template lwc:elseif={isStep4}><c-ai-wizard-actions class="current-step" state={state} onstatechange={handleStateChange}></c-ai-wizard-actions></template>
+                <template lwc:elseif={isStep5}><c-ai-wizard-guardrails class="current-step" state={state} onstatechange={handleStateChange}></c-ai-wizard-guardrails></template>
+                <template lwc:elseif={isStep6}><c-ai-wizard-conversation class="current-step" state={state} onstatechange={handleStateChange}></c-ai-wizard-conversation></template>
+                <template lwc:elseif={isStep7}><c-ai-wizard-review class="current-step" state={state} go-live={goLive} onstatechange={handleStateChange} ongolive={handleGoLive} onedit={handleStepSelect}></c-ai-wizard-review></template>
+            </main>
+            <template lwc:if={showSummary}>
+                <aside class="aside"><c-ai-wizard-summary state={state} step={currentStep}></c-ai-wizard-summary></aside>
+            </template>
+        </div>
+
+        <div class="aic-foot foot">
+            <button type="button" class="slds-button slds-button_neutral aic-btn_ghost" onclick={handleCancel}>Cancel</button>
+            <div class="grow"></div>
+            <span class="aic-weak step-label">{stepLabel}</span>
+            <template lwc:if={hasBack}><lightning-button label="Back" onclick={handleBack} disabled={busy}></lightning-button></template>
+            <template lwc:if={isLastStep}>
+                <lightning-button variant="brand" label={finishLabel} onclick={handleFinish} disabled={busy}></lightning-button>
+            </template>
+            <template lwc:else>
+                <lightning-button variant="brand" label={nextLabel} onclick={handleNext} disabled={busy}></lightning-button>
+            </template>
+        </div>
+    </div>
+</template>

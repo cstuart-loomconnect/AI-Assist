@@ -1,0 +1,51 @@
+<template>
+    <div class="summary">
+        <div class="header">
+            <div class="header__titles">
+                <h1 class="greeting">{greeting}</h1>
+                <span class="aic-weak subtitle">{dateLabel}</span>
+            </div>
+            <lightning-combobox class="range" label="Date range" variant="label-hidden" value={daysValue} options={rangeOptions} onchange={handleRangeChange}></lightning-combobox>
+            <lightning-button variant="brand" label="New Agent" onclick={handleNewAgent}></lightning-button>
+        </div>
+
+        <template lwc:if={error}>
+            <div class="aic-banner aic-banner_error" role="alert"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span>{error}</span></div>
+        </template>
+
+        <div class="tiles">
+            <a class="aic-card tile" href="#" data-target="agents" onclick={handleTile}>
+                <span class="tile__label">Active agents</span>
+                <span class="tile__number">{summary.activeAgents}</span>
+                <span class="tile__sub">{agentsSub}</span>
+            </a>
+            <a class="aic-card tile" href="#" data-target="conversations" onclick={handleTile}>
+                <span class="tile__label">Conversations today</span>
+                <span class="tile__number">{conversationsToday}</span>
+                <span class="tile__sub">{conversationsSub}</span>
+            </a>
+            <a class="aic-card tile" href="#" data-target="feedback" onclick={handleTile}>
+                <span class="tile__label">Rated helpful</span>
+                <span class="tile__number">{helpfulLabel}</span>
+                <span class="tile__sub">{helpfulSub}</span>
+            </a>
+            <a class="aic-card tile" href="#" data-target="violations" onclick={handleTile}>
+                <span class="tile__label">Violations, last 7 days</span>
+                <span class="tile__number">{summary.violationsLast7Days}</span>
+                <span class="tile__sub">
+                    <template lwc:if={hasHigh}><span class="high">{summary.highViolations} High</span> · </template>{summary.blockedViolations} blocked
+                </span>
+            </a>
+            <div class="aic-card tile tile_static">
+                <span class="tile__label">Tokens today</span>
+                <span class="tile__number">{tokensToday}</span>
+                <template lwc:if={hasBudget}>
+                    <div class="meter" role="meter" aria-label="Daily token budget used" aria-valuemin="0" aria-valuemax={summary.tokenBudget} aria-valuenow={summary.tokensToday}>
+                        <div class="meter__fill" style={meterStyle}></div>
+                    </div>
+                </template>
+                <span class="tile__sub">{budgetSub}</span>
+            </div>
+        </div>
+    </div>
+</template>

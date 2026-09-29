@@ -1,0 +1,86 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: block;
+    height: 100%;
+}
+.related {
+    height: 100%;
+    box-sizing: border-box;
+}
+.small-link {
+    font-size: 13px;
+}
+.layout {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+.list {
+    flex-grow: 1;
+    min-width: 0;
+    overflow-x: auto;
+}
+.banner {
+    margin: 0 16px 12px;
+    align-items: center;
+}
+.banner__text {
+    flex-grow: 1;
+}
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px 12px;
+}
+.filters {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 0 16px 14px;
+    flex-wrap: wrap;
+}
+.filters_chips {
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 12px;
+}
+.chips {
+    display: flex;
+    gap: 8px;
+}
+.checkbox-filter {
+    height: 32px;
+    display: flex;
+    align-items: center;
+}
+.spacer {
+    flex-grow: 1;
+}
+.count {
+    padding-bottom: 8px;
+}
+.filters_chips .count {
+    padding-bottom: 0;
+}
+.more {
+    display: flex;
+    justify-content: center;
+    padding: 12px;
+}
+.footer {
+    padding: 12px 16px;
+}
+.panel {
+    flex-shrink: 0;
+}
+.panel_400 {
+    width: 400px;
+}
+.panel_440 {
+    width: 440px;
+}
+.panel_460 {
+    width: 460px;
+}

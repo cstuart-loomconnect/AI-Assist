@@ -1,0 +1,28 @@
+<template>
+    <div class="header">
+        <div class="top">
+            <div class="aic-tile aic-tile_large tile"><c-ai-console-icon name="agent" size="24" stroke-width="1.8"></c-ai-console-icon></div>
+            <div class="titles">
+                <nav aria-label="Breadcrumb" class="crumbs"><a href="#" onclick={handleAgents}>Agents</a><span aria-hidden="true">›</span><span>{crumb}</span></nav>
+                <div class="title-row">
+                    <h1 class="name">{agentName}</h1>
+                    <span class="aic-badge status">{statusLabel}</span>
+                    <template lwc:if={savedLabel}>
+                        <span class="saved"><span class="saved__icon"><c-ai-console-icon name="check" size="12" stroke-width="2.4"></c-ai-console-icon></span>{savedLabel}</span>
+                    </template>
+                </div>
+            </div>
+            <lightning-button label="Save &amp; exit" onclick={handleSaveExit} disabled={busy}></lightning-button>
+        </div>
+        <ol class="path" aria-label="Setup steps">
+            <template for:each={steps} for:item="step">
+                <li key={step.number} class="path__item">
+                    <button type="button" class={step.buttonClass} aria-current={step.ariaCurrent} disabled={step.disabled} data-step={step.number} onclick={handleStep}>
+                        <template lwc:if={step.isDone}><c-ai-console-icon name="check" size="14" stroke-width="3"></c-ai-console-icon></template>
+                        <span>{step.label}</span>
+                    </button>
+                </li>
+            </template>
+        </ol>
+    </div>
+</template>

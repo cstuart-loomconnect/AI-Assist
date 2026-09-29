@@ -1,0 +1,99 @@
+AI ASSIST - CONSOLE (AI AGENTS, LIBRARY, ACTIVITY, SETTINGS)
+
+Scenarios from the "AI Assist App" design canvas and whether each is built.
+[x] built   [~] UI built, backend part still missing (see note)   [ ] not built
+
+Placement: six Lightning Component tabs (AI_Home, AI_Agents, AI_Agent_Wizard, AI_Library, AI_Activity, AI_Settings) in the AI Assist
+app's nav bar, each showing aiTabPage. The tab's API name is the AINavTab__mdt Developer Name it loads. Component
+tabs have no Salesforce page title bar (App Page tabs always draw one), so the console starts right under the nav bar.
+The object tabs are no longer in the app's nav bar (they still exist for record pages).
+
+---------- How a tab finds its content ----------
+[x] aiTabPage reads its AINavTab__mdt record and active AINavTabSection__mdt rows (AIConsoleNavService)
+[x] Sub Navigation rows -> left rail (aiSubNav); the picked row's ComponentAPIName__c is loaded with a dynamic import
+[x] Component / Related List rows -> stacked in the page, three columns, sized by SectionWidth__c (new field)
+[x] Related List rows render through the one generic list, aiRecordList (object, filter and row cap from the row)
+[x] RequiresPermissionSet__c hides the section and locks its Apex (AIConsoleUtility.assertSectionAccess); lock icon in the rail
+[x] BadgeFilterCriteria__c (new field) - the count beside a rail item
+[x] CollapsedByDefault__c, ExternalURLOverride__c / OpenInNewTab__c (tab and section), Active__c (tab and section)
+[x] Where you are lives in the URL (c__section, c__view, c__recordId, c__step) - every screen can be linked to, Back works
+[~] Tab labels in the nav bar come from the CustomTab label, not AINavTab__mdt.MasterLabel (Salesforce draws the nav bar) - keep them the same
+[~] IsDefaultLandingTab__c is informational - the app opens on the first tab in its nav bar (AI_Home)
+
+---------- Components ----------
+[x] AIConsoleController (every @AuraEnabled method) + AIConsoleDataStructure + AIConsoleUtility + AIConsoleConstants
+[x] AIConsoleNavService / HomeService / ListService / AgentService / WizardService / LibraryService / SoqlBuilderService / ActivityService / SettingsService
+[x] Shared LWCs: aiConsoleStyles, aiConsoleUtils, aiConsoleIcon, aiConsoleTable, aiTabPage, aiSubNav
+[x] AIConsoleController class access on AIAssistAdminUser and AIAssistSuperUser only (not AIAssistUser); tab visibility for the 5 tabs
+[ ] AIConsoleControllerTest - not written (asked for no unit tests in this piece)
+
+---------- Home ----------
+[x] Greeting, date range (7 / 14 / 30 days, shared with the trend), New Agent (opens the New Agent modal on the Agents tab)
+[x] Tiles - active agents (test mode, drafts), conversations today (users, records), rated helpful, violations 7 days (High, blocked), tokens today vs budget
+[x] Conversations per day bar chart (aiHomeTrend)
+[x] Needs attention - unreviewed High violation, PII sync failure, errors today, users on old terms, unfinished agents (only what the user can open)
+[x] Agent health (Related List) - conversations, helpful %, failed steps (red over 2% of conversations), avg tokens, status
+[x] Recent violations (Related List)
+
+---------- Agents ----------
+[x] All Agents / Drafts / In test mode (one component, aiAgentList, filtered by each section's Filter Criteria)
+[x] Search, refresh, status filter, list switcher, row menu (Open in wizard, Clone, Activate for everyone, Deactivate, Delete)
+[x] Delete refuses an active agent or one with conversations
+[x] New Agent modal - start from scratch / clone (templates, data source + action assignments, violation rules) / continue a draft
+[x] Agent record - header actions, Details with inline edit, Last 14 days, Data Sources (bound-elsewhere warning), Guardrails, related tabs
+
+---------- Agent Wizard ----------
+[x] Its own tab, AI Agent Wizard (one Component section, aiAgentWizard). Opened from the nav bar it starts a new agent;
+    New Agent, Resume setup, Open in wizard, Manage and rule links open it at the agent and step (c__recordId, c__step)
+[x] Header with the 7-step path (reached steps are clickable), Saved time, Save & exit; summary rail; Ready to activate? checks
+[x] 1 Basics - identity, developer name from name, object, model cards (org default first), max iterations, greeting/fallback + chat preview
+[x] 2 Prompt Templates - list, editor, activation criteria (AIPromptTemplate__c.ActivationCriteria__c, new field), keywords, instructions, clone/delete, No Match Behavior
+[x] 3 Data Sources - assigned (active switch, remove, bound-to-another-object warning), Library search/filter, Add selected, New Data Source
+[x] 4 Workflow Actions - assigned tiles, Library, Add selected, New Workflow Action
+[x] 5 Guardrails - rules table (active switch), editor, what the user sees
+[x] 6 Conversation Rules - loading, visibility, single active, resume, idle timeout, limits, token tracking, retention with an example date
+[x] 7 Review & Activate - summary with Edit links, needs-a-look banner, go live (activate / test mode / inactive), Finish
+[x] Try it - real test conversation through AIConversationMessageService on a picked record, polled reply, How it answered
+[~] ActivationCriteria__c is saved and shown, but AIAgentManager / AiMessageProcessingQueueable don't use it to pick a template yet
+[~] Try it needs the agent Active (live or test mode) - it offers "Turn on test mode"
+
+---------- Library ----------
+[x] Model Configurations - list, org default badge + banner, New / Edit modal, provider presets, Test connection (one-line prompt through the Named Credential)
+[x] Data Sources - list + detail panel (usage last 14 days from AIExecutionStep__c), Deactivate
+[x] New / Edit Data Source - Write SOQL or SOQL Builder (bound object + objects that look up to it, fields with PII flags, conditions incl. "Asked by the AI" binds, sort, limit), live validation (LIMIT 0, USER_MODE), generated Input Schema, read-only test run (20 rows)
+[x] AIDataSource__c.SourceName__c (new field) - the readable name; Name is an auto-number
+[x] Workflow Actions - chips (All / Write / Read Only / No confirmation), detail panel with the confirmation preview, New / Edit modal
+[~] AIAssistSettings__c.DefaultModelConfiguration__c is set here and in App Settings, but nothing at runtime falls back to it yet
+
+---------- Activity ----------
+[x] Conversations - filters (status, agent, channel, started, has a violation), violation count, record link, Load more, Export (CSV of loaded rows)
+[x] Conversation detail - facts, transcript with PII restored, ratings, suggested action (run / not run), execution steps per reply, Close conversation
+[x] PII mappings modal - only for users with the PII Registry section's permission set
+[x] Violations - severity / blocked chips, detail panel, Mark as reviewed (AIViolation__c.ReviewStatus__c, new field)
+[x] Feedback - helpful rate, per agent (10+ ratings), not-helpful comments
+[x] Error Log - filters, detail panel with stack trace and a timeout hint (AIAssistAdminUser only)
+[~] Execution steps show template, PII masking count, each Data Source call and the provider callout - row counts per Data Source call aren't recorded, so durations are shown instead
+
+---------- Settings ----------
+[x] App Settings - master switch (confirm before off), provider calls, status codes, tool calling, usage, logging, PII sync & terms (AIAssistAdminUser only)
+[x] UI Settings - Org default / Profile / User level, overridden badge, Reset to inherited
+[x] User Settings - list + panel (channels, visibility, limits, behaviour, features, used today, terms)
+[x] Usage Terms - version, policy URL, publish new version, signed progress, acknowledgments, Export
+[x] PII Registry - objects (failed first), fields, Retry / Resync / Sync all now, Add object, Mapping lookup (AIAssistSuperUser only)
+
+---------- Navigation records (protected, part of the package) ----------
+[x] customMetadata/AINavTab.*.md-meta.xml - AI_Home, AI_Agents, AI_Agent_Wizard, AI_Library, AI_Activity, AI_Settings
+[x] customMetadata/AINavTabSection.*.md-meta.xml - 21 sections (Home_*, Agents_*, Agent_Wizard, Library_*, Activity_*, Settings_*)
+    Developer Names must match AIConsoleConstants / aiConsoleUtils - the console links across tabs by them.
+[x] Deployed to ai_assist_demo (2026-09-29)
+
+---------- Setup (per org) ----------
+[ ] Lightning Web Security on (needed for aiTabPage's dynamic import of ComponentAPIName__c)
+[ ] Assign AIAssistAdminUser / AIAssistSuperUser to console users
+
+---------- Design differences ----------
+- Text is 1px larger throughout than the design (14px body), at the user's request.
+- Modals use LightningModal sizes (medium / small), so their widths are close to, not exactly, the design's 720 / 800 / 920px.
+- Tables are SLDS markup rather than lightning-datatable - the design's cells (badges, two-line cells, warnings, selected rows) can't be drawn in a datatable.
+- Placeholder copy where the design showed invented examples: the guardrail preview message, workflow action preview input values.
+- Added where the design had no control: template Save / Delete, rule Save / Delete, the Workflow Action modal, the PII Add object modal.

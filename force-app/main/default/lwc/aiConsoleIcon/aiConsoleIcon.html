@@ -1,0 +1,10 @@
+<template>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={fillColor} stroke={strokeColor} stroke-width={strokeWidth} stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="icon">
+        <template for:each={shapes} for:item="shape">
+            <path lwc:if={shape.isPath} key={shape.key} d={shape.d} fill={shape.fill} stroke={shape.stroke}></path>
+            <circle lwc:elseif={shape.isCircle} key={shape.key} cx={shape.cx} cy={shape.cy} r={shape.r}></circle>
+            <rect lwc:elseif={shape.isRect} key={shape.key} x={shape.x} y={shape.y} width={shape.width} height={shape.height} rx={shape.rx}></rect>
+            <ellipse lwc:elseif={shape.isEllipse} key={shape.key} cx={shape.cx} cy={shape.cy} rx={shape.rx} ry={shape.ry}></ellipse>
+        </template>
+    </svg>
+</template>

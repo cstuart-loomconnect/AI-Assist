@@ -1,0 +1,81 @@
+<template>
+    <div class="page" onconsolenavigate={handleNavigate} onconsolepagestate={handlePageState} onconsolelayout={handleLayout} onconsolerefresh={handleRefresh}>
+        <template lwc:if={isLoading}>
+            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner></div>
+        </template>
+
+        <template lwc:elseif={error}>
+            <div class="message">
+                <div class="aic-card message__card" role="alert">
+                    <div class="aic-banner aic-banner_error"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span>{error}</span></div>
+                </div>
+            </div>
+        </template>
+
+        <template lwc:elseif={isInactive}>
+            <div class="message">
+                <div class="aic-card message__card">
+                    <h1 class="aic-card__title">{config.label} is turned off</h1>
+                    <p class="aic-weak">An admin has switched this tab off in its AI Nav Tab settings.</p>
+                </div>
+            </div>
+        </template>
+
+        <template lwc:elseif={config.externalUrl}>
+            <div class="message">
+                <div class="aic-card message__card">
+                    <h1 class="aic-card__title">{config.label}</h1>
+                    <p class="aic-weak">This tab opens outside the console.</p>
+                    <div><a class="slds-button slds-button_brand" href={config.externalUrl} target={externalTarget} rel="noopener">Open {config.label}</a></div>
+                </div>
+            </div>
+        </template>
+
+        <template lwc:else>
+            <div class="body">
+                <template lwc:if={showRail}>
+                    <c-ai-sub-nav heading={railHeading} items={railItems} active-name={activeSectionName} onselect={handleRailSelect}></c-ai-sub-nav>
+                </template>
+
+                <main class={mainClass}>
+                    <template lwc:if={activeSection}>
+                        <template lwc:if={activeCtor}>
+                            <lwc:component lwc:is={activeCtor} section={activeSection} page-state={pageState}></lwc:component>
+                        </template>
+                        <template lwc:elseif={activeLoadError}>
+                            <div class="aic-card"><div class="aic-card__body"><div class="aic-banner aic-banner_error"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span>{activeLoadError}</span></div></div></div>
+                        </template>
+                        <template lwc:else>
+                            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+                        </template>
+                    </template>
+
+                    <template lwc:if={hasStacked}>
+                        <div class="stack">
+                            <template for:each={stacked} for:item="item">
+                                <div key={item.key} class={item.cellClass}>
+                                    <template lwc:if={item.isCollapsed}>
+                                        <button type="button" class="aic-card collapsed" data-key={item.key} onclick={handleExpand} aria-expanded="false">
+                                            <c-ai-console-icon name="chevronDown" size="12" stroke-width="2.6"></c-ai-console-icon>
+                                            <span class="aic-bold">{item.section.label}</span>
+                                        </button>
+                                    </template>
+                                    <template lwc:elseif={item.ctor}>
+                                        <lwc:component lwc:is={item.ctor} section={item.section} page-state={pageState}></lwc:component>
+                                    </template>
+                                    <template lwc:elseif={item.loadError}>
+                                        <div class="aic-card"><div class="aic-card__body"><div class="aic-banner aic-banner_error"><span>{item.loadError}</span></div></div></div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template lwc:if={isEmpty}>
+                        <div class="aic-card"><p class="aic-empty">Nothing is set up for this tab yet. Add AI Nav Tab Section records for {config.label}.</p></div>
+                    </template>
+                </main>
+            </div>
+        </template>
+    </div>
+</template>

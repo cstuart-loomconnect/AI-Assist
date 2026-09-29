@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>SentPreviewText__c</fullName>
-    <description>Only set on a "Provider callout" step - a short excerpt of the newest user-role message actually sent on that callout, already pseudonymised (e.g. showing ‹PERSON_1› in place of a name).</description>
+    <description>Only set on a &quot;Provider callout&quot; step - a short excerpt of the newest user-role message actually sent on that callout, already pseudonymised (e.g. showing ‹PERSON_1› in place of a name).</description>
+    <externalId>false</externalId>
     <inlineHelpText>Truncated - a preview, not the full request. See Request JSON for that. Only captured when the running user has AIUserSettings__c.DebugModeEnabled__c.</inlineHelpText>
     <label>Sent Preview Text</label>
     <length>255</length>
+    <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Text</type>
     <unique>false</unique>

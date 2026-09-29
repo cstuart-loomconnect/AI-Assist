@@ -1,0 +1,70 @@
+<template>
+    <div class="step">
+        <p class="intro">Actions the agent can suggest in chat. Nothing runs until the user clicks it. Write actions change data, so they should ask the user to confirm.</p>
+
+        <section class="aic-card" aria-labelledby="s-assigned">
+            <div class="aic-card__header"><h2 class="aic-card__title" id="s-assigned">{assignedTitle}</h2></div>
+            <template lwc:if={hasAssigned}>
+                <div class="tiles">
+                    <template for:each={assignedTiles} for:item="action">
+                        <article key={action.linkId} class="tile">
+                            <div class="tile__head">
+                                <span class="tile__icon"><c-ai-console-icon name={action.icon} size="16"></c-ai-console-icon></span>
+                                <h3 class="tile__name">{action.name}</h3>
+                                <button type="button" class="aic-switch" role="switch" aria-checked={action.activeChecked} aria-label={action.switchLabel} data-id={action.linkId} data-active={action.isActive} onclick={handleToggle} disabled={busy}></button>
+                            </div>
+                            <div class="badges"><span class="aic-badge">{action.actionType}</span><span class={action.executionClass}>{action.executionType}</span></div>
+                            <div class="kv"><span class="kv__label">{action.implementationLabel}</span><span class="aic-mono">{action.implementationName}</span></div>
+                            <div class="kv">
+                                <span class="kv__label">Requires Confirmation</span>
+                                <template lwc:if={action.requiresConfirmation}><span class="yes"><c-ai-console-icon name="check" size="12" stroke-width="3"></c-ai-console-icon>Yes</span></template>
+                                <template lwc:elseif={action.isWrite}><span class="no-confirm"><c-ai-console-icon name="warningFilled" size="12" stroke-width="1.6"></c-ai-console-icon>No · runs without asking</span></template>
+                                <template lwc:else><span>No · read-only actions don’t need it</span></template>
+                            </div>
+                            <div class={action.messageClass}>{action.message}</div>
+                            <div class="tile__buttons">
+                                <button type="button" class="slds-button slds-button_neutral aic-btn_small" data-id={action.actionId} onclick={handleEditInLibrary}>Edit in Library</button>
+                                <button type="button" class="slds-button slds-button_neutral aic-btn_small" data-id={action.linkId} onclick={handleRemove} disabled={busy}>Remove</button>
+                            </div>
+                        </article>
+                    </template>
+                </div>
+            </template>
+            <template lwc:else><p class="aic-empty">No actions yet. This step is optional.</p></template>
+        </section>
+
+        <section class="aic-card" aria-labelledby="s-lib">
+            <div class="aic-card__header"><h2 class="aic-card__title" id="s-lib">Add from the Library</h2><button type="button" class="slds-button slds-button_neutral aic-btn_small" onclick={handleNewAction}>New Workflow Action</button></div>
+            <table class="slds-table aic-table">
+                <thead><tr>
+                    <th class="aic-th check-col" scope="col"><span class="slds-assistive-text">Select</span></th>
+                    <th class="aic-th" scope="col">Workflow Action</th><th class="aic-th" scope="col">Type</th><th class="aic-th" scope="col">Execution</th>
+                    <th class="aic-th" scope="col">Target Object</th><th class="aic-th" scope="col">Confirmation</th>
+                </tr></thead>
+                <tbody>
+                    <template for:each={libraryRows} for:item="action">
+                        <tr key={action.id} class={action.rowClass}>
+                            <td class="aic-td"><input type="checkbox" class="aic-checkbox" aria-label={action.selectLabel} checked={action.selected} data-id={action.id} onchange={handleSelectRow} /></td>
+                            <td class="aic-td"><span class="aic-bold">{action.name}</span><div class="aic-desc">{action.description}</div></td>
+                            <td class="aic-td"><span class="aic-badge">{action.actionType}</span></td>
+                            <td class="aic-td"><span class={action.executionClass}>{action.executionType}</span></td>
+                            <td class="aic-td">{action.targetLabel}</td>
+                            <td class="aic-td">
+                                <template lwc:if={action.runsWithoutAsking}><span class="no-confirm"><c-ai-console-icon name="warningFilled" size="14" stroke-width="1.6"></c-ai-console-icon>Runs without asking</span></template>
+                                <template lwc:else><span class="small">{action.confirmationLabel}</span></template>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            <template lwc:if={isLoadingLibrary}><div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div></template>
+            <template lwc:elseif={libraryEmpty}><p class="aic-empty">Every active action in the Library is already assigned.</p></template>
+            <div class="add"><lightning-button variant="brand" label={addLabel} onclick={handleAdd} disabled={addDisabled}></lightning-button></div>
+        </section>
+
+        <div class="aic-banner aic-banner_info">
+            <c-ai-console-icon name="info" size="16"></c-ai-console-icon>
+            <span>Users only see suggested actions when <a href="#" onclick={handleOpenUiSettings}>UI Settings › Allow Inline Workflow Actions</a> is on and their own <a href="#" onclick={handleOpenUserSettings}>User Settings › Workflow Actions Enabled</a> is on.</span>
+        </div>
+    </div>
+</template>

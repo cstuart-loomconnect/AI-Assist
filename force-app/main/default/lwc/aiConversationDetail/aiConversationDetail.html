@@ -1,0 +1,91 @@
+<template>
+    <template lwc:if={error}>
+        <div class="aic-card"><div class="aic-card__body"><div class="aic-banner aic-banner_error" role="alert"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span>{error}</span></div></div></div>
+    </template>
+    <template lwc:elseif={detail}>
+        <div class="page">
+            <section class="aic-card" aria-labelledby="conv-title">
+                <div class="head">
+                    <div class="aic-tile aic-tile_large tile"><c-ai-console-icon name="conversation" size="22" stroke-width="1.8"></c-ai-console-icon></div>
+                    <div class="head__titles">
+                        <nav aria-label="Breadcrumb" class="aic-weak"><a href="#" onclick={handleBack}>Conversations</a> › Conversation</nav>
+                        <div class="title-row"><h1 class="aic-page-title" id="conv-title">{detail.name}</h1><span class={statusClass}>{detail.status}</span></div>
+                    </div>
+                    <template lwc:if={detail.canViewPii}>
+                        <lightning-button label="PII mappings" icon-name="utility:lock" onclick={handlePiiMappings}></lightning-button>
+                    </template>
+                    <template lwc:if={detail.canClose}>
+                        <lightning-button label="Close conversation" onclick={handleClose} disabled={isClosing}></lightning-button>
+                    </template>
+                </div>
+                <div class="facts">
+                    <div class="fact"><span class="aic-weak">User</span><a href="#" onclick={handleOpenUser}>{detail.userName}</a></div>
+                    <div class="fact"><span class="aic-weak">Agent</span>
+                        <template lwc:if={detail.agentId}><a href="#" onclick={handleOpenAgent}>{detail.agentName}</a></template>
+                        <template lwc:else><span>—</span></template>
+                    </div>
+                    <div class="fact"><span class="aic-weak">Record</span>
+                        <template lwc:if={detail.recordId}><a href="#" onclick={handleOpenRecord}>{detail.recordLabel}</a></template>
+                        <template lwc:else><span>—</span></template>
+                    </div>
+                    <div class="fact"><span class="aic-weak">Prompt Template</span><span>{templateName}</span></div>
+                    <div class="fact"><span class="aic-weak">Channel</span><span>{channel}</span></div>
+                    <div class="fact"><span class="aic-weak">Tokens</span><span>{detail.tokensLabel}</span></div>
+                    <div class="fact"><span class="aic-weak">Retention Expiry</span><span>{detail.retentionLabel}</span></div>
+                </div>
+            </section>
+
+            <div class="columns">
+                <section class="aic-card column" aria-labelledby="tr-title">
+                    <div class="aic-card__header"><h2 class="aic-card__title" id="tr-title">Transcript</h2><span class="aic-weak">{transcriptNote}</span></div>
+                    <div class="transcript">
+                        <template for:each={messages} for:item="message">
+                            <div key={message.id} class={message.wrapperClass}>
+                                <span class="who">
+                                    <template lwc:if={message.isUser}><span>{message.timeLabel}</span><b>{message.author}</b></template>
+                                    <template lwc:else>
+                                        <b>{message.author}</b><span>{message.metaLabel}</span>
+                                        <template lwc:if={message.isHelpful}><span class="rating rating_good"><c-ai-console-icon name="thumbsUp" size="11" stroke-width="2.4"></c-ai-console-icon>Helpful</span></template>
+                                        <template lwc:if={message.isNotHelpful}><span class="rating rating_bad">Not helpful</span></template>
+                                        <template lwc:if={message.canShowSteps}><button type="button" class="aic-link steps-link" data-id={message.id} onclick={handleShowSteps}>Steps</button></template>
+                                    </template>
+                                </span>
+                                <div class={message.bubbleClass}>{message.text}</div>
+                                <template lwc:if={message.suggestedAction}>
+                                    <span class="aic-weak">Suggested action: <b class="ink">{message.suggestedAction}</b> · {message.actionStatus}</span>
+                                </template>
+                            </div>
+                        </template>
+                        <template lwc:if={noMessages}><p class="aic-empty">No messages yet.</p></template>
+                    </div>
+                </section>
+
+                <section class="aic-card column" aria-labelledby="steps-title">
+                    <div class="aic-card__header"><h2 class="aic-card__title" id="steps-title">Execution steps</h2><span class="aic-weak">{detail.stepsForLabel}</span></div>
+                    <template lwc:if={isLoadingSteps}>
+                        <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+                    </template>
+                    <template lwc:elseif={hasSteps}>
+                        <ol class="steps">
+                            <template for:each={steps} for:item="step">
+                                <li key={step.stepOrder} class="step">
+                                    <span class={step.numberClass}>{step.stepOrder}</span>
+                                    <span class="step__text"><b>{step.label}</b><span class={step.detailClass}>{step.detail}</span></span>
+                                </li>
+                            </template>
+                        </ol>
+                    </template>
+                    <template lwc:else>
+                        <p class="aic-empty">No steps were recorded for these replies.</p>
+                    </template>
+                    <div class="steps-foot">
+                        <span><b>Feedback</b> · {detail.feedbackSummary}</span><span><b>Violations</b> · {detail.violationSummary}</span>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </template>
+    <template lwc:else>
+        <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner></div>
+    </template>
+</template>

@@ -1,0 +1,79 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: block;
+}
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.select-agent {
+    width: 220px;
+}
+.select-range {
+    width: 160px;
+}
+.top {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 16px;
+}
+.overall {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+}
+.big {
+    font-size: 40px;
+    font-weight: 300;
+    line-height: 44px;
+}
+.split {
+    height: 10px;
+    border-radius: 5px;
+    background: var(--aic-line);
+    display: flex;
+    overflow: hidden;
+    margin-top: 6px;
+}
+.split__fill {
+    background: var(--aic-brand);
+}
+.split-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+}
+.bars {
+    padding: 8px 16px 12px;
+}
+.bar {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr) 90px;
+    gap: 12px;
+    align-items: center;
+    padding: 8px 0;
+}
+.track {
+    height: 10px;
+    border-radius: 5px;
+    background: var(--aic-line);
+}
+.fill {
+    height: 10px;
+    border-radius: 5px;
+    background: var(--aic-brand);
+}
+.comment-col {
+    width: 42%;
+}
+.wrap {
+    white-space: normal;
+}

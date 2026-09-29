@@ -144,6 +144,15 @@ BUILD COMPLETE
 [x] AIChatControllerTest
 [x] AIChatCommand__mdt (slash commands)
 
+---------- AI Assist Console (see AI_Console.txt) ----------
+[x] AIConsoleController (every @AuraEnabled method behind aiTabPage and its sections)
+[x] AIConsoleDataStructure / AIConsoleUtility / AIConsoleConstants
+[x] AIConsoleNavService / AIConsoleHomeService / AIConsoleListService / AIConsoleAgentService / AIConsoleWizardService
+[x] AIConsoleLibraryService / AIConsoleSoqlBuilderService / AIConsoleActivityService / AIConsoleSettingsService
+[ ] AIConsoleControllerTest
+[o] Console LWCs - aiTabPage, aiSubNav, aiConsole* (Styles, Utils, Icon, Table), aiHome*, aiRecordList + detail panels, Library modals,
+    aiConversationDetail, aiFeedbackSummary, aiAgentList / Record / NewModal, aiAgentWizard + aiWizard*, Settings components
+
 ---------- LWCs - review order ([o] = not yet checked) ----------
 [o] aiChatStyles
 [o] aiChatUtils

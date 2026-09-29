@@ -1,0 +1,42 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: block;
+}
+.wizard {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 128px);
+    background: var(--aic-gray);
+}
+.body {
+    flex-grow: 1;
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    align-items: flex-start;
+}
+.main {
+    flex-grow: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.aside {
+    width: 344px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 16px;
+}
+.grow {
+    flex-grow: 1;
+}
+.foot {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+}
+.step-label {
+    margin-right: 8px;
+}

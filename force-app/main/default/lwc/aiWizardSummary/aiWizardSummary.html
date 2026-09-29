@@ -1,0 +1,36 @@
+<template>
+    <div class="rail">
+        <section class="aic-card" aria-label="Setup progress">
+            <div class="head"><h2 class="aic-card__title">Setup progress</h2><span class="aic-weak">{doneLabel}</span></div>
+            <div class="bar"><div class="bar__fill" style={barStyle}></div></div>
+            <ol class="items">
+                <template for:each={items} for:item="item">
+                    <li key={item.number} class={item.rowClass}>
+                        <span class={item.dotClass} aria-hidden="true">
+                            <template lwc:if={item.isDone}><c-ai-console-icon name="check" size="10" stroke-width="3.4"></c-ai-console-icon></template>
+                            <template lwc:else>{item.number}</template>
+                        </span>
+                        <span class="item__text">
+                            <span class="aic-bold">{item.label}</span>
+                            <span class="item__value">{item.value}</span>
+                        </span>
+                    </li>
+                </template>
+            </ol>
+        </section>
+        <section class="aic-card" aria-label="Readiness">
+            <div class="head"><h2 class="aic-card__title">Ready to activate?</h2></div>
+            <ul class="checks">
+                <template for:each={checks} for:item="check">
+                    <li key={check.key} class="check">
+                        <span class={check.markClass} aria-hidden="true">
+                            <template lwc:if={check.isOk}><c-ai-console-icon name="check" size="10" stroke-width="3.4"></c-ai-console-icon></template>
+                            <template lwc:elseif={check.isWarn}>!</template>
+                        </span>
+                        <span class={check.textClass}>{check.text}</span>
+                    </li>
+                </template>
+            </ul>
+        </section>
+    </div>
+</template>

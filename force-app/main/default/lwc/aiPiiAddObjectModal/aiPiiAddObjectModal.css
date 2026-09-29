@@ -1,0 +1,16 @@
+@import 'c/aiConsoleStyles';
+
+.tagline {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--aic-weak);
+}
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 4px 8px;
+}
+.save {
+    margin-left: 8px;
+}

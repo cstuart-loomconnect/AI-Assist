@@ -1,0 +1,81 @@
+<template>
+    <div class="page">
+        <div class="header">
+            <div class="aic-page-header__titles"><span class="aic-eyebrow">Activity</span><h1 class="aic-page-title">{title}</h1></div>
+            <div class="slds-select_container select-agent">
+                <select class="slds-select" aria-label="Agent" onchange={handleAgent}>
+                    <template for:each={agentChoices} for:item="option">
+                        <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                    </template>
+                </select>
+            </div>
+            <div class="slds-select_container select-range">
+                <select class="slds-select" aria-label="Date range" onchange={handleRange}>
+                    <template for:each={rangeChoices} for:item="option">
+                        <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                    </template>
+                </select>
+            </div>
+        </div>
+
+        <template lwc:if={error}>
+            <div class="aic-banner aic-banner_error" role="alert"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span>{error}</span></div>
+        </template>
+        <template lwc:elseif={summary}>
+            <div class="top">
+                <section class="aic-card overall" aria-labelledby="fb-overall">
+                    <h2 class="aic-card__title" id="fb-overall">Rated helpful</h2>
+                    <span class="big">{percentLabel}</span>
+                    <span class="aic-weak">{overallNote}</span>
+                    <div class="split" aria-hidden="true"><div class="split__fill" style={splitStyle}></div></div>
+                    <div class="split-labels"><span>Helpful {summary.helpful}</span><span>Not helpful {summary.notHelpful}</span></div>
+                </section>
+                <section class="aic-card" aria-labelledby="fb-agents">
+                    <div class="aic-card__header"><h2 class="aic-card__title" id="fb-agents">Helpful rate by agent</h2><span class="aic-weak">Agents with 10+ ratings</span></div>
+                    <div class="bars">
+                        <template lwc:if={hasAgentRates}>
+                            <template for:each={agentRates} for:item="rate">
+                                <div key={rate.name} class="bar">
+                                    <span class="slds-truncate">{rate.name}</span>
+                                    <div class="track" role="meter" aria-label={rate.ariaLabel} aria-valuemin="0" aria-valuemax="100" aria-valuenow={rate.percent}><div class="fill" style={rate.style}></div></div>
+                                    <span class="aic-right"><b>{rate.percent}%</b> <span class="aic-weak">of {rate.ratings}</span></span>
+                                </div>
+                            </template>
+                        </template>
+                        <template lwc:else><p class="aic-empty">No agent has 10 ratings in this period yet.</p></template>
+                    </div>
+                </section>
+            </div>
+
+            <section class="aic-card" aria-labelledby="fb-comments">
+                <div class="aic-card__header"><h2 class="aic-card__title" id="fb-comments">Not helpful, with comments</h2><span class="aic-weak">{commentNote}</span></div>
+                <table class="slds-table aic-table">
+                    <thead>
+                        <tr>
+                            <th class="aic-th comment-col" scope="col">Comment</th>
+                            <th class="aic-th" scope="col">Agent</th>
+                            <th class="aic-th" scope="col">User</th>
+                            <th class="aic-th" scope="col">Reply</th>
+                            <th class="aic-th" scope="col">When</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={summary.comments} for:item="comment">
+                            <tr key={comment.id}>
+                                <td class="aic-td wrap">{comment.comment}</td>
+                                <td class="aic-td">{comment.agentName}</td>
+                                <td class="aic-td">{comment.userName}</td>
+                                <td class="aic-td"><a href="#" data-id={comment.conversationId} onclick={handleOpenConversation}>{comment.conversationName}</a></td>
+                                <td class="aic-td">{comment.whenLabel}</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <template lwc:if={noComments}><p class="aic-empty">No comments in this period.</p></template>
+            </section>
+        </template>
+        <template lwc:else>
+            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+    </div>
+</template>

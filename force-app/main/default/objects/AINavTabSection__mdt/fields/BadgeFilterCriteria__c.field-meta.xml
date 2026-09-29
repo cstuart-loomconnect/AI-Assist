@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>BadgeFilterCriteria__c</fullName>
+    <description>SOQL WHERE condition counted on Related Object API Name to show a number next to a Sub Navigation item. Blank shows no number.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Enter a filter such as SetupStatus__c != &apos;Complete&apos;. Use Id != null to count every record.</inlineHelpText>
+    <label>Badge Filter Criteria</label>
+    <required>false</required>
+    <type>TextArea</type>
+</CustomField>

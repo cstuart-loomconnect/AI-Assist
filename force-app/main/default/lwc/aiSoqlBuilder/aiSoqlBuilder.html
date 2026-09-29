@@ -1,0 +1,181 @@
+<template>
+    <div class="builder">
+        <div class="steps">
+            <!-- 1. Object -->
+            <div class="step">
+                <div class="step__head"><span class="num">1</span><h3>Query this object</h3></div>
+                <div class="two">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="b-obj">Object</label>
+                        <div class="slds-select_container">
+                            <select id="b-obj" class="slds-select" onchange={handleObject}>
+                                <template for:each={objectChoices} for:item="option">
+                                    <option key={option.key} value={option.key} selected={option.selected}>{option.label}</option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                    <template lwc:if={isBound}>
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="b-rel">Linked to the open record by</label>
+                            <div class="slds-select_container">
+                                <select id="b-rel" class="slds-select" disabled>
+                                    <option>{relationshipLabel}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <template lwc:if={isBound}><div class="aic-help flush">Only objects that look up to {targetObject} are listed, because this source is bound.</div></template>
+            </div>
+
+            <!-- 2. Fields -->
+            <div class="step">
+                <div class="step__head"><span class="num">2</span><h3>Return these fields</h3><span class="aic-weak">{fieldCountLabel}</span></div>
+                <div class="pills" onclick={focusFieldSearch}>
+                    <template for:each={selectedFieldViews} for:item="field">
+                        <span key={field.apiName} class="pill">{field.label} <span class="aic-mono api">{field.apiName}</span>
+                            <button type="button" class="aic-x" aria-label={field.removeLabel} data-api={field.apiName} onclick={handleRemoveField}><c-ai-console-icon name="close" size="10" stroke-width="2.4"></c-ai-console-icon></button>
+                        </span>
+                    </template>
+                    <input class="field-search" aria-label="Add a field" placeholder="Add a field…" value={fieldSearch} oninput={handleFieldSearch} onkeydown={handleFieldKey} role="combobox" aria-expanded={dropdownExpanded} aria-controls="field-matches" autocomplete="off" />
+                </div>
+                <template lwc:if={showMatches}>
+                    <div class="matches" role="listbox" id="field-matches" aria-label="Matching fields">
+                        <template for:each={fieldMatches} for:item="match">
+                            <div key={match.apiName} role="option" aria-selected={match.ariaSelected} class={match.optionClass} data-api={match.apiName} onmousedown={handlePickField}>
+                                <span class="grow">{match.label}</span>
+                                <span class="aic-mono weak">{match.apiName}</span>
+                                <template lwc:if={match.isPii}><span class="pii-tag">PII · masked</span></template>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+
+            <!-- 3. Conditions -->
+            <div class="step">
+                <div class="step__head"><span class="num">3</span><h3>Only rows where</h3>
+                    <div class="slds-select_container logic">
+                        <select class="slds-select small" aria-label="Filter logic" onchange={handleLogic}>
+                            <option value="AND" selected={isAnd}>All conditions (AND)</option>
+                            <option value="OR" selected={isOr}>Any condition (OR)</option>
+                        </select>
+                    </div>
+                </div>
+                <template lwc:if={isBound}>
+                    <div class="cond">
+                        <span class="aic-weak">WHERE</span>
+                        <div class="lock"><c-ai-console-icon name="lock" size="12" stroke-width="2.4"></c-ai-console-icon>{lockedFieldLabel}</div>
+                        <div class="lock">equals</div>
+                        <div class="lock lock_record">The open record · <span class="aic-mono normal">:recordId</span></div>
+                        <span></span>
+                    </div>
+                </template>
+                <template for:each={conditionViews} for:item="condition">
+                    <div key={condition.id} class="cond">
+                        <span class="aic-weak">{condition.joiner}</span>
+                        <div class="slds-select_container">
+                            <select class="slds-select" aria-label="Field" data-id={condition.id} data-prop="field" onchange={handleCondition}>
+                                <option value="">Pick a field</option>
+                                <template for:each={condition.fieldOptions} for:item="option">
+                                    <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="slds-select_container">
+                            <select class="slds-select" aria-label="Operator" data-id={condition.id} data-prop="operator" onchange={handleCondition}>
+                                <template for:each={condition.operatorOptions} for:item="option">
+                                    <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="value">
+                            <div class="slds-select_container">
+                                <select class="slds-select" aria-label="Value" data-id={condition.id} data-prop="valueMode" onchange={handleCondition}>
+                                    <template for:each={condition.modeOptions} for:item="option">
+                                        <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                    </template>
+                                </select>
+                            </div>
+                            <template lwc:if={condition.showValueInput}>
+                                <input class="slds-input" type={condition.inputType} aria-label="Condition value" value={condition.value} data-id={condition.id} data-prop="value" oninput={handleCondition} />
+                            </template>
+                        </div>
+                        <button type="button" class="aic-x" aria-label="Remove condition" data-id={condition.id} onclick={handleRemoveCondition}><c-ai-console-icon name="close" size="14"></c-ai-console-icon></button>
+                    </div>
+                </template>
+                <div><button type="button" class="slds-button slds-button_neutral aic-btn_small" onclick={handleAddCondition}>Add condition</button></div>
+                <div class="aic-help flush">Pick “Asked by the AI” as a value to add a parameter to the Input Schema, so the model can fill it in (for example, only Presented quotes).</div>
+            </div>
+
+            <!-- 4. Sort and limit -->
+            <div class="step step_last">
+                <div class="step__head"><span class="num">4</span><h3>Sort and limit</h3></div>
+                <div class="sort">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="b-sort">Sort by</label>
+                        <div class="slds-select_container">
+                            <select id="b-sort" class="slds-select" onchange={handleSort}>
+                                <option value="">No sorting</option>
+                                <template for:each={sortOptions} for:item="option">
+                                    <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="b-dir">Direction</label>
+                        <div class="slds-select_container">
+                            <select id="b-dir" class="slds-select" onchange={handleDirection}>
+                                <option value="DESC" selected={isDesc}>{descLabel}</option>
+                                <option value="ASC" selected={isAsc}>{ascLabel}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="b-lim">Row limit</label>
+                        <input id="b-lim" class="slds-input" type="number" min="1" max="200" value={rowLimit} onchange={handleLimit} />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <aside class="side" aria-label="Generated query">
+            <div class="box">
+                <div class="box__head"><h3 class="aic-caps grow">SOQL Template</h3><button type="button" class="slds-button slds-button_neutral aic-btn_small" onclick={handleCopy}>{copyLabel}</button></div>
+                <pre class="generated"><template for:each={soqlLines} for:item="line"><span key={line.key} class="line"><template for:each={line.tokens} for:item="token"><span key={token.key} class={token.cls}>{token.text}</span></template></span></template></pre>
+            </div>
+            <div class="box">
+                <div class="box__head"><h3 class="aic-caps">Input Schema · generated</h3></div>
+                <pre class="generated schema">{schemaPreview}</pre>
+            </div>
+            <div class="box checks">
+                <template lwc:if={hasCheck}>
+                    <template lwc:if={check.isValid}>
+                        <template for:each={checkNotes} for:item="note">
+                            <div key={note} class="check"><span class="check-ok"><c-ai-console-icon name="check" size="14" stroke-width="3"></c-ai-console-icon></span><span>{note}</span></div>
+                        </template>
+                    </template>
+                    <template lwc:else>
+                        <div class="check"><span class="check-bad"><c-ai-console-icon name="errorCircle" size="14"></c-ai-console-icon></span><span>{check.message}</span></div>
+                    </template>
+                </template>
+                <template lwc:else><div class="aic-weak">Checking the query…</div></template>
+            </div>
+            <div class="box test">
+                <lightning-record-picker label="Test record" placeholder="Search…" object-api-name={targetObject} value={testRecordId} onchange={handleRecord}></lightning-record-picker>
+                <div class="test-row">
+                    <span class="test-summary">
+                        <template lwc:if={testResult}>
+                            <template lwc:if={testResult.success}><span class="test-ok">{testSummary}</span></template>
+                            <template lwc:else><span class="test-bad">{testResult.message}</span></template>
+                        </template>
+                        <template lwc:else><span class="aic-weak">Not run yet</span></template>
+                    </span>
+                    <button type="button" class="slds-button slds-button_neutral aic-btn_small" onclick={handleRunTest} disabled={isTesting}>Run test</button>
+                </div>
+            </div>
+        </aside>
+    </div>
+</template>

@@ -1,0 +1,65 @@
+<template>
+    <section class="aic-card" aria-labelledby="wa-title">
+        <template lwc:if={error}>
+            <div class="aic-card__body"><div class="aic-banner aic-banner_error" role="alert"><span>{error}</span></div></div>
+        </template>
+        <template lwc:elseif={action}>
+            <div class="head">
+                <div class="head__titles">
+                    <h2 class="title" id="wa-title">{action.name}</h2>
+                    <div class="badges">
+                        <span class="aic-badge">{action.actionType}</span>
+                        <span class={executionClass}>{action.executionType}</span>
+                        <span class={statusClass}>{statusLabel}</span>
+                    </div>
+                </div>
+                <lightning-button label="Edit" onclick={handleEdit}></lightning-button>
+            </div>
+            <div class="aic-card__body">
+                <div><div class="aic-field-label">Description · read by the AI</div><div class="wrap">{action.description}</div></div>
+                <div class="inline">
+                    <div><div class="aic-field-label">{implementationLabel}</div><div class="aic-mono">{implementationName}</div></div>
+                    <div><div class="aic-field-label">Target Object</div><div>{targetObject}</div></div>
+                </div>
+                <template lwc:if={action.inputSchema}>
+                    <div><div class="aic-field-label">Input Schema</div><pre class="aic-code">{action.inputSchema}</pre></div>
+                </template>
+                <div>
+                    <div class="aic-field-label">What the user sees before it runs</div>
+                    <div class="preview">
+                        <template lwc:if={action.requiresConfirmation}>
+                            <div class="preview__card">
+                                <span class="preview__message">{action.confirmationMessage}</span>
+                                <template lwc:if={hasInputs}>
+                                    <div class="preview__inputs">
+                                        <template for:each={action.previewInputs} for:item="input">
+                                            <div key={input.label} class="pair"><span class="preview__label">{input.label}</span><span>{input.value}</span></div>
+                                        </template>
+                                    </div>
+                                </template>
+                                <div class="preview__buttons"><span class="preview__primary">{action.name}</span><span class="preview__secondary">Edit first</span></div>
+                            </div>
+                        </template>
+                        <template lwc:else>
+                            <div class="preview__card"><span class="preview__message">{noConfirmationText}</span></div>
+                        </template>
+                    </div>
+                </div>
+                <div>
+                    <div class="aic-field-label">Used by</div>
+                    <template lwc:if={hasUsedBy}>
+                        <div class="used-by used-by_wrap">
+                            <template for:each={action.usedBy} for:item="agent">
+                                <a key={agent.id} href="#" data-id={agent.id} onclick={handleOpenAgent}>{agent.name}</a>
+                            </template>
+                        </div>
+                    </template>
+                    <template lwc:else><div class="aic-weak">No agents yet</div></template>
+                </div>
+            </div>
+        </template>
+        <template lwc:else>
+            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+    </section>
+</template>

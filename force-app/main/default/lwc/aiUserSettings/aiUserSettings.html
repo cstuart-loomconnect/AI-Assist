@@ -1,0 +1,102 @@
+<template>
+    <div class="layout">
+        <section class="aic-card list" aria-labelledby="h-list">
+            <div class="aic-page-header">
+                <div class="aic-page-header__titles"><span class="aic-eyebrow">Settings · AI User Settings</span><h1 class="aic-page-title" id="h-list">{title}</h1></div>
+                <label class="search">
+                    <c-ai-console-icon name="search" size="14"></c-ai-console-icon>
+                    <input type="search" aria-label="Search users" placeholder="Search users" value={searchText} oninput={handleSearch} />
+                </label>
+            </div>
+            <p class="aic-weak note">Created for each user when their AI Assist User Type is set. Change the type on the user record.</p>
+            <template lwc:if={listError}>
+                <div class="aic-card__body"><div class="aic-banner aic-banner_error" role="alert"><span>{listError}</span></div></div>
+            </template>
+            <table class="slds-table aic-table">
+                <thead><tr>
+                    <th class="aic-th" scope="col">User</th><th class="aic-th" scope="col">User Type</th><th class="aic-th" scope="col">Channels</th>
+                    <th class="aic-th aic-right" scope="col">Tokens / 24 h</th><th class="aic-th" scope="col">At the limit</th><th class="aic-th" scope="col">Terms</th>
+                </tr></thead>
+                <tbody>
+                    <template for:each={rows} for:item="row">
+                        <tr key={row.id} class={row.rowClass}>
+                            <td class="td"><a href="#" class="aic-bold" aria-current={row.current} data-id={row.id} onclick={handleSelect}>{row.userName}</a></td>
+                            <td class="td">
+                                <template lwc:if={row.isInactive}><span class="aic-badge">{row.inactiveLabel}</span></template>
+                                <template lwc:else>{row.userType}</template>
+                            </td>
+                            <td class="td">{row.channelsLabel}</td>
+                            <td class="td aic-right">{row.tokensLabel}</td>
+                            <td class="td">{row.limitBehavior}</td>
+                            <td class="td">
+                                <template lwc:if={row.termsOutOfDate}><span class="aic-badge aic-badge_old">{row.termsLabel}</span></template>
+                                <template lwc:else>{row.termsLabel}</template>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            <template lwc:if={isEmpty}><p class="aic-empty">No users have an AI Assist User Type yet.</p></template>
+        </section>
+
+        <template lwc:if={detail}>
+            <aside class="aic-card panel" aria-labelledby="h-det">
+                <div class="panel__head">
+                    <div class="avatar" aria-hidden="true">{detail.initials}</div>
+                    <div class="panel__titles"><h2 class="panel__name" id="h-det">{detail.userName}</h2><span class="aic-weak">{detailSubtitle}</span></div>
+                    <lightning-button variant="brand" label="Save" onclick={handleSave} disabled={isSaving}></lightning-button>
+                </div>
+                <div class="panel__body">
+                    <template lwc:if={detailError}><div class="aic-banner aic-banner_error" role="alert"><span>{detailError}</span></div></template>
+                    <div class="group">
+                        <h3 class="aic-caps">Access</h3>
+                        <fieldset class="slds-form-element">
+                            <legend class="slds-form-element__label">Allowed Channels</legend>
+                            <div class="checks">
+                                <template for:each={channelChoices} for:item="channel">
+                                    <label key={channel.value} class="check"><input type="checkbox" class="aic-checkbox" value={channel.value} checked={channel.checked} onchange={handleChannel} />{channel.label}</label>
+                                </template>
+                            </div>
+                        </fieldset>
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="us-vis">Conversation Visibility Scope</label>
+                            <div class="slds-select_container">
+                                <select id="us-vis" class="slds-select" data-field="visibilityScope" onchange={handleInput}>
+                                    <template for:each={visibilityChoices} for:item="option">
+                                        <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="group">
+                        <h3 class="aic-caps">Limits · rolling 24 hours</h3>
+                        <div class="three">
+                            <div class="slds-form-element"><label class="slds-form-element__label" for="us-tok">Max Tokens</label><input id="us-tok" class="slds-input" inputmode="numeric" value={maxTokensLabel} data-field="maxTokens" onchange={handleNumber} /></div>
+                            <div class="slds-form-element"><label class="slds-form-element__label" for="us-conv">Max Conversations</label><input id="us-conv" class="slds-input" type="number" min="0" value={detail.maxConversations} data-field="maxConversations" onchange={handleNumber} /></div>
+                            <div class="slds-form-element"><label class="slds-form-element__label" for="us-conc">Max Concurrent</label><input id="us-conc" class="slds-input" type="number" min="0" value={detail.maxConcurrent} data-field="maxConcurrent" onchange={handleNumber} /></div>
+                        </div>
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="us-beh">Usage Limit Reached Behavior</label>
+                            <div class="slds-select_container">
+                                <select id="us-beh" class="slds-select" data-field="limitBehavior" onchange={handleInput}>
+                                    <template for:each={behaviorChoices} for:item="option">
+                                        <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="aic-weak">{detail.usedTodayLabel}</div>
+                    </div>
+                    <div class="group">
+                        <h3 class="aic-caps">Features</h3>
+                        <div class="trow"><span class="tt"><b>Workflow Actions Enabled</b><span>Can see and run suggested actions.</span></span><button type="button" class="aic-switch" role="switch" aria-checked={workflowChecked} aria-label="Workflow Actions Enabled" data-field="workflowActionsEnabled" onclick={handleToggle}></button></div>
+                        <div class="trow"><span class="tt"><b>Conversation Export Enabled</b><span>Can download a copy of a conversation.</span></span><button type="button" class="aic-switch" role="switch" aria-checked={exportChecked} aria-label="Conversation Export Enabled" data-field="exportEnabled" onclick={handleToggle}></button></div>
+                        <div class="trow"><span class="tt"><b>Debug Mode Enabled</b><span>Shows raw request detail. For admins testing setup.</span></span><button type="button" class="aic-switch" role="switch" aria-checked={debugChecked} aria-label="Debug Mode Enabled" data-field="debugModeEnabled" onclick={handleToggle}></button></div>
+                    </div>
+                    <div class="aic-weak terms">{detail.termsLabel}</div>
+                </div>
+            </aside>
+        </template>
+    </div>
+</template>

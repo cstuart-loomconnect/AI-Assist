@@ -1,0 +1,98 @@
+<template>
+    <div class="step">
+        <section class="aic-card" aria-labelledby="s-id">
+            <div class="aic-card__header"><h2 class="aic-card__title" id="s-id">Identity</h2><span class="aic-weak"><span class="aic-req">*</span>Required</span></div>
+            <div class="aic-card__body">
+                <div class="aic-grid2">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="f-name"><abbr class="slds-required" title="required">* </abbr>Agent Name</label>
+                        <input id="f-name" class="slds-input" maxlength="80" value={basics.name} oninput={handleName} />
+                    </div>
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="f-dev"><abbr class="slds-required" title="required">* </abbr>Developer Name</label>
+                        <input id="f-dev" class="slds-input aic-mono" maxlength="75" value={basics.developerName} oninput={handleDeveloperName} />
+                        <div class="aic-help">Filled in from the name. Used by Apex, Flow and slash commands.</div>
+                    </div>
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="f-obj"><abbr class="slds-required" title="required">* </abbr>Object</label>
+                        <div class="slds-select_container">
+                            <select id="f-obj" class="slds-select" data-field="objectType" onchange={handleInput}>
+                                <template for:each={objectChoices} for:item="option">
+                                    <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="aic-help">The agent is offered on this object’s record pages.</div>
+                    </div>
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="f-desc">Description <span class="aic-weak">(admins only)</span></label>
+                        <input id="f-desc" class="slds-input" value={basics.description} data-field="description" oninput={handleInput} />
+                    </div>
+                </div>
+                <div class="slds-form-element">
+                    <label class="slds-form-element__label" for="f-persona">Persona</label>
+                    <textarea id="f-persona" class="slds-textarea" rows="2" value={basics.persona} data-field="persona" oninput={handleInput}></textarea>
+                    <div class="aic-help">Sent to the model on every turn. Describe who the agent is, not a task.</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="aic-card" aria-labelledby="s-model">
+            <div class="aic-card__header"><h2 class="aic-card__title" id="s-model">AI model</h2><a href="#" class="small" onclick={handleManageModels}>Manage models</a></div>
+            <div class="aic-card__body">
+                <fieldset class="models">
+                    <legend class="slds-form-element__label legend"><abbr class="slds-required" title="required">* </abbr>Model Configuration</legend>
+                    <template for:each={modelCards} for:item="model">
+                        <label key={model.id} class={model.cardClass}>
+                            <input type="radio" name="model" value={model.id} checked={model.checked} onchange={handleModel} />
+                            <span class="aic-option__text">
+                                <span class="model-name"><span class="aic-bold">{model.name}</span><template lwc:if={model.isOrgDefault}><span class="aic-badge">Org default</span></template></span>
+                                <span class="aic-weak">{model.detail}</span>
+                            </span>
+                        </label>
+                    </template>
+                    <template lwc:if={noModels}>
+                        <div class="aic-banner aic-banner_warning"><c-ai-console-icon name="warningFilled" size="16" stroke-width="1.6"></c-ai-console-icon><span>There’s no active model configuration yet. Add one in AI Library › Model Configurations.</span></div>
+                    </template>
+                </fieldset>
+                <div class="iterations">
+                    <div class="slds-form-element iterations__field">
+                        <label class="slds-form-element__label" for="f-iter">Max Tool Calling Iterations</label>
+                        <input id="f-iter" class="slds-input" type="number" min="1" max={state.iterationsCap} placeholder={state.orgDefaultIterations} value={basics.maxIterations} oninput={handleIterations} />
+                    </div>
+                    <div class="aic-help iterations__help">{iterationsHelp}</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="aic-card" aria-labelledby="s-see">
+            <div class="aic-card__header"><h2 class="aic-card__title" id="s-see">What users see</h2></div>
+            <div class="see">
+                <div class="see__fields">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="f-greet">Greeting Message</label>
+                        <textarea id="f-greet" class="slds-textarea" rows="2" value={basics.greeting} data-field="greeting" oninput={handleInput}></textarea>
+                        <div class="aic-help">Shown when a new conversation starts.</div>
+                    </div>
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="f-fb">Fallback Message</label>
+                        <textarea id="f-fb" class="slds-textarea" rows="2" value={basics.fallback} data-field="fallback" oninput={handleInput}></textarea>
+                        <div class="aic-help">Shown when the AI call fails or times out.</div>
+                    </div>
+                </div>
+                <div class="aic-chat preview" aria-label="Chat preview">
+                    <div class="preview__head">
+                        <div class="preview__logo"><c-ai-console-icon name="hash" size="12" stroke-width="2.4"></c-ai-console-icon></div>
+                        <div class="preview__titles"><span class="aic-bold small">AI Assist</span><span class="preview__agent">{previewName}</span></div>
+                        <span class="aic-chat-eyebrow preview__tag">Preview</span>
+                    </div>
+                    <div class="preview__body">
+                        <div class="aic-bubble">{previewGreeting}</div>
+                        <div class="aic-chat-eyebrow when">When a call fails</div>
+                        <div class="aic-bubble aic-bubble_dashed">{previewFallback}</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</template>

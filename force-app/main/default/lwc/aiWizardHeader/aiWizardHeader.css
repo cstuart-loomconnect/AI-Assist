@@ -1,0 +1,109 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: block;
+}
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 16px 16px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--aic-line);
+}
+.top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.tile {
+    background: #4b37ae;
+}
+.titles {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-grow: 1;
+    min-width: 0;
+}
+.crumbs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--aic-weak);
+}
+.title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.name {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 24px;
+}
+.status {
+    padding: 1px 8px;
+}
+.saved {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--aic-weak);
+}
+.saved__icon {
+    color: var(--aic-success);
+    display: inline-flex;
+}
+.path {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    gap: 2px;
+    height: 36px;
+}
+.path__item {
+    flex-grow: 1;
+    flex-basis: 0;
+    display: flex;
+}
+.chevron {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 14px 0 22px;
+    font: inherit;
+    font-size: 14px;
+    border: 0;
+    cursor: pointer;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%);
+    background: var(--aic-line);
+    color: var(--aic-ink);
+    white-space: nowrap;
+    overflow: hidden;
+}
+.chevron:hover:not([disabled]) {
+    filter: brightness(0.95);
+}
+.chevron:focus-visible {
+    outline: 2px solid var(--aic-brand);
+    outline-offset: -3px;
+}
+.chevron[disabled] {
+    cursor: not-allowed;
+}
+.chevron_done {
+    background: var(--aic-success);
+    color: #ffffff;
+}
+.chevron_current {
+    background: var(--aic-brand-dark);
+    color: #ffffff;
+    font-weight: 700;
+}

@@ -1,0 +1,94 @@
+<template>
+    <template lwc:if={isRecord}>
+        <c-ai-agent-record agent-id={pageRecordId} onclone={handleCloneFromRecord}></c-ai-agent-record>
+    </template>
+    <template lwc:else>
+        <section class="aic-card" aria-labelledby="agents-title">
+            <div class="aic-page-header">
+                <div class="aic-tile tile"><c-ai-console-icon name="agent" size="20" stroke-width="1.8"></c-ai-console-icon></div>
+                <div class="aic-page-header__titles">
+                    <span class="aic-eyebrow">Agents</span>
+                    <div class="title-row">
+                        <h1 class="aic-page-title" id="agents-title">{title}</h1>
+                        <template lwc:if={hasViews}>
+                            <lightning-button-menu class="views" alternative-text="Switch list" icon-name="utility:chevrondown" icon-size="x-small" variant="bare" menu-alignment="left" onselect={handleView}>
+                                <template for:each={viewOptions} for:item="view">
+                                    <lightning-menu-item key={view.value} value={view.value} label={view.label} checked={view.checked}></lightning-menu-item>
+                                </template>
+                            </lightning-button-menu>
+                        </template>
+                    </div>
+                </div>
+                <lightning-button variant="brand" label="New Agent" onclick={handleNewAgent}></lightning-button>
+            </div>
+
+            <div class="toolbar">
+                <span class="aic-weak grow">{listInfo}</span>
+                <label class="search">
+                    <c-ai-console-icon name="search" size="14"></c-ai-console-icon>
+                    <input type="search" aria-label="Search this list" placeholder="Search this list..." value={searchText} oninput={handleSearch} />
+                </label>
+                <button type="button" class="aic-icon-btn" aria-label="Refresh" title="Refresh" onclick={handleRefresh}><c-ai-console-icon name="refresh" size="14"></c-ai-console-icon></button>
+                <lightning-button-menu alternative-text="Filters" icon-name="utility:filterList" variant="border-filled" menu-alignment="right" onselect={handleStatusFilter}>
+                    <template for:each={statusOptions} for:item="option">
+                        <lightning-menu-item key={option.value} value={option.value} label={option.label} checked={option.checked}></lightning-menu-item>
+                    </template>
+                </lightning-button-menu>
+            </div>
+
+            <template lwc:if={error}>
+                <div class="aic-card__body"><div class="aic-banner aic-banner_error" role="alert"><span>{error}</span></div></div>
+            </template>
+            <template lwc:elseif={isLoading}>
+                <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+            </template>
+            <template lwc:else>
+                <table class="slds-table aic-table">
+                    <thead>
+                        <tr>
+                            <th class="aic-th th-soft" scope="col">Agent Name</th>
+                            <th class="aic-th th-soft" scope="col">Object</th>
+                            <th class="aic-th th-soft" scope="col">Model Configuration</th>
+                            <th class="aic-th th-soft" scope="col">Status</th>
+                            <th class="aic-th th-soft" scope="col">Setup</th>
+                            <th class="aic-th th-soft aic-right" scope="col">Templates</th>
+                            <th class="aic-th th-soft aic-right" scope="col">Conversations (30 days)</th>
+                            <th class="aic-th th-soft" scope="col">Last Edited</th>
+                            <th class="aic-th th-soft actions-col" scope="col"><span class="slds-assistive-text">Actions</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={rows} for:item="agent">
+                            <tr key={agent.id}>
+                                <td class="td"><a href="#" class="aic-bold" data-id={agent.id} onclick={handleOpen}>{agent.name}</a></td>
+                                <td class="td">{agent.objectType}</td>
+                                <td class="td">{agent.modelLabel}</td>
+                                <td class="td"><span class={agent.statusClass}>{agent.statusLabel}</span></td>
+                                <td class="td">
+                                    <template lwc:if={agent.isSetupComplete}>Complete</template>
+                                    <template lwc:else>
+                                        <span class="setup"><span>{agent.setupLabel}</span><a href="#" data-id={agent.id} data-step={agent.resumeStep} onclick={handleResume}>Resume setup</a></span>
+                                    </template>
+                                </td>
+                                <td class="td aic-right">{agent.templateCount}</td>
+                                <td class="td aic-right">{agent.conversationsLabel}</td>
+                                <td class="td">{agent.lastEditedLabel}</td>
+                                <td class="td">
+                                    <lightning-button-menu alternative-text={agent.menuLabel} icon-size="x-small" variant="border-filled" menu-alignment="right" data-id={agent.id} onselect={handleRowAction}>
+                                        <lightning-menu-item value="wizard" label="Open in wizard"></lightning-menu-item>
+                                        <lightning-menu-item value="clone" label="Clone"></lightning-menu-item>
+                                        <template lwc:if={agent.canActivate}><lightning-menu-item value="activate" label="Activate for everyone"></lightning-menu-item></template>
+                                        <template lwc:if={agent.isActive}><lightning-menu-item value="deactivate" label="Deactivate"></lightning-menu-item></template>
+                                        <lightning-menu-divider></lightning-menu-divider>
+                                        <lightning-menu-item class="danger" value="delete" label="Delete"></lightning-menu-item>
+                                    </lightning-button-menu>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <template lwc:if={isEmpty}><p class="aic-empty">No agents here yet.</p></template>
+            </template>
+        </section>
+    </template>
+</template>

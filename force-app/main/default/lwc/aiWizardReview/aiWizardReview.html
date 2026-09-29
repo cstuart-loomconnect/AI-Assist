@@ -1,0 +1,50 @@
+<template>
+    <div class="layout">
+        <div class="main">
+            <template lwc:if={hasWarnings}>
+                <div class="warning" role="status">
+                    <c-ai-console-icon name="warningFilled" size="20" stroke-width="1.6"></c-ai-console-icon>
+                    <span class="grow"><b>{warningCountLabel}</b> {firstWarning} You can still activate.</span>
+                    <button type="button" class="slds-button slds-button_neutral aic-btn_small" data-step="3" onclick={handleEdit}>Fix in Data Sources</button>
+                </div>
+            </template>
+
+            <section class="aic-card" aria-labelledby="s-sum">
+                <div class="aic-card__header"><h2 class="aic-card__title" id="s-sum">Summary</h2></div>
+                <template for:each={sections} for:item="section">
+                    <div key={section.step} class={section.wrapperClass}>
+                        <div class="sum__head">
+                            <span class={section.dotClass} aria-hidden="true">
+                                <template lwc:if={section.needsLook}>!</template>
+                                <template lwc:else><c-ai-console-icon name="check" size="10" stroke-width="3.4"></c-ai-console-icon></template>
+                            </span>
+                            <h3>{section.title}</h3>
+                            <a href="#" data-step={section.step} onclick={handleEdit}>Edit</a>
+                        </div>
+                        <div class="kvs">
+                            <template for:each={section.values} for:item="value">
+                                <div key={value.label} class="kv"><span class="aic-weak">{value.label}</span><span class={value.valueClass}>{value.value}</span></div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </section>
+
+            <section class="aic-card" aria-labelledby="s-live">
+                <div class="aic-card__header"><h2 class="aic-card__title" id="s-live">Go live</h2></div>
+                <fieldset class="live">
+                    <legend class="slds-assistive-text">Activation</legend>
+                    <template for:each={liveOptions} for:item="option">
+                        <label key={option.value} class={option.cardClass}>
+                            <input type="radio" name="live" value={option.value} checked={option.checked} onchange={handleGoLive} />
+                            <span class="aic-option__text"><b>{option.label}</b><span class="aic-weak">{option.description}</span></span>
+                        </label>
+                    </template>
+                </fieldset>
+            </section>
+        </div>
+        <aside class="aside">
+            <c-ai-wizard-try-it state={state} onstatechange={handleTryItState}></c-ai-wizard-try-it>
+        </aside>
+    </div>
+</template>

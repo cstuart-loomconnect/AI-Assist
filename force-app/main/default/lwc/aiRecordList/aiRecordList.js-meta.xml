@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <isExposed>false</isExposed>
+    <description>AI Assist console: the one generic list. Takes an AINavTabSection__mdt row (Related Object API Name, Filter Criteria, Max Records Shown) and shows what AIConsoleListService builds for it - so a new list is a metadata record, not new code.</description>
+</LightningComponentBundle>

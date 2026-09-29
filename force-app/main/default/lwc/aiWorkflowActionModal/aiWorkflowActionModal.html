@@ -1,0 +1,111 @@
+<template>
+    <lightning-modal-header label={label}>
+        <p class="tagline">Saved to the Library. Assign it to agents in the Agent Wizard.</p>
+    </lightning-modal-header>
+    <lightning-modal-body>
+        <template lwc:if={isLoading}>
+            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+        <template lwc:else>
+            <div class="form">
+                <template lwc:if={error}>
+                    <div class="aic-banner aic-banner_error" role="alert"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span>{error}</span></div>
+                </template>
+
+                <div class="aic-grid2">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="w-name"><abbr class="slds-required" title="required">* </abbr>Action Name</label>
+                        <div class="slds-form-element__control"><input id="w-name" class="slds-input" maxlength="50" value={action.name} oninput={handleName} /></div>
+                    </div>
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="w-dev"><abbr class="slds-required" title="required">* </abbr>Developer Name</label>
+                        <div class="slds-form-element__control"><input id="w-dev" class="slds-input aic-mono" value={action.developerName} oninput={handleDeveloperName} /></div>
+                    </div>
+                </div>
+
+                <div class="slds-form-element">
+                    <label class="slds-form-element__label" for="w-desc">Description</label>
+                    <div class="slds-form-element__control"><textarea id="w-desc" class="slds-textarea" rows="2" data-field="description" value={action.description} oninput={handleInput}></textarea></div>
+                    <div class="aic-help">The AI reads this to decide when to suggest the action. Say what it does and when it fits.</div>
+                </div>
+
+                <div class="aic-grid2">
+                    <fieldset class="slds-form-element">
+                        <legend class="slds-form-element__label"><abbr class="slds-required" title="required">* </abbr>Type</legend>
+                        <div class="cards">
+                            <template for:each={typeCards} for:item="card">
+                                <label key={card.value} class={card.cardClass}>
+                                    <input type="radio" name="actionType" value={card.value} checked={card.checked} data-field="actionType" onchange={handleInput} />
+                                    <span class="aic-option__text"><span class="aic-bold">{card.label}</span><span class="aic-weak">{card.description}</span></span>
+                                </label>
+                            </template>
+                        </div>
+                    </fieldset>
+                    <fieldset class="slds-form-element">
+                        <legend class="slds-form-element__label"><abbr class="slds-required" title="required">* </abbr>Execution</legend>
+                        <div class="cards">
+                            <template for:each={executionCards} for:item="card">
+                                <label key={card.value} class={card.cardClass}>
+                                    <input type="radio" name="executionType" value={card.value} checked={card.checked} data-field="executionType" onchange={handleInput} />
+                                    <span class="aic-option__text"><span class="aic-bold">{card.label}</span><span class="aic-weak">{card.description}</span></span>
+                                </label>
+                            </template>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="aic-grid2">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="w-impl"><abbr class="slds-required" title="required">* </abbr>{implementationLabel}</label>
+                        <div class="slds-form-element__control"><input id="w-impl" class="slds-input aic-mono" value={implementationValue} data-field={implementationField} oninput={handleInput} /></div>
+                        <div class="aic-help">{implementationHelp}</div>
+                    </div>
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="w-obj">Target Object</label>
+                        <div class="slds-select_container">
+                            <select id="w-obj" class="slds-select" data-field="targetObject" onchange={handleInput}>
+                                <template for:each={objectChoices} for:item="option">
+                                    <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="aic-grid2">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="w-schema">Input Schema</label>
+                        <div class="slds-form-element__control"><textarea id="w-schema" class="slds-textarea aic-mono code-input" rows="5" data-field="inputSchema" value={action.inputSchema} oninput={handleInput}></textarea></div>
+                        <div class="aic-help">The inputs the user can check before it runs, e.g. {schemaExample}.</div>
+                    </div>
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="w-out">Output Description</label>
+                        <div class="slds-form-element__control"><textarea id="w-out" class="slds-textarea" rows="5" data-field="outputDescription" value={action.outputDescription} oninput={handleInput}></textarea></div>
+                    </div>
+                </div>
+
+                <div class="confirm">
+                    <span class="aic-option__text"><span class="aic-bold">Requires Confirmation</span><span class="aic-weak">The user sees a confirmation card and clicks to run it. Write actions should always ask first.</span></span>
+                    <button type="button" class="aic-switch" role="switch" aria-checked={confirmChecked} aria-label="Requires Confirmation" onclick={handleConfirmToggle}></button>
+                </div>
+                <template lwc:if={action.requiresConfirmation}>
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="w-msg"><abbr class="slds-required" title="required">* </abbr>Confirmation Message</label>
+                        <div class="slds-form-element__control"><textarea id="w-msg" class="slds-textarea" rows="2" data-field="confirmationMessage" value={action.confirmationMessage} oninput={handleInput}></textarea></div>
+                    </div>
+                </template>
+                <template lwc:elseif={isWrite}>
+                    <div class="aic-banner aic-banner_warning"><c-ai-console-icon name="warningFilled" size="16" stroke-width="1.6"></c-ai-console-icon><span>This write action will run as soon as the user clicks it, without a confirmation step.</span></div>
+                </template>
+            </div>
+        </template>
+    </lightning-modal-body>
+    <lightning-modal-footer>
+        <div class="footer">
+            <label class="active"><input type="checkbox" class="aic-checkbox" checked={action.isActive} onchange={handleActive} />Active</label>
+            <div class="grow"></div>
+            <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+            <lightning-button variant="brand" label="Save" onclick={handleSave} disabled={isSaving}></lightning-button>
+        </div>
+    </lightning-modal-footer>
+</template>

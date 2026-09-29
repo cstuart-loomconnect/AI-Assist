@@ -1,0 +1,51 @@
+@import 'c/aiConsoleStyles';
+
+.tagline {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--aic-weak);
+}
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 4px 8px;
+}
+.cards {
+    display: flex;
+    gap: 8px;
+}
+.cards .aic-option {
+    flex: 1;
+}
+.code-input {
+    background: var(--aic-gray-soft);
+    font-family: var(--aic-mono);
+    font-size: 13px;
+    line-height: 19px;
+}
+.confirm {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--aic-line);
+    border-radius: 4px;
+}
+.footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.active {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.grow {
+    flex-grow: 1;
+}
+.aic-mono {
+    font-family: var(--aic-mono);
+    font-size: 13px;
+}

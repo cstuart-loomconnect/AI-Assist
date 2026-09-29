@@ -1,0 +1,46 @@
+<template>
+    <section class="aic-card card" aria-labelledby="trend-title">
+        <div class="aic-card__header">
+            <h2 class="aic-card__title" id="trend-title">{title}</h2>
+            <a href="#" class="report-link" onclick={handleViewReport}>View report</a>
+        </div>
+        <div class="chart">
+            <template lwc:if={error}>
+                <div class="aic-banner aic-banner_error" role="alert"><span>{error}</span></div>
+            </template>
+            <template lwc:elseif={hasData}>
+                <svg width="100%" viewBox="0 0 820 220" role="img" aria-label={chartLabel}>
+                    <g stroke="#E5E5E5" stroke-width="1">
+                        <line x1="36" y1="10" x2="812" y2="10"></line>
+                        <line x1="36" y1="100" x2="812" y2="100"></line>
+                    </g>
+                    <line x1="36" y1="190" x2="812" y2="190" stroke="#939393" stroke-width="1"></line>
+                    <g font-size="12" fill="#444444" text-anchor="end">
+                        <text x="28" y="14">{scaleMax}</text>
+                        <text x="28" y="104">{scaleHalf}</text>
+                        <text x="28" y="194">0</text>
+                    </g>
+                    <g fill="#0176D3">
+                        <template for:each={bars} for:item="bar">
+                            <g key={bar.key}>
+                                <rect x={bar.x} y={bar.y} width={bar.width} height={bar.height} rx="4"><title>{bar.tooltip}</title></rect>
+                                <rect lwc:if={bar.hasBase} x={bar.x} y={bar.baseY} width={bar.width} height="4"></rect>
+                            </g>
+                        </template>
+                    </g>
+                    <template lwc:if={todayBar}>
+                        <text x={todayBar.centre} y={todayBar.labelY} font-size="12" font-weight="700" fill="#181818" text-anchor="middle">{todayBar.count}</text>
+                    </template>
+                    <g font-size="12" fill="#444444" text-anchor="middle">
+                        <template for:each={axisLabels} for:item="label">
+                            <text key={label.key} x={label.x} y="210">{label.text}</text>
+                        </template>
+                    </g>
+                </svg>
+            </template>
+            <template lwc:else>
+                <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+            </template>
+        </div>
+    </section>
+</template>

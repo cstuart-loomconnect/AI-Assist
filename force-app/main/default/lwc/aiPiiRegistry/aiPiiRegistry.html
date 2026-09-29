@@ -1,0 +1,108 @@
+<template>
+    <div class="page">
+        <div class="header">
+            <div class="aic-page-header__titles"><span class="aic-eyebrow">{eyebrow}</span><h1 class="aic-page-title">{title}</h1></div>
+            <lightning-button label="Sync all now" onclick={handleSyncAll} disabled={isBusy}></lightning-button>
+            <lightning-button variant="brand" label="Add object" onclick={handleAddObject} disabled={isBusy}></lightning-button>
+        </div>
+
+        <nav aria-label="PII views" class="aic-card views">
+            <a href="#" class={objectsTabClass} aria-current={objectsCurrent} data-view="objects" onclick={handleView}>Objects</a>
+            <a href="#" class={lookupTabClass} aria-current={lookupCurrent} data-view="lookup" onclick={handleView}><c-ai-console-icon name="lock" size="12" stroke-width="2.4"></c-ai-console-icon>Mapping lookup</a>
+        </nav>
+
+        <template lwc:if={error}>
+            <div class="aic-banner aic-banner_error" role="alert"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span>{error}</span></div>
+        </template>
+
+        <template lwc:if={isLookup}>
+            <section class="aic-card lookup" aria-labelledby="h-lookup">
+                <div class="aic-card__header"><h2 class="aic-card__title" id="h-lookup">Mapping lookup</h2><span class="aic-weak">The fake values the AI saw in one conversation, and what they stand for</span></div>
+                <div class="aic-card__body">
+                    <lightning-record-picker class="picker" label="Conversation" placeholder="Search conversations…" object-api-name={conversationObject} onchange={handleConversation}></lightning-record-picker>
+                    <template lwc:if={lookupError}><div class="aic-banner aic-banner_error"><span>{lookupError}</span></div></template>
+                    <template lwc:if={hasMappings}>
+                        <table class="slds-table aic-table">
+                            <thead><tr><th class="aic-th" scope="col">Sent to the AI as</th><th class="aic-th" scope="col">Real value</th></tr></thead>
+                            <tbody>
+                                <template for:each={mappings} for:item="mapping">
+                                    <tr key={mapping.fakeValue}><td class="td aic-mono">{mapping.fakeValue}</td><td class="td">{mapping.realValue}</td></tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </template>
+                    <template lwc:elseif={lookupDone}><p class="aic-empty">No PII was masked in that conversation.</p></template>
+                </div>
+            </section>
+        </template>
+
+        <template lwc:else>
+            <div class="columns">
+                <section class="aic-card objects" aria-labelledby="h-obj">
+                    <div class="objects__head"><h2 class="aic-card__title" id="h-obj">{objectsTitle}</h2><span class="aic-weak">Synced nightly from Data Classification</span></div>
+                    <template lwc:if={isLoading}>
+                        <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+                    </template>
+                    <template lwc:else>
+                        <table class="slds-table aic-table">
+                            <thead><tr>
+                                <th class="aic-th" scope="col">Object</th><th class="aic-th" scope="col">Sync Status</th><th class="aic-th aic-right" scope="col">Fields</th>
+                                <th class="aic-th aic-right" scope="col">PII</th><th class="aic-th" scope="col">Last Synced</th><th class="aic-th" scope="col">Active</th>
+                            </tr></thead>
+                            <tbody>
+                                <template for:each={objectRows} for:item="row">
+                                    <tr key={row.id} class={row.rowClass}>
+                                        <td class="td"><a href="#" class="aic-bold" aria-current={row.current} data-id={row.id} onclick={handleSelect}>{row.objectLabel}</a></td>
+                                        <td class="td"><span class={row.badgeClass}>{row.syncStatus}</span></td>
+                                        <td class="td aic-right">{row.fieldsLabel}</td>
+                                        <td class="td aic-right">{row.piiLabel}</td>
+                                        <td class="td">{row.lastSyncedLabel}<template lwc:if={row.isFailed}><button type="button" class="slds-button slds-button_neutral aic-btn_small retry" data-id={row.id} onclick={handleResync} disabled={isBusy}>Retry</button></template></td>
+                                        <td class="td">{row.activeLabel}</td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                        <template lwc:if={noObjects}><p class="aic-empty">No objects yet. Add the objects whose records agents read.</p></template>
+                        <template for:each={failures} for:item="failure">
+                            <div key={failure.id} class="aic-banner aic-banner_error failure">
+                                <c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon>
+                                <span><b>{failure.objectLabel} sync failed:</b> {failure.messageText} {failure.objectLabel} chats use the last good sync until it’s fixed. <a href="#" class="error-link" onclick={handleSeeLog}>See the log</a></span>
+                            </div>
+                        </template>
+                    </template>
+                </section>
+
+                <template lwc:if={selected}>
+                    <section class="aic-card fields" aria-labelledby="h-fields">
+                        <div class="fields__head"><h2 class="aic-card__title" id="h-fields">{fieldsTitle}</h2><button type="button" class="slds-button slds-button_neutral aic-btn_small" data-id={selected.id} onclick={handleResync} disabled={isBusy}>Resync</button></div>
+                        <template lwc:if={isLoadingFields}>
+                            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+                        </template>
+                        <template lwc:else>
+                            <table class="slds-table aic-table">
+                                <thead><tr>
+                                    <th class="aic-th no-top" scope="col">Field</th><th class="aic-th no-top" scope="col">Type</th>
+                                    <th class="aic-th no-top" scope="col">PII Field Type</th><th class="aic-th no-top" scope="col">Compliance Group</th>
+                                </tr></thead>
+                                <tbody>
+                                    <template for:each={visibleFields} for:item="field">
+                                        <tr key={field.apiName}>
+                                            <td class="td"><span class="field-name"><span>{field.label}</span><span class="aic-mono aic-weak">{field.apiName}</span></span></td>
+                                            <td class="td">{field.dataType}</td>
+                                            <td class="td"><span class="aic-badge aic-badge_pii">{field.piiType}</span></td>
+                                            <td class="td">{field.complianceGroup}</td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                            <template lwc:if={noFields}><p class="aic-empty">No PII fields found on this object.</p></template>
+                            <template lwc:if={hasMoreFields}>
+                                <div class="more aic-weak">{moreCount} more · <a href="#" onclick={handleShowAll}>Show all</a></div>
+                            </template>
+                        </template>
+                    </section>
+                </template>
+            </div>
+        </template>
+    </div>
+</template>

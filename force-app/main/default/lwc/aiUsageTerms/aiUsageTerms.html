@@ -1,0 +1,76 @@
+<template>
+    <div class="page">
+        <div class="aic-page-header__titles"><span class="aic-eyebrow">Settings</span><h1 class="aic-page-title">{title}</h1></div>
+
+        <template lwc:if={error}>
+            <div class="aic-banner aic-banner_error" role="alert"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span>{error}</span></div>
+        </template>
+
+        <template lwc:if={terms}>
+            <div class="top">
+                <section class="aic-card" aria-labelledby="h-cur">
+                    <div class="aic-card__header"><h2 class="aic-card__title" id="h-cur">Current terms</h2></div>
+                    <div class="aic-card__body">
+                        <div class="fields">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="t-ver">Current Terms Version</label>
+                                <input id="t-ver" class="slds-input readonly" value={terms.currentVersion} readonly />
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="t-url">AI Usage Policy URL</label>
+                                <div class="url-row">
+                                    <input id="t-url" class="slds-input" type="url" placeholder="https://" value={policyUrl} oninput={handleUrl} />
+                                    <template lwc:if={urlChanged}><lightning-button label="Save" onclick={handleSaveUrl} disabled={isBusy}></lightning-button></template>
+                                </div>
+                                <div class="aic-help">Linked from the terms screen in the chat window.</div>
+                            </div>
+                        </div>
+                        <div class="publish">
+                            <span class="publish__text"><b>Publish version {terms.nextVersion}</b><span class="aic-weak">Everyone signs again before their next message.</span></span>
+                            <lightning-button label="Publish new version" onclick={handlePublish} disabled={isBusy}></lightning-button>
+                        </div>
+                    </div>
+                </section>
+                <section class="aic-card" aria-labelledby="h-prog">
+                    <div class="aic-card__header"><h2 class="aic-card__title" id="h-prog">Signed version {terms.currentVersion}</h2></div>
+                    <div class="aic-card__body progress">
+                        <div class="count"><span class="big">{terms.signedCount}</span><span class="aic-weak">of {terms.totalUsers} users with an AI Assist User Type</span></div>
+                        <div class="meter" role="meter" aria-label="Users on the current terms" aria-valuemin="0" aria-valuemax={terms.totalUsers} aria-valuenow={terms.signedCount}><div class="meter__fill" style={meterStyle}></div></div>
+                        <template lwc:if={hasOlder}>
+                            <div class="aic-weak">{olderText} <a href="#" onclick={handleSeeUsers}>See them</a></div>
+                        </template>
+                        <template lwc:else><div class="aic-weak">Everyone is on the current terms.</div></template>
+                    </div>
+                </section>
+            </div>
+
+            <section class="aic-card" aria-labelledby="h-hist">
+                <div class="aic-card__header"><h2 class="aic-card__title" id="h-hist">Acknowledgments</h2><span class="aic-weak">Signed records are read-only</span><lightning-button label="Export" onclick={handleExport}></lightning-button></div>
+                <table class="slds-table aic-table">
+                    <thead><tr>
+                        <th class="aic-th" scope="col">User</th><th class="aic-th" scope="col">Terms Version</th><th class="aic-th" scope="col">Signature</th>
+                        <th class="aic-th" scope="col">Acknowledged</th><th class="aic-th" scope="col">Login session</th>
+                    </tr></thead>
+                    <tbody>
+                        <template for:each={terms.acknowledgments} for:item="row">
+                            <tr key={row.id}>
+                                <td class="td"><a href="#" data-id={row.userId} onclick={handleOpenRecord}>{row.userName}</a></td>
+                                <td class="td">{row.version}</td>
+                                <td class="td">{row.signature}</td>
+                                <td class="td">{row.acknowledgedLabel}</td>
+                                <td class="td aic-mono">
+                                    <template lwc:if={row.loginHistoryId}>{row.loginHistoryId}</template>
+                                    <template lwc:else>—</template>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <template lwc:if={noAcknowledgments}><p class="aic-empty">Nobody has signed yet.</p></template>
+            </section>
+        </template>
+        <template lwc:elseif={isLoading}>
+            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+    </div>
+</template>

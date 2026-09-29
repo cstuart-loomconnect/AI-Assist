@@ -1,0 +1,144 @@
+<template>
+    <template lwc:if={error}>
+        <div class="aic-card"><div class="aic-card__body"><div class="aic-banner aic-banner_error" role="alert"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span>{error}</span></div></div></div>
+    </template>
+    <template lwc:elseif={agent}>
+        <div class="page">
+            <section class="aic-card" aria-labelledby="agent-title">
+                <div class="head">
+                    <div class="aic-tile aic-tile_large tile"><c-ai-console-icon name="agent" size="24" stroke-width="1.8"></c-ai-console-icon></div>
+                    <div class="head__titles">
+                        <nav aria-label="Breadcrumb" class="aic-weak"><a href="#" onclick={handleBackToList}>Agents</a> › Agent</nav>
+                        <div class="title-row">
+                            <h1 class="aic-page-title" id="agent-title">{agent.name}</h1>
+                            <span class={statusClass}>{agent.statusLabel}</span>
+                            <span class="aic-badge">{setupBadge}</span>
+                        </div>
+                    </div>
+                    <lightning-button-group>
+                        <lightning-button label="Open in wizard" onclick={handleOpenWizard}></lightning-button>
+                        <lightning-button label="Clone" onclick={handleClone}></lightning-button>
+                        <template lwc:if={canActivate}>
+                            <lightning-button variant="brand" label="Activate for everyone" onclick={handleActivate} disabled={isSaving}></lightning-button>
+                        </template>
+                        <template lwc:else>
+                            <lightning-button label="Deactivate" onclick={handleDeactivate} disabled={isSaving}></lightning-button>
+                        </template>
+                    </lightning-button-group>
+                </div>
+                <div class="facts">
+                    <div class="fact"><span class="aic-weak">Object</span><span>{objectType}</span></div>
+                    <div class="fact"><span class="aic-weak">Model Configuration</span>
+                        <template lwc:if={agent.modelId}><a href="#" onclick={handleOpenModels}>{agent.modelName}</a></template>
+                        <template lwc:else><span>—</span></template>
+                    </div>
+                    <div class="fact"><span class="aic-weak">Developer Name</span><span class="aic-mono">{agent.developerName}</span></div>
+                    <div class="fact"><span class="aic-weak">Owner</span><a href="#" onclick={handleOpenOwner}>{agent.ownerName}</a></div>
+                    <div class="fact"><span class="aic-weak">Setup Last Edited</span><span>{lastEditedLabel}</span></div>
+                </div>
+                <div class="slds-tabs_default tabs">
+                    <ul class="slds-tabs_default__nav" role="tablist">
+                        <template for:each={tabs} for:item="tab">
+                            <li key={tab.key} class={tab.itemClass} role="presentation">
+                                <a class="slds-tabs_default__link" href="#" role="tab" aria-selected={tab.selected} tabindex={tab.tabindex} data-key={tab.key} onclick={handleTab}>{tab.label}</a>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </section>
+
+            <template lwc:if={isOverview}>
+                <div class="overview">
+                    <section class="aic-card" aria-labelledby="details-title">
+                        <div class="aic-card__header"><h2 class="aic-card__title" id="details-title">Details</h2></div>
+                        <div class="details">
+                            <template for:each={detailFields} for:item="field">
+                                <div key={field.key} class={field.wrapperClass}>
+                                    <span class="aic-weak small">{field.label}</span>
+                                    <template lwc:if={field.isEditing}>
+                                        <div class="editor">
+                                            <template lwc:if={field.isTextarea}>
+                                                <textarea class="slds-textarea" rows="3" aria-label={field.label} value={draftValue} oninput={handleDraft}></textarea>
+                                            </template>
+                                            <template lwc:elseif={field.isSelect}>
+                                                <div class="slds-select_container">
+                                                    <select class="slds-select" aria-label={field.label} onchange={handleDraft}>
+                                                        <template for:each={field.choices} for:item="option">
+                                                            <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                                        </template>
+                                                    </select>
+                                                </div>
+                                            </template>
+                                            <template lwc:else>
+                                                <input class="slds-input number" type="number" min="0" aria-label={field.label} value={draftValue} oninput={handleDraft} />
+                                            </template>
+                                            <div class="editor__buttons">
+                                                <button type="button" class="slds-button slds-button_neutral aic-btn_small" onclick={handleCancelEdit}>Cancel</button>
+                                                <button type="button" class="slds-button slds-button_brand aic-btn_small" onclick={handleSaveEdit} disabled={isSaving}>Save</button>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <template lwc:else>
+                                        <div class="value">
+                                            <span class="grow">{field.displayValue}</span>
+                                            <button type="button" class="pen" aria-label={field.editLabel} data-key={field.key} onclick={handleEdit}><c-ai-console-icon name="pencil" size="12"></c-ai-console-icon></button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </section>
+
+                    <div class="side">
+                        <section class="aic-card" aria-labelledby="stats-title">
+                            <div class="aic-card__header"><h2 class="aic-card__title" id="stats-title">Last 14 days</h2></div>
+                            <div class="stats">
+                                <template for:each={agent.stats} for:item="stat">
+                                    <div key={stat.label} class="stat"><b>{stat.value}</b><span class="aic-weak">{stat.label}</span></div>
+                                </template>
+                            </div>
+                        </section>
+                        <section class="aic-card" aria-labelledby="ds-title">
+                            <div class="aic-card__header"><h2 class="aic-card__title" id="ds-title">{dataSourcesTitle}</h2><a href="#" class="small" data-step="3" onclick={handleManage}>Manage</a></div>
+                            <template for:each={dataSourceRows} for:item="line">
+                                <div key={line.id} class={line.rowClass}>
+                                    <template lwc:if={line.warning}>
+                                        <span class="grow warn-name"><c-ai-console-icon name="warningFilled" size="14" stroke-width="1.6"></c-ai-console-icon>{line.name}</span>
+                                        <span class="warn-text">{line.warning}</span>
+                                    </template>
+                                    <template lwc:else>
+                                        <span class="grow">{line.name}</span><span class="aic-badge">{line.badge}</span>
+                                    </template>
+                                </div>
+                            </template>
+                            <template lwc:if={noDataSources}><p class="aic-empty">None assigned yet.</p></template>
+                        </section>
+                        <section class="aic-card" aria-labelledby="gr-title">
+                            <div class="aic-card__header"><h2 class="aic-card__title" id="gr-title">{guardrailsTitle}</h2><a href="#" class="small" data-step="5" onclick={handleManage}>Manage</a></div>
+                            <template for:each={guardrailRows} for:item="line">
+                                <div key={line.id} class="line"><span class="grow">{line.name}</span><span class={line.badgeClass}>{line.badge}</span></div>
+                            </template>
+                            <template lwc:if={noGuardrails}><p class="aic-empty">No rules yet.</p></template>
+                        </section>
+                    </div>
+                </div>
+            </template>
+            <template lwc:else>
+                <section class="aic-card" aria-label={activeTabLabel}>
+                    <div class="aic-card__header"><h2 class="aic-card__title">{activeTabLabel}</h2>
+                        <template lwc:if={activeTabStep}><button type="button" class="slds-button slds-button_neutral aic-btn_small" onclick={handleManageActive}>Manage in wizard</button></template>
+                    </div>
+                    <template lwc:if={isLoadingRelated}>
+                        <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+                    </template>
+                    <template lwc:elseif={related}>
+                        <c-ai-console-table columns={related.columns} rows={related.rows} density="default" empty-message="Nothing here yet."></c-ai-console-table>
+                    </template>
+                </section>
+            </template>
+        </div>
+    </template>
+    <template lwc:else>
+        <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner></div>
+    </template>
+</template>

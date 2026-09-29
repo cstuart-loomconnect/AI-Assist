@@ -1,0 +1,99 @@
+@import 'c/aiConsoleStyles';
+
+.tagline {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--aic-weak);
+}
+.choices {
+    margin: 0;
+    padding: 4px 8px;
+    border: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.choice {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border: 1px solid var(--aic-line-strong);
+    border-radius: 4px;
+    background: #ffffff;
+    cursor: pointer;
+}
+.choice_stack {
+    flex-direction: column;
+    gap: 14px;
+    cursor: default;
+}
+.choice_selected {
+    border-color: var(--aic-brand);
+    box-shadow: inset 0 0 0 1px var(--aic-brand);
+    background: var(--aic-selected);
+}
+.choice input[type='radio'] {
+    accent-color: var(--aic-brand);
+    margin: 3px 0 0;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+.choice-head {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    cursor: pointer;
+}
+.choice-title {
+    font-size: 15px;
+    font-weight: 700;
+}
+.indent {
+    padding-left: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.two {
+    display: flex;
+    gap: 16px;
+}
+.two > * {
+    flex-grow: 1;
+    flex-basis: 0;
+}
+.copies {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 16px;
+}
+.span2 {
+    grid-column: span 2;
+    margin: 0;
+}
+.check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.drafts {
+    gap: 0;
+}
+.draft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-top: 1px solid var(--aic-line);
+}
+.grow {
+    flex-grow: 1;
+}
+.small {
+    font-size: 13px;
+}
+.next {
+    margin-left: 8px;
+}

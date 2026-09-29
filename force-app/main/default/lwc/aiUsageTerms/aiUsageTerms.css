@@ -1,0 +1,72 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: block;
+}
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.top {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+.fields {
+    display: grid;
+    grid-template-columns: 140px minmax(0, 1fr);
+    gap: 16px;
+}
+.readonly {
+    background: var(--aic-gray);
+}
+.url-row {
+    display: flex;
+    gap: 8px;
+}
+.publish {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--aic-line);
+    border-radius: 4px;
+    background: var(--aic-gray-soft);
+}
+.publish__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-grow: 1;
+}
+.progress {
+    gap: 10px;
+}
+.count {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+.big {
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 36px;
+}
+.meter {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--aic-line);
+    overflow: hidden;
+}
+.meter__fill {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--aic-success);
+}
+.td {
+    padding: 0 12px;
+    height: 40px;
+    border-bottom: 1px solid var(--aic-line);
+    white-space: nowrap;
+}

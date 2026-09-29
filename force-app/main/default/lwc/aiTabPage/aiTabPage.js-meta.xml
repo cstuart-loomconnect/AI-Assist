@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>AI Assist Console Tab</masterLabel>
+    <description>One AI Assist console tab: loads the AINavTab__mdt record named by the tab API name (or Tab Name on an App Page) and lays out its AINavTabSection__mdt rows.</description>
+    <capabilities>
+        <capability>lightning__dynamicComponent</capability>
+    </capabilities>
+    <targets>
+        <target>lightning__Tab</target>
+        <target>lightning__AppPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__AppPage">
+            <property name="tabName" type="String" label="Tab Name" description="Developer Name of the AI Nav Tab record this page shows, e.g. AI_Home. Leave blank on a Lightning Component tab - the tab's API name is used." />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

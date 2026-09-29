@@ -1,0 +1,70 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: block;
+}
+.slds-table.aic-table {
+    background: transparent;
+}
+.aic-table td,
+.aic-table th {
+    white-space: nowrap;
+}
+.density_compact .aic-td,
+.aic-td.density_compact {
+    padding: 0 12px;
+    height: 36px;
+}
+.aic-td.density_comfy {
+    padding: 0 12px;
+    height: 44px;
+}
+.aic-td.density_default {
+    padding: 0 12px;
+    height: 40px;
+}
+.aic-th.compact {
+    height: 30px;
+    border-top: 0;
+}
+.row_selected {
+    background: var(--aic-selected);
+    box-shadow: inset 3px 0 0 var(--aic-brand);
+}
+.row_warning {
+    background: var(--aic-warning-bg);
+}
+.row_error {
+    background: #fef1f1;
+}
+.row_muted {
+    color: var(--aic-weak);
+}
+.cell_wrap {
+    white-space: normal;
+    min-width: 280px;
+}
+.error-count {
+    color: var(--aic-error-text);
+    font-weight: 700;
+}
+.extra {
+    margin-left: 6px;
+}
+.violations {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--aic-error-text);
+}
+.warning {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--aic-warning-text);
+}

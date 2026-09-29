@@ -1,0 +1,567 @@
+/*
+Shared styles for the AI Assist console - imported by each console component with
+@import 'c/aiConsoleStyles';. The console is built on SLDS: layout uses SLDS utility classes
+(slds-grid, slds-truncate, slds-assistive-text...), buttons and form fields are SLDS / base
+components, and the colours below are the SLDS 2 palette values the design uses (#0176D3 brand,
+#181818 text, #444444 weak text, #E5E5E5 borders). These classes cover what SLDS doesn't draw the
+way the design does: the card header rule, badge variants, 24px buttons, radio cards and the switch.
+*/
+
+:host {
+    --aic-brand: #0176d3;
+    --aic-brand-dark: #014486;
+    --aic-navy: #032d60;
+    --aic-ink: #181818;
+    --aic-weak: #444444;
+    --aic-line: #e5e5e5;
+    --aic-line-strong: #c9c9c9;
+    --aic-gray: #f3f3f3;
+    --aic-gray-soft: #fafaf9;
+    --aic-selected: #f4f9fe;
+    --aic-success: #2e844a;
+    --aic-success-text: #1e5631;
+    --aic-error: #ba0517;
+    --aic-error-text: #8e030f;
+    --aic-warning: #fe9339;
+    --aic-warning-text: #5c2b03;
+    --aic-warning-bg: #fef6ee;
+    --aic-info-bg: #eef4ff;
+    --aic-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    color: var(--aic-ink);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* SLDS form elements and tables one step up, to match the console's larger text. */
+.slds-form-element__label,
+.slds-form-element__legend {
+    font-size: 13px;
+}
+.slds-input,
+.slds-select,
+.slds-textarea {
+    font-size: 14px;
+}
+.slds-table {
+    font-size: 14px;
+}
+
+/* ---------- Cards ---------- */
+.aic-card {
+    background: #ffffff;
+    border: 1px solid var(--aic-line);
+    border-radius: 4px;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+}
+.aic-card__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--aic-line);
+}
+.aic-card__title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    flex-grow: 1;
+    line-height: 1.4;
+}
+.aic-card__body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* List page header: 32px coloured icon tile, eyebrow and title. */
+.aic-page-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+}
+.aic-page-header__titles {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-grow: 1;
+    min-width: 0;
+}
+.aic-page-title {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+.aic-tile {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #ffffff;
+}
+.aic-tile_large {
+    width: 40px;
+    height: 40px;
+}
+
+/* ---------- Text ---------- */
+.aic-weak,
+.aic-eyebrow {
+    font-size: 13px;
+    color: var(--aic-weak);
+}
+.aic-caps {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--aic-weak);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.aic-mono {
+    font-family: var(--aic-mono);
+    font-size: 13px;
+}
+.aic-label {
+    display: block;
+    font-size: 13px;
+    color: var(--aic-weak);
+    margin: 0 0 3px;
+}
+.aic-req {
+    color: var(--aic-error);
+    margin-right: 2px;
+}
+.aic-help {
+    font-size: 13px;
+    color: var(--aic-weak);
+    margin-top: 3px;
+}
+.aic-bold {
+    font-weight: 700;
+}
+.aic-link {
+    color: var(--aic-brand);
+    text-decoration: none;
+    cursor: pointer;
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+}
+.aic-link:hover {
+    color: var(--aic-brand-dark);
+    text-decoration: underline;
+}
+.aic-link:focus-visible {
+    outline: 2px solid var(--aic-brand);
+    outline-offset: 1px;
+}
+
+/* ---------- Badges ---------- */
+.aic-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 18px;
+    background: var(--aic-gray);
+    color: var(--aic-ink);
+    border: 1px solid var(--aic-line-strong);
+    white-space: nowrap;
+}
+.aic-badge_ok {
+    background: var(--aic-success);
+    border-color: var(--aic-success);
+    color: #ffffff;
+}
+.aic-badge_test {
+    background: #1b1e26;
+    border-color: #1b1e26;
+    color: #ffffff;
+}
+.aic-badge_err {
+    background: var(--aic-error);
+    border-color: var(--aic-error);
+    color: #ffffff;
+}
+.aic-badge_warn {
+    background: var(--aic-warning);
+    border-color: var(--aic-warning);
+    color: var(--aic-ink);
+}
+.aic-badge_info {
+    background: var(--aic-brand-dark);
+    border-color: var(--aic-brand-dark);
+    color: #ffffff;
+}
+.aic-badge_write,
+.aic-badge_pii,
+.aic-badge_old {
+    background: #fef0e3;
+    border-color: #f38303;
+    color: var(--aic-warning-text);
+}
+.aic-badge_ro {
+    background: var(--aic-info-bg);
+    border-color: #1b96ff;
+    color: var(--aic-navy);
+}
+.aic-badge_white {
+    background: #ffffff;
+}
+
+/* ---------- Buttons ---------- */
+/* SLDS neutral / brand buttons are already 32px with 4px corners - these add the 24px size the design uses in cards. */
+.aic-btn_small {
+    height: 24px;
+    min-height: 24px;
+    line-height: 22px;
+    padding: 0 10px;
+    font-size: 13px;
+}
+.aic-btn_ghost {
+    border-color: transparent;
+}
+.aic-icon-btn {
+    width: 32px;
+    height: 32px;
+    box-sizing: border-box;
+    padding: 0;
+    border: 1px solid var(--aic-line-strong);
+    border-radius: 4px;
+    background: #ffffff;
+    color: var(--aic-weak);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.aic-icon-btn:hover {
+    background: var(--aic-gray);
+}
+.aic-icon-btn:focus-visible {
+    outline: 2px solid var(--aic-brand);
+    outline-offset: 1px;
+}
+.aic-x {
+    width: 16px;
+    height: 16px;
+    border: 0;
+    background: none;
+    padding: 0;
+    color: var(--aic-weak);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Filter chips (Workflow Actions, Violations). */
+.aic-chip {
+    height: 28px;
+    padding: 0 12px;
+    border: 1px solid var(--aic-line-strong);
+    border-radius: 15px;
+    background: #ffffff;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--aic-ink);
+    cursor: pointer;
+}
+.aic-chip[aria-pressed='true'] {
+    background: var(--aic-brand-dark);
+    border-color: var(--aic-brand-dark);
+    color: #ffffff;
+    font-weight: 700;
+}
+.aic-chip:focus-visible {
+    outline: 2px solid var(--aic-brand);
+    outline-offset: 1px;
+}
+
+/* ---------- Switch (48 x 24, the SLDS toggle's size) ---------- */
+.aic-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+    border-radius: 15px;
+    background: #939393;
+    flex-shrink: 0;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+}
+.aic-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+    transition: left 0.12s ease;
+}
+.aic-switch[aria-checked='true'] {
+    background: var(--aic-brand);
+}
+.aic-switch[aria-checked='true']::after {
+    left: 27px;
+}
+.aic-switch:focus-visible {
+    outline: 2px solid var(--aic-brand);
+    outline-offset: 2px;
+}
+.aic-switch[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* ---------- Form inputs (native, for the few places a base component can't match the layout) ---------- */
+.aic-input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--aic-line-strong);
+    border-radius: 4px;
+    background: #ffffff;
+    font: inherit;
+    font-size: 14px;
+    color: var(--aic-ink);
+}
+.aic-input:focus {
+    outline: none;
+    border-color: var(--aic-brand);
+    box-shadow: 0 0 3px #0176d3;
+}
+.aic-textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 6px 12px;
+    border: 1px solid var(--aic-line-strong);
+    border-radius: 4px;
+    background: #ffffff;
+    resize: vertical;
+    line-height: 19px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--aic-ink);
+}
+.aic-textarea:focus {
+    outline: none;
+    border-color: var(--aic-brand);
+    box-shadow: 0 0 3px #0176d3;
+}
+.aic-textarea.aic-mono,
+.aic-input.aic-mono {
+    font-family: var(--aic-mono);
+    font-size: 13px;
+}
+.aic-grid2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 16px;
+}
+.aic-grid3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px 16px;
+}
+
+/* Radio cards - a bordered choice that turns blue when picked. */
+.aic-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--aic-line-strong);
+    border-radius: 4px;
+    background: #ffffff;
+    cursor: pointer;
+}
+.aic-option_selected {
+    border-color: var(--aic-brand);
+    box-shadow: inset 0 0 0 1px var(--aic-brand);
+    background: var(--aic-selected);
+}
+.aic-option input[type='radio'],
+.aic-radio {
+    accent-color: var(--aic-brand);
+    width: 16px;
+    height: 16px;
+    margin: 2px 0 0;
+    flex-shrink: 0;
+}
+.aic-checkbox {
+    accent-color: var(--aic-brand);
+    width: 16px;
+    height: 16px;
+    margin: 0;
+}
+.aic-option__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-grow: 1;
+}
+
+/* ---------- Banners ---------- */
+.aic-banner {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 17px;
+    align-items: flex-start;
+}
+.aic-banner_info {
+    background: var(--aic-info-bg);
+    color: var(--aic-navy);
+}
+.aic-banner_warning {
+    background: #fef0e3;
+    color: var(--aic-warning-text);
+}
+.aic-banner_error {
+    background: #fef1f1;
+    color: var(--aic-error-text);
+}
+.aic-banner_neutral {
+    background: var(--aic-gray);
+    color: var(--aic-weak);
+}
+
+/* ---------- Detail panel fields ---------- */
+.aic-field-label {
+    font-size: 13px;
+    color: var(--aic-weak);
+    margin: 0 0 2px;
+}
+.aic-code {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 4px;
+    background: var(--aic-gray-soft);
+    border: 1px solid var(--aic-line);
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 19px;
+    font-family: var(--aic-mono);
+    font-size: 13px;
+}
+.aic-code_dark {
+    background: #1b1e26;
+    border-color: #1b1e26;
+    color: #e5e5e5;
+    line-height: 18px;
+}
+
+/* ---------- Tables ---------- */
+.aic-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+.aic-th {
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--aic-weak);
+    background: var(--aic-gray);
+    padding: 0 12px;
+    height: 32px;
+    border-bottom: 1px solid var(--aic-line);
+    border-top: 1px solid var(--aic-line);
+    white-space: nowrap;
+}
+.aic-td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--aic-line);
+    vertical-align: middle;
+}
+.aic-right {
+    text-align: right;
+}
+.aic-desc {
+    font-size: 13px;
+    color: var(--aic-weak);
+    margin-top: 2px;
+    max-width: 380px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ---------- Chat previews (the chat window's look, drawn in the console) ---------- */
+.aic-chat {
+    border: 1px solid #e4e2da;
+    border-radius: 10px;
+    background: #f6f5f1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.aic-bubble {
+    padding: 8px 10px;
+    background: #ffffff;
+    border: 1px solid #e4e2da;
+    border-radius: 4px 10px 10px 10px;
+    font-size: 13px;
+    line-height: 17px;
+    white-space: pre-wrap;
+}
+.aic-bubble_user {
+    align-self: flex-end;
+    max-width: 85%;
+    background: #3040c4;
+    border-color: #3040c4;
+    color: #ffffff;
+    border-radius: 10px 10px 4px 10px;
+}
+.aic-bubble_dashed {
+    border-style: dashed;
+    border-color: #d8d6ce;
+    color: #3f4350;
+}
+.aic-chat-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    color: #5e6270;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* ---------- Footer bar (wizard) ---------- */
+.aic-foot {
+    height: 60px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    background: #ffffff;
+    border-top: 1px solid var(--aic-line);
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.aic-empty {
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--aic-weak);
+    font-size: 14px;
+}
+.aic-spinner-holder {
+    position: relative;
+    min-height: 120px;
+}

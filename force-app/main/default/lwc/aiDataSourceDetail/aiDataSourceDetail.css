@@ -1,0 +1,42 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: block;
+}
+.head {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 16px;
+    border-bottom: 1px solid var(--aic-line);
+}
+.head__titles {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-grow: 1;
+    min-width: 0;
+}
+.title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+}
+.badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.used-by {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.buttons {
+    display: flex;
+    gap: 8px;
+    padding-top: 4px;
+}
+.wrap {
+    white-space: pre-wrap;
+}

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Agent Wizard</label>
+    <protected>true</protected>
+    <values>
+        <field>Active__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
+        <field>BadgeFilterCriteria__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>CollapsedByDefault__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>ComponentAPIName__c</field>
+        <value xsi:type="xsd:string">aiAgentWizard</value>
+    </values>
+    <values>
+        <field>DisplayOrder__c</field>
+        <value xsi:type="xsd:double">10</value>
+    </values>
+    <values>
+        <field>ExternalURLOverride__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>FilterCriteria__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>MaxRecordsShown__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>OpenInNewTab__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>ParentTab__c</field>
+        <value xsi:type="xsd:string">AI_Agent_Wizard</value>
+    </values>
+    <values>
+        <field>RelatedObjectAPIName__c</field>
+        <value xsi:type="xsd:string">AIAgent__c</value>
+    </values>
+    <values>
+        <field>RequiresPermissionSet__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>SectionIcon__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>SectionLabel__c</field>
+        <value xsi:type="xsd:string">Agent Wizard</value>
+    </values>
+    <values>
+        <field>SectionType__c</field>
+        <value xsi:type="xsd:string">Component</value>
+    </values>
+    <values>
+        <field>SectionWidth__c</field>
+        <value xsi:type="xsd:string">Full</value>
+    </values>
+</CustomMetadata>

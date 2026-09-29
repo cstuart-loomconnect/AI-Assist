@@ -1,0 +1,72 @@
+<template>
+    <div class="step">
+        <p class="intro">Pick what this agent can read. The AI decides when to call each source from its description. Sources live in the Library, so one source can serve many agents.</p>
+
+        <section class="aic-card" aria-labelledby="s-assigned">
+            <div class="aic-card__header"><h2 class="aic-card__title" id="s-assigned">{assignedTitle}</h2><span class="aic-weak">Turn one off to pause it without removing it</span></div>
+            <table class="slds-table aic-table">
+                <thead><tr>
+                    <th class="aic-th" scope="col">Data Source</th><th class="aic-th" scope="col">Type</th><th class="aic-th" scope="col">Binding</th>
+                    <th class="aic-th" scope="col">Target Object</th><th class="aic-th" scope="col">Active</th><th class="aic-th" scope="col"><span class="slds-assistive-text">Actions</span></th>
+                </tr></thead>
+                <tbody>
+                    <template for:each={assignedRows} for:item="source">
+                        <tr key={source.linkId} class={source.rowClass}>
+                            <td class="aic-td">
+                                <a href="#" class="aic-bold" data-id={source.dataSourceId} onclick={handleOpenSource}>{source.name}</a>
+                                <template lwc:if={source.isMismatch}>
+                                    <div class="mismatch"><c-ai-console-icon name="warningFilled" size="14" stroke-width="1.6"></c-ai-console-icon>{source.mismatchText}</div>
+                                </template>
+                                <template lwc:else><div class="aic-desc">{source.description}</div></template>
+                            </td>
+                            <td class="aic-td"><span class="aic-badge">{source.sourceType}</span></td>
+                            <td class="aic-td">{source.bindingType}</td>
+                            <td class={source.targetClass}>{source.targetObject}</td>
+                            <td class="aic-td"><button type="button" class="aic-switch" role="switch" aria-checked={source.activeChecked} aria-label={source.switchLabel} data-id={source.linkId} data-active={source.isActive} onclick={handleToggle} disabled={busy}></button></td>
+                            <td class="aic-td aic-right"><button type="button" class="slds-button slds-button_neutral aic-btn_small" data-id={source.linkId} onclick={handleRemove} disabled={busy}>Remove</button></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            <template lwc:if={noneAssigned}><p class="aic-empty">Nothing assigned yet. Add sources from the Library below.</p></template>
+        </section>
+
+        <section class="aic-card" aria-labelledby="s-lib">
+            <div class="aic-card__header"><h2 class="aic-card__title" id="s-lib">Add from the Library</h2><button type="button" class="slds-button slds-button_neutral aic-btn_small" onclick={handleNewSource}>New Data Source</button></div>
+            <div class="filters">
+                <label class="search">
+                    <c-ai-console-icon name="search" size="14"></c-ai-console-icon>
+                    <input type="search" aria-label="Search data sources" placeholder="Search data sources" value={searchText} oninput={handleSearch} />
+                </label>
+                <div class="slds-select_container show">
+                    <select class="slds-select" aria-label="Show" onchange={handleShow}>
+                        <option value="object" selected={onlyThisObject}>{objectFilterLabel}</option>
+                        <option value="all" selected={showAll}>All data sources</option>
+                    </select>
+                </div>
+            </div>
+            <table class="slds-table aic-table">
+                <thead><tr>
+                    <th class="aic-th check-col" scope="col"><input type="checkbox" class="aic-checkbox" aria-label="Select all" checked={allSelected} onchange={handleSelectAll} /></th>
+                    <th class="aic-th" scope="col">Data Source</th><th class="aic-th" scope="col">Type</th><th class="aic-th" scope="col">Binding</th>
+                    <th class="aic-th" scope="col">Target Object</th><th class="aic-th" scope="col">Used by</th>
+                </tr></thead>
+                <tbody>
+                    <template for:each={libraryRows} for:item="source">
+                        <tr key={source.id} class={source.rowClass}>
+                            <td class="aic-td"><input type="checkbox" class="aic-checkbox" aria-label={source.selectLabel} checked={source.selected} data-id={source.id} onchange={handleSelectRow} /></td>
+                            <td class="aic-td"><span class="aic-bold">{source.name}</span><div class="aic-desc">{source.description}</div></td>
+                            <td class="aic-td"><span class="aic-badge">{source.sourceType}</span></td>
+                            <td class="aic-td">{source.bindingType}</td>
+                            <td class="aic-td">{source.targetObject}</td>
+                            <td class="aic-td">{source.usedByLabel}</td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            <template lwc:if={isLoadingLibrary}><div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div></template>
+            <template lwc:elseif={libraryEmpty}><p class="aic-empty">Nothing else in the Library matches.</p></template>
+            <div class="add"><lightning-button variant="brand" label={addLabel} onclick={handleAdd} disabled={addDisabled}></lightning-button></div>
+        </section>
+    </div>
+</template>

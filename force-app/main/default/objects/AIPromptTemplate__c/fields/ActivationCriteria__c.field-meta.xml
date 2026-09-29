@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ActivationCriteria__c</fullName>
+    <description>When to use this template, as JSON written by the Agent Wizard: {&quot;logic&quot;:&quot;any|all&quot;,&quot;conditions&quot;:[{&quot;field&quot;:&quot;StageName&quot;,&quot;operator&quot;:&quot;equals&quot;,&quot;value&quot;:&quot;Proposal&quot;}]}. Blank means no criteria - the catch-all template.</description>
+    <inlineHelpText>Set in the Agent Wizard under &quot;When to use this template&quot;. Templates are checked most specific first.</inlineHelpText>
+    <label>Activation Criteria</label>
+    <length>32768</length>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>5</visibleLines>
+</CustomField>

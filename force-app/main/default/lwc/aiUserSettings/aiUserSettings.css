@@ -1,0 +1,134 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: block;
+}
+.layout {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+.list {
+    flex-grow: 1;
+    min-width: 0;
+}
+.search {
+    width: 220px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    box-sizing: border-box;
+    padding: 0 10px;
+    border: 1px solid var(--aic-line-strong);
+    border-radius: 4px;
+    color: var(--aic-weak);
+}
+.search:focus-within {
+    border-color: var(--aic-brand);
+    box-shadow: 0 0 3px #0176d3;
+}
+.search input {
+    border: 0;
+    outline: none;
+    flex-grow: 1;
+    background: none;
+    font: inherit;
+    color: var(--aic-ink);
+}
+.note {
+    margin: 0;
+    padding: 0 16px 12px;
+}
+.td {
+    padding: 0 12px;
+    height: 40px;
+    border-bottom: 1px solid var(--aic-line);
+    white-space: nowrap;
+}
+.row_selected {
+    background: var(--aic-selected);
+    box-shadow: inset 3px 0 0 var(--aic-brand);
+}
+.row_inactive {
+    color: var(--aic-weak);
+}
+.panel {
+    width: 420px;
+    flex-shrink: 0;
+}
+.panel__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px;
+    border-bottom: 1px solid var(--aic-line);
+}
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--aic-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--aic-weak);
+}
+.panel__titles {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+.panel__name {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+}
+.panel__body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.checks {
+    display: flex;
+    gap: 16px;
+}
+.check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.three {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+.trow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.tt {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex-grow: 1;
+}
+.tt b {
+    font-weight: 700;
+}
+.tt span {
+    font-size: 13px;
+    color: var(--aic-weak);
+}
+.terms {
+    padding-top: 10px;
+    border-top: 1px solid var(--aic-line);
+}

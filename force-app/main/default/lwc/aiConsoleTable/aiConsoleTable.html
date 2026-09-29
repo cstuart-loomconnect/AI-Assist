@@ -1,0 +1,50 @@
+<template>
+    <table class="slds-table aic-table">
+        <thead class={theadClass}>
+            <tr>
+                <template for:each={headerCells} for:item="column">
+                    <th key={column.key} class={column.thClass} scope="col">{column.label}</th>
+                </template>
+            </tr>
+        </thead>
+        <tbody>
+            <template for:each={displayRows} for:item="row">
+                <tr key={row.id} class={row.rowClass}>
+                    <template for:each={row.cells} for:item="cell">
+                        <td key={cell.key} class={cell.tdClass}>
+                            <template lwc:if={cell.isLink}>
+                                <a href="#" class={cell.linkClass} aria-current={cell.ariaCurrent} data-row={row.id} data-cell={cell.key} onclick={handleLink}>{cell.value}</a>
+                                <template lwc:if={cell.extraBadge}><span class="aic-badge extra">{cell.extraBadge}</span></template>
+                                <template lwc:if={cell.violationCount}>
+                                    <span class="violations" title="Violations in this conversation"><c-ai-console-icon name="shield" size="12" stroke-width="2.4"></c-ai-console-icon>{cell.violationCount}</span>
+                                </template>
+                            </template>
+                            <template lwc:elseif={cell.isBadge}>
+                                <span class={cell.badgeClass}>{cell.value}</span>
+                            </template>
+                            <template lwc:elseif={cell.isMono}>
+                                <span class="aic-mono">{cell.value}</span>
+                            </template>
+                            <template lwc:elseif={cell.isWarning}>
+                                <span class="warning"><c-ai-console-icon name="warningFilled" size="14" stroke-width="1.6"></c-ai-console-icon>{cell.value}</span>
+                            </template>
+                            <template lwc:elseif={cell.isTwoLine}>
+                                <template lwc:if={cell.target}>
+                                    <a href="#" class="aic-bold" data-row={row.id} data-cell={cell.key} onclick={handleLink}>{cell.value}</a>
+                                </template>
+                                <template lwc:else><span class="aic-bold">{cell.value}</span></template>
+                                <div class="aic-weak">{cell.secondary}</div>
+                            </template>
+                            <template lwc:else>
+                                <span class={cell.textClass}>{cell.value}</span>
+                            </template>
+                        </td>
+                    </template>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+    <template lwc:if={isEmpty}>
+        <p class="aic-empty">{emptyMessage}</p>
+    </template>
+</template>

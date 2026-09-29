@@ -1,0 +1,41 @@
+<template>
+    <section class="aic-card panel" aria-labelledby="s-try">
+        <div class="aic-card__header"><h2 class="aic-card__title" id="s-try">Try it</h2><span class="aic-badge aic-badge_test">Test</span></div>
+        <div class="record">
+            <lightning-record-picker label="Test against" placeholder={pickerPlaceholder} object-api-name={objectType} value={recordId} onchange={handleRecord}></lightning-record-picker>
+        </div>
+
+        <div class="chat" aria-live="polite">
+            <template lwc:if={needsTestMode}>
+                <div class="aic-banner aic-banner_neutral enable">
+                    <span>The agent has to be switched on to answer. Test mode keeps it hidden from everyone except admins and testers.</span>
+                    <button type="button" class="slds-button slds-button_neutral aic-btn_small" onclick={handleEnableTestMode} disabled={isEnabling}>Turn on test mode</button>
+                </div>
+            </template>
+            <div class="aic-bubble">{greeting}</div>
+            <template for:each={messages} for:item="message">
+                <div key={message.id} class={message.bubbleClass}>{message.text}</div>
+            </template>
+            <template lwc:if={isWaiting}>
+                <div class="aic-bubble waiting"><span class="dots" aria-label="The agent is replying"><span></span><span></span><span></span></span></div>
+            </template>
+            <template lwc:if={hasHowItAnswered}>
+                <div class="how">
+                    <span class="how__title">How it answered</span>
+                    <template for:each={howItAnswered} for:item="line">
+                        <span key={line}>{line}</span>
+                    </template>
+                </div>
+            </template>
+            <template lwc:if={error}>
+                <div class="aic-banner aic-banner_error" role="alert"><span>{error}</span></div>
+            </template>
+        </div>
+
+        <div class="composer">
+            <label for="try-msg" class="slds-assistive-text">Test message</label>
+            <input id="try-msg" class="slds-input" placeholder="Ask a test question" value={draft} oninput={handleDraft} onkeydown={handleKey} disabled={isInputDisabled} />
+            <lightning-button variant="brand" label="Send" onclick={handleSend} disabled={isSendDisabled}></lightning-button>
+        </div>
+    </section>
+</template>

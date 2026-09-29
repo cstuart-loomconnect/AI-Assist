@@ -1,0 +1,35 @@
+<template>
+    <section class="aic-card" aria-labelledby="log-title">
+        <template lwc:if={error}>
+            <div class="aic-card__body"><div class="aic-banner aic-banner_error" role="alert"><span>{error}</span></div></div>
+        </template>
+        <template lwc:elseif={log}>
+            <div class="head head_stack">
+                <h2 class="title title_mono" id="log-title">{log.exceptionType}</h2>
+                <span class="aic-weak">{subtitle}</span>
+            </div>
+            <div class="aic-card__body">
+                <div><div class="aic-field-label">Exception Message</div><div class="wrap">{message}</div></div>
+                <div class="grid">
+                    <div><div class="aic-field-label">Class Name</div><div class="aic-mono">{className}</div></div>
+                    <div><div class="aic-field-label">Method Name</div><div class="aic-mono">{methodName}</div></div>
+                    <div><div class="aic-field-label">User</div><div>{userName}</div></div>
+                    <div>
+                        <div class="aic-field-label">Related Record</div>
+                        <template lwc:if={log.relatedRecordId}><a href="#" class="aic-mono" onclick={handleOpenRelated}>{log.relatedRecordId}</a></template>
+                        <template lwc:else><div>—</div></template>
+                    </div>
+                </div>
+                <template lwc:if={log.stackTrace}>
+                    <div><div class="aic-field-label">Stack Trace</div><pre class="aic-code aic-code_dark">{log.stackTrace}</pre></div>
+                </template>
+                <template lwc:if={log.hintText}>
+                    <div class="aic-banner aic-banner_info"><c-ai-console-icon name="info" size="16"></c-ai-console-icon><span>{log.hintText}</span></div>
+                </template>
+            </div>
+        </template>
+        <template lwc:else>
+            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+    </section>
+</template>

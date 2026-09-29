@@ -1,0 +1,174 @@
+<template>
+    <lightning-modal-header label={label}>
+        <p class="tagline">{tagline}</p>
+    </lightning-modal-header>
+    <lightning-modal-body>
+        <template lwc:if={isLoading}>
+            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+        <template lwc:else>
+            <div class="form">
+                <template lwc:if={error}>
+                    <div class="aic-banner aic-banner_error" role="alert"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span>{error}</span></div>
+                </template>
+
+                <!-- Builder mode takes the whole body -->
+                <template lwc:if={isBuilder}>
+                    <div class="mode-row">
+                        <span class="slds-form-element__label grow"><abbr class="slds-required" title="required">* </abbr>SOQL Template · build the query, or switch to write it by hand</span>
+                        <div class="segmented" role="group" aria-label="Query editor">
+                            <button type="button" class="segment segment_first segment_on" aria-pressed="true">Builder</button>
+                            <button type="button" class="segment segment_last" aria-pressed="false" onclick={handleWriteMode}>Write SOQL</button>
+                        </div>
+                    </div>
+                    <c-ai-soql-builder target-object={source.targetObject} binding-type={source.bindingType} check={soqlCheck} test-result={testResult} test-record-id={testRecordId} is-testing={isTesting}
+                        onchange={handleBuilderChange} onrecordchange={handleTestRecord} onruntest={handleRunTest}></c-ai-soql-builder>
+                </template>
+
+                <template lwc:else>
+                    <div class="aic-grid2">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="d-name"><abbr class="slds-required" title="required">* </abbr>Source Name</label>
+                            <div class="slds-form-element__control"><input id="d-name" class="slds-input" value={source.name} oninput={handleName} /></div>
+                        </div>
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="d-dev"><abbr class="slds-required" title="required">* </abbr>Developer Name</label>
+                            <div class="slds-form-element__control"><input id="d-dev" class="slds-input aic-mono" value={source.developerName} oninput={handleDeveloperName} /></div>
+                        </div>
+                    </div>
+
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="d-desc"><abbr class="slds-required" title="required">* </abbr>Description</label>
+                        <div class="slds-form-element__control"><textarea id="d-desc" class="slds-textarea" rows="2" data-field="description" oninput={handleInput} value={source.description}></textarea></div>
+                        <div class="aic-help">The AI reads this to decide whether to call the source. Say what it returns and when it’s useful.</div>
+                    </div>
+
+                    <div class="aic-grid2">
+                        <fieldset class="slds-form-element">
+                            <legend class="slds-form-element__label"><abbr class="slds-required" title="required">* </abbr>Source Type</legend>
+                            <div class="cards">
+                                <template for:each={sourceTypeCards} for:item="card">
+                                    <label key={card.value} class={card.cardClass}>
+                                        <input type="radio" name="sourceType" value={card.value} checked={card.checked} data-field="sourceType" onchange={handleInput} />
+                                        <span class="aic-option__text"><span class="aic-bold">{card.label}</span><span class="aic-weak">{card.description}</span></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </fieldset>
+                        <fieldset class="slds-form-element">
+                            <legend class="slds-form-element__label"><abbr class="slds-required" title="required">* </abbr>Binding Type</legend>
+                            <div class="cards">
+                                <template for:each={bindingCards} for:item="card">
+                                    <label key={card.value} class={card.cardClass}>
+                                        <input type="radio" name="bindingType" value={card.value} checked={card.checked} data-field="bindingType" onchange={handleInput} />
+                                        <span class="aic-option__text"><span class="aic-bold">{card.label}</span><span class="aic-weak">{card.description}</span></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="row">
+                        <div class="slds-form-element target">
+                            <label class="slds-form-element__label" for="d-obj"><abbr class="slds-required" title="required">* </abbr>Target Object</label>
+                            <div class="slds-form-element__control">
+                                <div class="slds-select_container">
+                                    <select id="d-obj" class="slds-select" data-field="targetObject" onchange={handleInput}>
+                                        <template for:each={objectChoices} for:item="option">
+                                            <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                        </template>
+                                    </select>
+                                </div>
+                            </div>
+                            <template lwc:if={targetHelp}><div class="aic-help">{targetHelp}</div></template>
+                        </div>
+                        <div class="slds-form-element grow">
+                            <label class="slds-form-element__label" for="d-out">Output Description</label>
+                            <div class="slds-form-element__control"><input id="d-out" class="slds-input" value={source.outputDescription} data-field="outputDescription" oninput={handleInput} /></div>
+                        </div>
+                    </div>
+
+                    <div class="query">
+                        <div>
+                            <template lwc:if={isSoql}>
+                                <div class="query-head">
+                                    <label class="slds-form-element__label grow" for="d-soql"><abbr class="slds-required" title="required">* </abbr>SOQL Template</label>
+                                    <template lwc:if={soqlCheck}>
+                                        <span class={validityClass}>{validityLabel}</span>
+                                    </template>
+                                    <div class="segmented" role="group" aria-label="Query editor">
+                                        <button type="button" class="segment segment_first" aria-pressed="false" onclick={handleBuilderMode}>Builder</button>
+                                        <button type="button" class="segment segment_last segment_on" aria-pressed="true">Write SOQL</button>
+                                    </div>
+                                </div>
+                                <textarea id="d-soql" class="slds-textarea aic-mono code-input" rows="7" data-field="soqlTemplate" oninput={handleSoql} value={source.soqlTemplate}></textarea>
+                                <template lwc:if={soqlError}><div class="aic-help error-text">{soqlError}</div></template>
+                                <template lwc:else><div class="aic-help">Runs in user mode, so sharing and field-level security apply.</div></template>
+                            </template>
+                            <template lwc:else>
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="d-apex"><abbr class="slds-required" title="required">* </abbr>Apex Class Name</label>
+                                    <div class="slds-form-element__control"><input id="d-apex" class="slds-input aic-mono" value={source.apexClassName} data-field="apexClassName" oninput={handleInput} /></div>
+                                    <div class="aic-help">The class must implement IAIDataSourceExecutor.</div>
+                                </div>
+                            </template>
+                        </div>
+                        <div>
+                            <label class="slds-form-element__label schema-label" for="d-schema">Input Schema</label>
+                            <textarea id="d-schema" class="slds-textarea aic-mono code-input" rows="7" data-field="inputSchema" oninput={handleInput} value={source.inputSchema}></textarea>
+                            <div class="aic-help">recordId is filled in automatically for bound sources.</div>
+                        </div>
+                    </div>
+
+                    <div class="test">
+                        <div class="test-head">
+                            <div class="test-titles"><h3 class="aic-caps">Test it</h3><span class="aic-weak">Runs read-only as you, capped at 20 rows</span></div>
+                            <div class="grow"></div>
+                            <template lwc:if={source.targetObject}>
+                                <lightning-record-picker class="picker" label="Test record" placeholder="Search…" object-api-name={source.targetObject} value={testRecordId} onchange={handleTestRecord}></lightning-record-picker>
+                            </template>
+                            <lightning-button label="Run test" onclick={handleRunTest} disabled={isTesting}></lightning-button>
+                        </div>
+                        <template lwc:if={testResult}>
+                            <div class="test-body">
+                                <template lwc:if={testResult.success}>
+                                    <div class="test-stats">
+                                        <span class="test-ok"><c-ai-console-icon name="check" size="14" stroke-width="3"></c-ai-console-icon>{rowCountLabel}</span>
+                                        <span>{durationLabel}</span>
+                                        <span>{testResult.piiNote}</span>
+                                    </div>
+                                    <template lwc:if={hasTestRows}>
+                                        <div class="result-table">
+                                            <table class="slds-table aic-table">
+                                                <thead><tr><template for:each={testResult.columns} for:item="column"><th key={column} class="mini-th" scope="col">{column}</th></template></tr></thead>
+                                                <tbody>
+                                                    <template for:each={testRows} for:item="row">
+                                                        <tr key={row.key}><template for:each={row.cells} for:item="cell"><td key={cell.key} class="mini-td">{cell.value}</td></template></tr>
+                                                    </template>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </template>
+                                </template>
+                                <template lwc:else>
+                                    <div class="aic-banner aic-banner_error"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span>{testResult.message}</span></div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+        </template>
+    </lightning-modal-body>
+    <lightning-modal-footer>
+        <div class="footer">
+            <label class="active"><input type="checkbox" class="aic-checkbox" checked={source.isActive} onchange={handleActive} />Active</label>
+            <div class="grow"></div>
+            <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+            <lightning-button label="Save" onclick={handleSave} disabled={isSaving}></lightning-button>
+            <template lwc:if={agentId}>
+                <lightning-button variant="brand" label="Save &amp; assign" onclick={handleSaveAndAssign} disabled={isSaving}></lightning-button>
+            </template>
+        </div>
+    </lightning-modal-footer>
+</template>

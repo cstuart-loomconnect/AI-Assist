@@ -1,0 +1,81 @@
+<template>
+    <lightning-modal-header label={label}>
+        <p class="tagline">Every agent is built in the same 7 steps. You can save and come back at any point.</p>
+    </lightning-modal-header>
+    <lightning-modal-body>
+        <template lwc:if={isLoading}>
+            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+        <template lwc:else>
+            <fieldset class="choices">
+                <legend class="slds-assistive-text">How do you want to start?</legend>
+                <template lwc:if={error}>
+                    <div class="aic-banner aic-banner_error" role="alert"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span>{error}</span></div>
+                </template>
+
+                <label class={scratchClass}>
+                    <input type="radio" name="start" value="scratch" checked={isScratch} onchange={handleChoice} />
+                    <span class="aic-option__text"><b class="choice-title">Start from scratch</b><span class="aic-weak">A blank agent. You’ll set everything up step by step.</span></span>
+                </label>
+
+                <template lwc:if={hasCloneSources}>
+                    <div class={cloneClass}>
+                        <label class="choice-head">
+                            <input type="radio" name="start" value="clone" checked={isClone} onchange={handleChoice} class="aic-radio" />
+                            <span class="aic-option__text"><b class="choice-title">Clone an existing agent</b><span class="aic-weak">Copies its settings. The copy starts inactive, in Draft.</span></span>
+                        </label>
+                        <template lwc:if={isClone}>
+                            <div class="indent">
+                                <div class="two">
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label" for="c-src">Agent to clone</label>
+                                        <div class="slds-select_container">
+                                            <select id="c-src" class="slds-select" onchange={handleSource}>
+                                                <template for:each={sourceChoices} for:item="option">
+                                                    <option key={option.id} value={option.id} selected={option.selected}>{option.name}</option>
+                                                </template>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label" for="c-name">New agent name</label>
+                                        <input id="c-name" class="slds-input" value={cloneName} oninput={handleCloneName} />
+                                    </div>
+                                </div>
+                                <div class="copies">
+                                    <span class="slds-form-element__label span2">Also copy</span>
+                                    <label class="check"><input type="checkbox" class="aic-checkbox" data-field="copyTemplates" checked={copy.copyTemplates} onchange={handleCopy} />{templatesLabel}</label>
+                                    <label class="check"><input type="checkbox" class="aic-checkbox" data-field="copyDataSources" checked={copy.copyDataSources} onchange={handleCopy} />{dataSourcesLabel}</label>
+                                    <label class="check"><input type="checkbox" class="aic-checkbox" data-field="copyWorkflowActions" checked={copy.copyWorkflowActions} onchange={handleCopy} />{actionsLabel}</label>
+                                    <label class="check"><input type="checkbox" class="aic-checkbox" data-field="copyViolationRules" checked={copy.copyViolationRules} onchange={handleCopy} />{rulesLabel}</label>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <template lwc:if={hasDrafts}>
+                    <div class={draftClass}>
+                        <label class="choice-head">
+                            <input type="radio" name="start" value="draft" checked={isDraft} onchange={handleChoice} class="aic-radio" />
+                            <span class="aic-option__text"><b class="choice-title">Continue a draft</b><span class="aic-weak">{draftsNote}</span></span>
+                        </label>
+                        <div class="indent drafts">
+                            <template for:each={draftRows} for:item="draft">
+                                <div key={draft.id} class="draft">
+                                    <span class="aic-bold grow">{draft.name}</span>
+                                    <span class="aic-weak">{draft.detail}</span>
+                                    <a href="#" class="small" data-id={draft.id} data-step={draft.step} onclick={handleResume}>Resume</a>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </fieldset>
+        </template>
+    </lightning-modal-body>
+    <lightning-modal-footer>
+        <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+        <lightning-button class="next" variant="brand" label="Next" onclick={handleNext} disabled={isWorking}></lightning-button>
+    </lightning-modal-footer>
+</template>

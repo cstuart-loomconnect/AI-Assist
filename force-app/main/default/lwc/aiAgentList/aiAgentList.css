@@ -1,0 +1,63 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: block;
+}
+.tile {
+    background: #4b37ae;
+}
+.title-row {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px 12px;
+}
+.grow {
+    flex-grow: 1;
+}
+.search {
+    width: 260px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    box-sizing: border-box;
+    padding: 0 10px;
+    border: 1px solid var(--aic-line-strong);
+    border-radius: 4px;
+    color: var(--aic-weak);
+}
+.search:focus-within {
+    border-color: var(--aic-brand);
+    box-shadow: 0 0 3px #0176d3;
+}
+.search input {
+    border: 0;
+    outline: none;
+    flex-grow: 1;
+    background: none;
+    font: inherit;
+    color: var(--aic-ink);
+}
+.th-soft {
+    background: var(--aic-gray-soft);
+}
+.actions-col {
+    width: 40px;
+}
+.td {
+    padding: 0 12px;
+    height: 44px;
+    border-bottom: 1px solid var(--aic-line);
+    white-space: nowrap;
+}
+.setup {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

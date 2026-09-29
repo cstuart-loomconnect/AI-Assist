@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <deploymentStatus>Deployed</deploymentStatus>
-    <description>Published by AIAgentTurnTrace as AIAgentManager starts each phase of a turn (a data source read, a provider callout), so the chat LWC's "Working on it" card can show live progress. Published Immediately, not after commit - the enclosing AiMessageProcessingQueueable transaction is still running mid-callout when these are meant to arrive, so there is no "commit" to wait for. Best-effort only: a dropped or delayed event never affects the turn itself, only what the working indicator shows meanwhile.</description>
+    <description>Published by AIAgentTurnTrace as AIAgentManager starts each phase of a turn (a data source read, a provider callout), so the chat LWC&apos;s &quot;Working on it&quot; card can show live progress. Published Immediately, not after commit - the enclosing AiMessageProcessingQueueable transaction is still running mid-callout when these are meant to arrive, so there is no &quot;commit&quot; to wait for. Best-effort only: a dropped or delayed event never affects the turn itself, only what the working indicator shows meanwhile.</description>
     <eventType>HighVolume</eventType>
     <label>AI Agent Progress Event</label>
     <pluralLabel>AI Agent Progress Events</pluralLabel>

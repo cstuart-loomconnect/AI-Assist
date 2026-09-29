@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>ResponseJson__c</fullName>
-    <description>Only set on a "Provider callout" step - the raw HTTP response body the AI provider returned for that callout.</description>
+    <description>Only set on a &quot;Provider callout&quot; step - the raw HTTP response body the AI provider returned for that callout.</description>
     <inlineHelpText>Left blank for a data source step. Only captured when the running user has AIUserSettings__c.DebugModeEnabled__c, to avoid the storage cost for everyone else.</inlineHelpText>
     <label>Response JSON</label>
     <length>131072</length>

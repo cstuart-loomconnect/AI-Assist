@@ -1,0 +1,30 @@
+<template>
+    <section class="aic-card card" aria-labelledby="attention-title">
+        <div class="aic-card__header">
+            <h2 class="aic-card__title" id="attention-title">{title}</h2>
+            <span class="aic-badge">{count}</span>
+        </div>
+        <template lwc:if={error}>
+            <div class="aic-card__body"><div class="aic-banner aic-banner_error" role="alert"><span>{error}</span></div></div>
+        </template>
+        <template lwc:elseif={isLoading}>
+            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+        <template lwc:elseif={hasItems}>
+            <ul class="list">
+                <template for:each={rows} for:item="item">
+                    <li key={item.key} class="item">
+                        <span class={item.iconClass}><c-ai-console-icon name={item.icon} size="14" stroke-width="2.2"></c-ai-console-icon></span>
+                        <span class="item__text">
+                            <a href="#" class="aic-bold" data-index={item.index} onclick={handleOpen}>{item.title}</a>
+                            <span class="aic-weak">{item.detail}</span>
+                        </span>
+                    </li>
+                </template>
+            </ul>
+        </template>
+        <template lwc:else>
+            <p class="aic-empty">Nothing needs attention.</p>
+        </template>
+    </section>
+</template>

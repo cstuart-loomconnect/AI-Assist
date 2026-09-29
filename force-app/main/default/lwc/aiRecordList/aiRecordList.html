@@ -1,0 +1,117 @@
+<template>
+    <!-- A record opened full page (Activity › Conversations › one conversation) -->
+    <template lwc:if={isRecordPage}>
+        <c-ai-conversation-detail record-id={pageRecordId} onback={handleBack}></c-ai-conversation-detail>
+    </template>
+
+    <!-- Related List on a stacked page (Home) -->
+    <template lwc:elseif={isRelatedList}>
+        <section class="aic-card related" aria-labelledby="related-title">
+            <div class="aic-card__header">
+                <h2 class="aic-card__title" id="related-title">{cardTitle}</h2>
+                <template lwc:if={result.viewAll}><a href="#" class="small-link" onclick={handleViewAll}>View all</a></template>
+            </div>
+            <template lwc:if={error}>
+                <div class="aic-card__body"><div class="aic-banner aic-banner_error" role="alert"><span>{error}</span></div></div>
+            </template>
+            <template lwc:elseif={isLoading}>
+                <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+            </template>
+            <template lwc:else>
+                <c-ai-console-table columns={result.columns} rows={rows} density="compact" empty-message="Nothing to show yet."></c-ai-console-table>
+            </template>
+        </section>
+    </template>
+
+    <!-- Sub Navigation list, with an optional detail panel beside it -->
+    <template lwc:else>
+        <div class="layout">
+            <section class="aic-card list" aria-labelledby="list-title">
+                <div class="aic-page-header">
+                    <template lwc:if={tileStyle}>
+                        <div class="aic-tile" style={tileStyle}><c-ai-console-icon name={result.icon} size="18" stroke-width="1.8"></c-ai-console-icon></div>
+                    </template>
+                    <div class="aic-page-header__titles">
+                        <template lwc:if={result.eyebrow}><span class="aic-eyebrow">{result.eyebrow}</span></template>
+                        <h1 class="aic-page-title" id="list-title">{pageTitle}</h1>
+                    </div>
+                    <template lwc:if={result.secondaryActionLabel}>
+                        <lightning-button label={result.secondaryActionLabel} data-action={result.secondaryAction} onclick={handleAction}></lightning-button>
+                    </template>
+                    <template lwc:if={result.primaryActionLabel}>
+                        <lightning-button variant="brand" label={result.primaryActionLabel} data-action={result.primaryAction} onclick={handleAction}></lightning-button>
+                    </template>
+                </div>
+
+                <template lwc:if={result.bannerHtml}>
+                    <div class="aic-banner aic-banner_info banner">
+                        <c-ai-console-icon name="info" size="16"></c-ai-console-icon>
+                        <lightning-formatted-rich-text class="banner__text" value={result.bannerHtml}></lightning-formatted-rich-text>
+                        <template lwc:if={result.bannerLinkLabel}><a href="#" onclick={handleBannerLink}>{result.bannerLinkLabel}</a></template>
+                    </div>
+                </template>
+
+                <template lwc:if={result.subtitle}>
+                    <div class="toolbar"><span class="aic-weak">{result.subtitle}</span></div>
+                </template>
+
+                <template lwc:if={hasFilters}>
+                    <div class={filterBarClass}>
+                        <template for:each={filterViews} for:item="filter">
+                            <template lwc:if={filter.isChips}>
+                                <div key={filter.key} class="chips" role="group" aria-label={filter.label}>
+                                    <template for:each={filter.chipOptions} for:item="chip">
+                                        <button key={chip.value} type="button" class="aic-chip" aria-pressed={chip.pressed} data-key={filter.key} data-value={chip.value} onclick={handleChip}>{chip.label}</button>
+                                    </template>
+                                </div>
+                            </template>
+                            <template lwc:elseif={filter.isSelect}>
+                                <lightning-combobox key={filter.key} class="filter-select" style={filter.style} label={filter.label} variant={filter.variant} value={filter.value} options={filter.options} data-key={filter.key} onchange={handleSelect}></lightning-combobox>
+                            </template>
+                            <template lwc:elseif={filter.isCheckbox}>
+                                <div key={filter.key} class="checkbox-filter">
+                                    <lightning-input type="checkbox" label={filter.label} checked={filter.checked} data-key={filter.key} onchange={handleCheckbox}></lightning-input>
+                                </div>
+                            </template>
+                        </template>
+                        <div class="spacer"></div>
+                        <template lwc:if={result.countLabel}><span class="aic-weak count">{result.countLabel}</span></template>
+                    </div>
+                </template>
+
+                <template lwc:if={error}>
+                    <div class="aic-card__body"><div class="aic-banner aic-banner_error" role="alert"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span>{error}</span></div></div>
+                </template>
+                <template lwc:elseif={isLoading}>
+                    <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+                </template>
+                <template lwc:else>
+                    <c-ai-console-table columns={result.columns} rows={rows} selected-id={selectedId} density="default" onrowopen={handleRowOpen} empty-message="Nothing here yet."></c-ai-console-table>
+                    <template lwc:if={result.hasMore}>
+                        <div class="more"><lightning-button label="Load more" onclick={handleLoadMore} disabled={isLoadingMore}></lightning-button></div>
+                    </template>
+                    <template lwc:if={result.footerNote}>
+                        <div class="footer aic-weak">{result.footerNote}</div>
+                    </template>
+                </template>
+            </section>
+
+            <template lwc:if={showPanel}>
+                <aside class={panelClass}>
+                    <template lwc:if={isDataSourcePanel}>
+                        <c-ai-data-source-detail record-id={selectedId} onchanged={handleDetailChanged}></c-ai-data-source-detail>
+                    </template>
+                    <template lwc:elseif={isWorkflowActionPanel}>
+                        <c-ai-workflow-action-detail record-id={selectedId} onchanged={handleDetailChanged}></c-ai-workflow-action-detail>
+                    </template>
+                    <template lwc:elseif={isViolationPanel}>
+                        <c-ai-violation-detail record-id={selectedId} onchanged={handleDetailChanged}></c-ai-violation-detail>
+                    </template>
+                    <template lwc:elseif={isLogPanel}>
+                        <c-ai-platform-log-detail record-id={selectedId}></c-ai-platform-log-detail>
+                    </template>
+                </aside>
+            </template>
+        </div>
+    </template>
+</template>

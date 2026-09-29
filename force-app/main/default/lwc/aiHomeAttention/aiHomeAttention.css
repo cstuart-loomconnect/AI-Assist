@@ -1,0 +1,53 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: block;
+    height: 100%;
+}
+.card {
+    height: 100%;
+    box-sizing: border-box;
+}
+.list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.item {
+    display: flex;
+    gap: 10px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--aic-line);
+    align-items: flex-start;
+}
+.item:last-child {
+    border-bottom: 0;
+}
+.item__text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex-grow: 1;
+    min-width: 0;
+}
+.tile {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.tile_red {
+    background: var(--aic-error);
+    color: #ffffff;
+}
+.tile_orange {
+    background: var(--aic-warning);
+    color: var(--aic-ink);
+}
+.tile_blue {
+    background: var(--aic-brand);
+    color: #ffffff;
+}

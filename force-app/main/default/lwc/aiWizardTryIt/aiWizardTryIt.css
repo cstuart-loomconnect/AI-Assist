@@ -1,0 +1,96 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: flex;
+    flex-grow: 1;
+}
+.panel {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+.record {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--aic-line);
+}
+.chat {
+    flex-grow: 1;
+    min-height: 360px;
+    max-height: 640px;
+    overflow-y: auto;
+    padding: 14px;
+    background: #f6f5f1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.enable {
+    flex-direction: column;
+    gap: 8px;
+}
+.agent {
+    align-self: flex-start;
+    max-width: 92%;
+}
+.system {
+    border-style: dashed;
+    color: var(--aic-weak);
+}
+.how {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px;
+    background: #ffffff;
+    border: 1px dashed #d8d6ce;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #3f4350;
+}
+.how__title {
+    font-weight: 700;
+    color: var(--aic-ink);
+}
+.waiting {
+    align-self: flex-start;
+}
+.dots {
+    display: inline-flex;
+    gap: 4px;
+}
+.dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    background: #3040c4;
+    animation: pulse 1.2s ease-in-out infinite;
+}
+.dots span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+.dots span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+@keyframes pulse {
+    0%,
+    80%,
+    100% {
+        opacity: 0.35;
+    }
+    40% {
+        opacity: 1;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .dots span {
+        animation: none;
+        opacity: 1;
+    }
+}
+.composer {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--aic-line);
+}

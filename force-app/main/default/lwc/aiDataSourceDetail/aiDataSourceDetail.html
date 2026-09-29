@@ -1,0 +1,51 @@
+<template>
+    <section class="aic-card" aria-labelledby="ds-title">
+        <template lwc:if={error}>
+            <div class="aic-card__body"><div class="aic-banner aic-banner_error" role="alert"><span>{error}</span></div></div>
+        </template>
+        <template lwc:elseif={source}>
+            <div class="head">
+                <div class="head__titles">
+                    <h2 class="title" id="ds-title">{source.name}</h2>
+                    <div class="badges">
+                        <span class="aic-badge">{source.sourceType}</span>
+                        <span class="aic-badge">{bindingLabel}</span>
+                        <span class={statusClass}>{statusLabel}</span>
+                    </div>
+                </div>
+                <lightning-button label="Edit" onclick={handleEdit}></lightning-button>
+            </div>
+            <div class="aic-card__body">
+                <div><div class="aic-field-label">Description · read by the AI</div><div class="wrap">{source.description}</div></div>
+                <template lwc:if={isSoql}>
+                    <div><div class="aic-field-label">SOQL Template</div><pre class="aic-code">{source.soqlTemplate}</pre></div>
+                </template>
+                <template lwc:else>
+                    <div><div class="aic-field-label">Apex Class Name</div><div class="aic-mono">{source.apexClassName}</div></div>
+                </template>
+                <template lwc:if={source.outputDescription}>
+                    <div><div class="aic-field-label">Output Description</div><div class="wrap">{source.outputDescription}</div></div>
+                </template>
+                <div>
+                    <div class="aic-field-label">Used by</div>
+                    <template lwc:if={hasUsedBy}>
+                        <div class="used-by">
+                            <template for:each={source.usedBy} for:item="agent">
+                                <a key={agent.id} href="#" data-id={agent.id} onclick={handleOpenAgent}>{agent.name}</a>
+                            </template>
+                        </div>
+                    </template>
+                    <template lwc:else><div class="aic-weak">No agents yet</div></template>
+                </div>
+                <div><div class="aic-field-label">Last 14 days</div><div>{source.usageLast14Days}</div></div>
+                <div class="buttons">
+                    <lightning-button label="Test" onclick={handleTest}></lightning-button>
+                    <lightning-button label={toggleLabel} onclick={handleToggle} disabled={isSaving}></lightning-button>
+                </div>
+            </div>
+        </template>
+        <template lwc:else>
+            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+    </section>
+</template>

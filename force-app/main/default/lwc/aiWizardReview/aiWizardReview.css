@@ -1,0 +1,97 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: block;
+}
+.layout {
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+}
+.main {
+    flex-grow: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.aside {
+    width: 400px;
+    flex-shrink: 0;
+    display: flex;
+}
+.warning {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 4px;
+    background: #fef0e3;
+    color: var(--aic-warning-text);
+}
+.grow {
+    flex-grow: 1;
+}
+.sum {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid var(--aic-line);
+}
+.sum_last {
+    border-bottom: 0;
+}
+.sum__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+}
+.sum__head h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    flex-grow: 1;
+}
+.dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    background: var(--aic-success);
+    color: #ffffff;
+}
+.dot_warn {
+    background: var(--aic-warning);
+    color: var(--aic-ink);
+}
+.kvs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px 16px;
+    padding: 0 16px 14px 44px;
+}
+.kv {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+.kv .aic-weak {
+    font-size: 13px;
+}
+.value_warn {
+    color: var(--aic-warning-text);
+    font-weight: 700;
+}
+.live {
+    margin: 0;
+    padding: 16px;
+    border: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}

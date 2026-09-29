@@ -1,0 +1,56 @@
+<template>
+    <section class="aic-card" aria-labelledby="vio-title">
+        <template lwc:if={error}>
+            <div class="aic-card__body"><div class="aic-banner aic-banner_error" role="alert"><span>{error}</span></div></div>
+        </template>
+        <template lwc:elseif={violation}>
+            <div class="head head_stack">
+                <div class="badges">
+                    <span class={severityClass}>{violation.severity}</span>
+                    <span class="aic-badge">{requestLabel}</span>
+                </div>
+                <h2 class="title" id="vio-title">{violation.title}</h2>
+                <span class="aic-weak">{subtitle}</span>
+            </div>
+            <div class="aic-card__body">
+                <template lwc:if={violation.detail}>
+                    <div><div class="aic-field-label">Detail</div><div class="wrap">{violation.detail}</div></div>
+                </template>
+                <div class="grid">
+                    <div><div class="aic-field-label">Violation Type</div><div>{violation.violationType}</div></div>
+                    <div>
+                        <div class="aic-field-label">Rule</div>
+                        <template lwc:if={violation.ruleId}><a href="#" onclick={handleOpenRule}>{violation.ruleName}</a></template>
+                        <template lwc:else><div>—</div></template>
+                    </div>
+                    <div>
+                        <div class="aic-field-label">User</div>
+                        <template lwc:if={violation.userId}><a href="#" onclick={handleOpenUser}>{violation.userName}</a></template>
+                        <template lwc:else><div>—</div></template>
+                    </div>
+                    <div>
+                        <div class="aic-field-label">Conversation</div>
+                        <template lwc:if={violation.conversationId}><a href="#" onclick={handleOpenConversation}>{violation.conversationName}</a></template>
+                        <template lwc:else><div>—</div></template>
+                    </div>
+                    <div><div class="aic-field-label">Agent</div><div>{agentName}</div></div>
+                    <div><div class="aic-field-label">Rule has fired</div><div>{ruleFired}</div></div>
+                </div>
+                <div class="buttons">
+                    <template lwc:if={isReviewed}>
+                        <span class="reviewed"><c-ai-console-icon name="check" size="14" stroke-width="3"></c-ai-console-icon>Reviewed</span>
+                    </template>
+                    <template lwc:else>
+                        <lightning-button variant="brand" label="Mark as reviewed" onclick={handleReviewed} disabled={isSaving}></lightning-button>
+                    </template>
+                    <template lwc:if={violation.conversationId}>
+                        <lightning-button label="Open conversation" onclick={handleOpenConversation}></lightning-button>
+                    </template>
+                </div>
+            </div>
+        </template>
+        <template lwc:else>
+            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+    </section>
+</template>

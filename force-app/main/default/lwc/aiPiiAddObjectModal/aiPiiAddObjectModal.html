@@ -1,0 +1,30 @@
+<template>
+    <lightning-modal-header label={label}>
+        <p class="tagline">Its fields are classified from Data Classification, and PII fields are masked before the AI sees them.</p>
+    </lightning-modal-header>
+    <lightning-modal-body>
+        <template lwc:if={isLoading}>
+            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+        <template lwc:else>
+            <div class="form">
+                <template lwc:if={error}><div class="aic-banner aic-banner_error" role="alert"><span>{error}</span></div></template>
+                <div class="slds-form-element">
+                    <label class="slds-form-element__label" for="p-obj"><abbr class="slds-required" title="required">* </abbr>Object</label>
+                    <div class="slds-select_container">
+                        <select id="p-obj" class="slds-select" onchange={handleObject}>
+                            <template for:each={choices} for:item="option">
+                                <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="aic-help">The first sync starts straight away.</div>
+                </div>
+            </div>
+        </template>
+    </lightning-modal-body>
+    <lightning-modal-footer>
+        <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+        <lightning-button class="save" variant="brand" label="Add and sync" onclick={handleSave} disabled={isSaveDisabled}></lightning-button>
+    </lightning-modal-footer>
+</template>

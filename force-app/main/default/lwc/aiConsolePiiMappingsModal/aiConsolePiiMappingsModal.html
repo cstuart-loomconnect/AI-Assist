@@ -1,0 +1,29 @@
+<template>
+    <lightning-modal-header label={label}>
+        <p class="tagline">{conversationName} · the values the AI saw, and what they stand for</p>
+    </lightning-modal-header>
+    <lightning-modal-body>
+        <template lwc:if={isLoading}>
+            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+        <template lwc:elseif={error}>
+            <div class="aic-banner aic-banner_error" role="alert"><span>{error}</span></div>
+        </template>
+        <template lwc:elseif={hasMappings}>
+            <table class="slds-table aic-table">
+                <thead><tr><th class="aic-th" scope="col">Sent to the AI as</th><th class="aic-th" scope="col">Real value</th></tr></thead>
+                <tbody>
+                    <template for:each={mappings} for:item="mapping">
+                        <tr key={mapping.fakeValue}><td class="aic-td aic-mono">{mapping.fakeValue}</td><td class="aic-td">{mapping.realValue}</td></tr>
+                    </template>
+                </tbody>
+            </table>
+        </template>
+        <template lwc:else>
+            <p class="aic-empty">No PII was masked in this conversation.</p>
+        </template>
+    </lightning-modal-body>
+    <lightning-modal-footer>
+        <lightning-button label="Close" onclick={handleClose}></lightning-button>
+    </lightning-modal-footer>
+</template>

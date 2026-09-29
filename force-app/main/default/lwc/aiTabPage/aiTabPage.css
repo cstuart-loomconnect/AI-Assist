@@ -1,0 +1,74 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: block;
+}
+.page {
+    background: var(--aic-gray);
+    min-height: calc(100vh - 128px);
+    display: flex;
+    flex-direction: column;
+}
+.body {
+    flex-grow: 1;
+    display: flex;
+    min-height: 0;
+}
+.main {
+    flex-grow: 1;
+    min-width: 0;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.main_flush {
+    padding: 0;
+}
+/* Component and Related List sections: three columns, filled in Display Order. */
+.stack {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    align-items: stretch;
+}
+.cell_full {
+    grid-column: span 3;
+}
+.cell_two {
+    grid-column: span 2;
+}
+.cell_one {
+    grid-column: span 1;
+}
+.collapsed {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    font: inherit;
+    color: var(--aic-ink);
+    cursor: pointer;
+    text-align: left;
+}
+.message {
+    padding: 16px;
+}
+.message__card {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 640px;
+}
+@media (max-width: 1024px) {
+    .stack {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .cell_full,
+    .cell_two,
+    .cell_one {
+        grid-column: span 1;
+    }
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Reusable building blocks shared across Agents - Model Configurations, Data Sources and Workflow Actions.</description>
+    <label>AI Library</label>
+    <lwcComponent>aiTabPage</lwcComponent>
+    <motif>Custom55: Books</motif>
+</CustomTab>

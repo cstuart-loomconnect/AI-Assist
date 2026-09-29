@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>UserMessageId__c</fullName>
-    <description>The user's AIConversationMessage__c this turn is answering - subscribers match this against the message they're waiting on, since a conversation can only be waiting on one turn at a time.</description>
+    <description>The user&apos;s AIConversationMessage__c this turn is answering - subscribers match this against the message they&apos;re waiting on, since a conversation can only be waiting on one turn at a time.</description>
     <externalId>false</externalId>
     <isFilteringDisabled>false</isFilteringDisabled>
     <isNameField>false</isNameField>

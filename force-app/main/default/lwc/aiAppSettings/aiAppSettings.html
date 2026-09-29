@@ -1,0 +1,148 @@
+<template>
+    <div class="page">
+        <div class="header">
+            <div class="aic-page-header__titles"><span class="aic-eyebrow">Settings · AI Assist Settings (org default)</span><h1 class="aic-page-title">{title}</h1></div>
+            <template lwc:if={settings.lastChangedLabel}><span class="aic-weak">{settings.lastChangedLabel}</span></template>
+            <lightning-button label="Cancel" onclick={handleCancel} disabled={isBusy}></lightning-button>
+            <lightning-button variant="brand" label="Save" onclick={handleSave} disabled={isBusy}></lightning-button>
+        </div>
+
+        <template lwc:if={error}>
+            <div class="aic-banner aic-banner_error" role="alert"><c-ai-console-icon name="errorCircle" size="16"></c-ai-console-icon><span>{error}</span></div>
+        </template>
+
+        <template lwc:if={isLoading}>
+            <div class="aic-spinner-holder"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+        <template lwc:else>
+            <section class="aic-card master">
+                <div class="trow master__row">
+                    <div class={powerClass}><c-ai-console-icon name="power" size="18" stroke-width="2.4"></c-ai-console-icon></div>
+                    <span class="tt"><b id="h-app" class="big">Is Application Active</b><span>The master switch. Turning it off stops AI Assist for every user at once, without deactivating each agent.</span></span>
+                    <span class={onOffClass}>{onOffLabel}</span>
+                    <button type="button" class="aic-switch" role="switch" aria-checked={activeChecked} aria-labelledby="h-app" data-field="isApplicationActive" onclick={handleToggle}></button>
+                </div>
+            </section>
+
+            <div class="columns">
+                <div class="column">
+                    <section class="aic-card" aria-labelledby="h-prov">
+                        <div class="aic-card__header"><h2 class="aic-card__title" id="h-prov">AI provider calls</h2></div>
+                        <div class="aic-card__body">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="a-model">Default Model Configuration</label>
+                                <div class="slds-select_container">
+                                    <select id="a-model" class="slds-select" data-field="defaultModel" onchange={handleInput}>
+                                        <template for:each={modelChoices} for:item="option">
+                                            <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div class="aic-help">Used when an agent’s own model is missing or inactive.</div>
+                            </div>
+                            <div class="aic-grid2">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="a-to">Callout Timeout</label>
+                                    <div class="unit"><input id="a-to" class="slds-input" inputmode="numeric" value={timeoutLabel} data-field="calloutTimeout" onchange={handleNumber} /><span class="aic-weak">ms</span></div>
+                                </div>
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="a-lock">Processing Lock</label>
+                                    <div class="unit"><input id="a-lock" class="slds-input" inputmode="numeric" value={settings.processingLockMinutes} data-field="processingLockMinutes" onchange={handleNumber} /><span class="aic-weak">minutes</span></div>
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <span class="slds-form-element__label">AI Provider Success Status Codes</span>
+                                <div class="pills">
+                                    <template for:each={settings.successCodes} for:item="code">
+                                        <span key={code} class="pill">{code}<button type="button" class="aic-x" aria-label={code} data-list="successCodes" data-code={code} onclick={handleRemoveCode}><c-ai-console-icon name="close" size="10" stroke-width="2.4"></c-ai-console-icon></button></span>
+                                    </template>
+                                    <input aria-label="Add success code" class="pill-input" data-list="successCodes" onkeydown={handleCodeKey} />
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <span class="slds-form-element__label">Retryable Status Codes</span>
+                                <div class="pills">
+                                    <template for:each={settings.retryCodes} for:item="code">
+                                        <span key={code} class="pill">{code}<button type="button" class="aic-x" aria-label={code} data-list="retryCodes" data-code={code} onclick={handleRemoveCode}><c-ai-console-icon name="close" size="10" stroke-width="2.4"></c-ai-console-icon></button></span>
+                                    </template>
+                                    <input aria-label="Add retryable code" class="pill-input" data-list="retryCodes" onkeydown={handleCodeKey} />
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="aic-card" aria-labelledby="h-tools">
+                        <div class="aic-card__header"><h2 class="aic-card__title" id="h-tools">Tool calling</h2></div>
+                        <div class="aic-card__body">
+                            <div class="aic-grid3">
+                                <div class="slds-form-element"><label class="slds-form-element__label" for="a-dmi">Default Max Iterations</label><input id="a-dmi" class="slds-input" type="number" min="1" value={settings.defaultMaxIterations} data-field="defaultMaxIterations" onchange={handleNumber} /></div>
+                                <div class="slds-form-element"><label class="slds-form-element__label" for="a-cap">Iterations Cap</label><input id="a-cap" class="slds-input" type="number" min="1" value={settings.iterationsCap} data-field="iterationsCap" onchange={handleNumber} /></div>
+                                <div class="slds-form-element"><label class="slds-form-element__label" for="a-per">Calls Per Iteration</label><input id="a-per" class="slds-input" type="number" min="1" value={settings.callsPerIteration} data-field="callsPerIteration" onchange={handleNumber} /></div>
+                            </div>
+                            <div class="aic-help flush">An agent without its own limit uses the default. No agent can go above the cap.</div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="column">
+                    <section class="aic-card" aria-labelledby="h-use">
+                        <div class="aic-card__header"><h2 class="aic-card__title" id="h-use">Usage</h2></div>
+                        <div class="aic-card__body">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="a-bud">Global Token Budget Per Day</label>
+                                <input id="a-bud" class="slds-input" inputmode="numeric" value={budgetLabel} data-field="globalTokenBudget" onchange={handleNumber} />
+                                <div class="aic-help">{budgetHelp}</div>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="aic-card" aria-labelledby="h-log">
+                        <div class="aic-card__header"><h2 class="aic-card__title" id="h-log">Logging</h2></div>
+                        <div class="aic-card__body">
+                            <div class="trow"><span class="tt"><b>Disable Exception Logging</b><span>Stops publishing log events.</span></span>
+                                <button type="button" class="aic-switch" role="switch" aria-checked={exceptionChecked} aria-label="Disable Exception Logging" data-field="disableExceptionLogging" onclick={handleToggle}></button></div>
+                            <div class="trow"><span class="tt"><b>Disable Platform Logs</b><span>Stops writing AI Platform Log records.</span></span>
+                                <button type="button" class="aic-switch" role="switch" aria-checked={platformChecked} aria-label="Disable Platform Logs" data-field="disablePlatformLogs" onclick={handleToggle}></button></div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="a-audit">Audit Logging Record</label>
+                                <div class="slds-select_container">
+                                    <select id="a-audit" class="slds-select" data-field="auditLoggingRecordId" onchange={handleInput}>
+                                        <template for:each={agentChoices} for:item="option">
+                                            <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div class="aic-help">Pick one agent to log every execution step for it only.</div>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="aic-card" aria-labelledby="h-pii">
+                        <div class="aic-card__header"><h2 class="aic-card__title" id="h-pii">PII sync &amp; terms</h2></div>
+                        <div class="aic-card__body">
+                            <div class="aic-grid2">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="a-mpo">Max PII Registry Objects</label>
+                                    <input id="a-mpo" class="slds-input" type="number" min="1" value={settings.maxPiiRegistryObjects} data-field="maxPiiRegistryObjects" onchange={handleNumber} />
+                                    <div class="aic-help">Per scheduled sync run.</div>
+                                </div>
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="a-tav">Tooling API Version</label>
+                                    <input id="a-tav" class="slds-input aic-mono" value={settings.toolingApiVersion} data-field="toolingApiVersion" oninput={handleInput} />
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="a-tpl">Terms Acknowledgment Email Template</label>
+                                <div class="slds-select_container">
+                                    <select id="a-tpl" class="slds-select" data-field="emailTemplateId" onchange={handleInput}>
+                                        <template for:each={templateChoices} for:item="option">
+                                            <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div class="aic-help">Stored as the template Id.</div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </template>
+    </div>
+</template>

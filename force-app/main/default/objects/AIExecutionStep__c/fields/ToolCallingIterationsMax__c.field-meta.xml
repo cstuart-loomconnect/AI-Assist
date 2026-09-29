@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>ToolCallingIterationsMax__c</fullName>
-    <description>The resolved cap on tool-calling iterations for the reply this step is part of (AIAgent__c.MaxToolCallingIterations__c, or the org default, clamped to AIAssistSettingsService's cap) - stored alongside ToolCallingIterationsUsed__c so the trace stays accurate even if that setting changes later.</description>
+    <description>The resolved cap on tool-calling iterations for the reply this step is part of (AIAgent__c.MaxToolCallingIterations__c, or the org default, clamped to AIAssistSettingsService&apos;s cap) - stored alongside ToolCallingIterationsUsed__c so the trace stays accurate even if that setting changes later.</description>
     <externalId>false</externalId>
     <inlineHelpText>Set on every step of a reply, not just the last one - simpler to read back than a single summary row.</inlineHelpText>
     <label>Tool Calling Iterations Max</label>

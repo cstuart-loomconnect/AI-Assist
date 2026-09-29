@@ -1,0 +1,25 @@
+<template>
+    <nav class="slds-nav-vertical rail" aria-label={heading}>
+        <div class="slds-nav-vertical__section">
+            <h2 class="slds-nav-vertical__title rail__heading">{heading}</h2>
+            <ul>
+                <template for:each={rows} for:item="item">
+                    <li key={item.name} class={item.itemClass}>
+                        <a href="#" class="slds-nav-vertical__action rail__action" aria-current={item.ariaCurrent} data-name={item.name} onclick={handleClick}>
+                            <span class="rail__label">{item.label}</span>
+                            <template lwc:if={item.isLocked}>
+                                <span class="rail__lock" title="Needs a permission set">
+                                    <c-ai-console-icon name="lock" size="12" stroke-width="2.2"></c-ai-console-icon>
+                                    <span class="slds-assistive-text">Needs a permission set</span>
+                                </span>
+                            </template>
+                            <template lwc:if={item.hasCount}>
+                                <span class="rail__count">{item.count}</span>
+                            </template>
+                        </a>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    </nav>
+</template>

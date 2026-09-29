@@ -1,0 +1,107 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: block;
+}
+.step {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.intro {
+    margin: 0;
+    color: var(--aic-weak);
+}
+.tiles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    padding: 16px;
+}
+.tile {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px;
+    border: 1px solid var(--aic-line-strong);
+    border-radius: 4px;
+    background: #ffffff;
+}
+.tile__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.tile__icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background: var(--aic-navy);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.tile__name {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    flex-grow: 1;
+}
+.badges {
+    display: flex;
+    gap: 6px;
+}
+.kv {
+    display: flex;
+    gap: 8px;
+    font-size: 13px;
+}
+.kv__label {
+    width: 130px;
+    color: var(--aic-weak);
+    flex-shrink: 0;
+}
+.yes {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    color: var(--aic-success-text);
+}
+.no-confirm {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--aic-warning-text);
+}
+.message {
+    padding: 8px 10px;
+    border-radius: 4px;
+    background: var(--aic-gray);
+    font-size: 13px;
+    line-height: 17px;
+}
+.message_weak {
+    color: var(--aic-weak);
+}
+.tile__buttons {
+    display: flex;
+    gap: 8px;
+}
+.check-col {
+    width: 32px;
+}
+.row_selected {
+    background: var(--aic-selected);
+}
+.small {
+    font-size: 13px;
+}
+.add {
+    display: flex;
+    justify-content: flex-end;
+    padding: 12px 16px;
+}

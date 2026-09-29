@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <isExposed>false</isExposed>
+    <description>AI Assist console: renders an AIConsoleDataStructure.ListResult's columns and rows as an SLDS table (links, badges, mono and warning cells, selected row).</description>
+</LightningComponentBundle>

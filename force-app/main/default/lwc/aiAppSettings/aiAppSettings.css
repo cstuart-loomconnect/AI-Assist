@@ -1,0 +1,121 @@
+@import 'c/aiConsoleStyles';
+
+:host {
+    display: block;
+}
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.master {
+    border-color: var(--aic-line-strong);
+}
+.trow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.master__row {
+    padding: 16px;
+}
+.power {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #ffffff;
+    background: var(--aic-success);
+}
+.power_off {
+    background: #939393;
+}
+.tt {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex-grow: 1;
+}
+.tt b {
+    font-weight: 700;
+}
+.tt span {
+    font-size: 13px;
+    color: var(--aic-weak);
+}
+.big {
+    font-size: 15px;
+}
+.on {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--aic-success-text);
+}
+.off {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--aic-weak);
+}
+.columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: start;
+}
+.column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.unit {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    min-height: 32px;
+    box-sizing: border-box;
+    padding: 3px 6px;
+    border: 1px solid var(--aic-line-strong);
+    border-radius: 4px;
+    background: #ffffff;
+}
+.pills:focus-within {
+    border-color: var(--aic-brand);
+    box-shadow: 0 0 3px #0176d3;
+}
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 22px;
+    padding: 0 4px 0 8px;
+    border: 1px solid var(--aic-line-strong);
+    border-radius: 4px;
+    background: #ffffff;
+    font-size: 13px;
+}
+.pill-input {
+    border: 0;
+    outline: none;
+    flex-grow: 1;
+    min-width: 60px;
+    height: 22px;
+    background: none;
+    font: inherit;
+}
+.flush {
+    margin: 0;
+}

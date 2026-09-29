@@ -15,15 +15,12 @@
     <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
     <label>AI Assist</label>
     <navType>Standard</navType>
-    <tabs>AIWorkflowAction__c</tabs>
-    <tabs>AIUserSettings__c</tabs>
-    <tabs>AIAgent__c</tabs>
-    <tabs>AIPromptTemplate__c</tabs>
-    <tabs>AIDataSource__c</tabs>
-    <tabs>AIViolationRule__c</tabs>
-    <tabs>AIPIIRegistry__c</tabs>
-    <tabs>AIViolation__c</tabs>
-    <tabs>AIPlatformLog__c</tabs>
+    <tabs>AI_Home</tabs>
+    <tabs>AI_Agents</tabs>
+    <tabs>AI_Agent_Wizard</tabs>
+    <tabs>AI_Library</tabs>
+    <tabs>AI_Activity</tabs>
+    <tabs>AI_Settings</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>AI_Assist_UtilityBar</utilityBar>
 </CustomApplication>
