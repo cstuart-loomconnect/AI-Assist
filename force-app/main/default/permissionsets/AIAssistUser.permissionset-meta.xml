@@ -142,11 +142,6 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
-        <field>AIConversation__c.PublicId__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
         <editable>true</editable>
         <field>AIConversationMessage__c.MessageBody__c</field>
         <readable>true</readable>
@@ -209,6 +204,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>AIConversation__c.ProcessingLockedUntil__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>AIConversation__c.PublicId__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

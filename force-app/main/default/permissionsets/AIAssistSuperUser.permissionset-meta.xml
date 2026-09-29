@@ -39,21 +39,6 @@
     <description>Full access to every AI Assist object and record for operational support and troubleshooting. Excludes the system-managed Public Id and Developer Name fields, which are populated by automation only.</description>
     <fieldPermissions>
         <editable>true</editable>
-        <field>AIDataSource__c.SourceName__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>AIPromptTemplate__c.ActivationCriteria__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>AIViolation__c.ReviewStatus__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>AIAgentDataSource__c.AIDataSource__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -320,6 +305,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>AIDataSource__c.SOQLTemplate__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>AIDataSource__c.SourceName__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -619,6 +609,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>AIPromptTemplate__c.ActivationCriteria__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>AIPromptTemplate__c.Description__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -800,6 +795,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>AIViolation__c.RequestBlocked__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>AIViolation__c.ReviewStatus__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1115,30 +1115,6 @@
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <tabSettings>
-        <tab>AI_Activity</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>AI_Agent_Wizard</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>AI_Agents</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>AI_Home</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>AI_Library</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>AI_Settings</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
         <tab>AIAgent__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
@@ -1200,6 +1176,30 @@
     </tabSettings>
     <tabSettings>
         <tab>AIWorkflowAction__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AI_Activity</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AI_Agent_Wizard</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AI_Agents</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AI_Home</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AI_Library</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AI_Settings</tab>
         <visibility>Visible</visibility>
     </tabSettings>
 </PermissionSet>

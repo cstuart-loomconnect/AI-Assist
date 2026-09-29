@@ -8,7 +8,7 @@
     </values>
     <values>
         <field>BadgeFilterCriteria__c</field>
-        <value xsi:type="xsd:string">ReviewStatus__c != 'Reviewed' AND CreatedDate = LAST_N_DAYS:7</value>
+        <value xsi:type="xsd:string">ReviewStatus__c != &apos;Reviewed&apos; AND CreatedDate = LAST_N_DAYS:7</value>
     </values>
     <values>
         <field>CollapsedByDefault__c</field>
@@ -20,7 +20,7 @@
     </values>
     <values>
         <field>DisplayOrder__c</field>
-        <value xsi:type="xsd:double">20</value>
+        <value xsi:type="xsd:double">20.0</value>
     </values>
     <values>
         <field>ExternalURLOverride__c</field>

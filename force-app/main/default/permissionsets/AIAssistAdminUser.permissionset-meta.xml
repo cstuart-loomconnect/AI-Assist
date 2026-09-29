@@ -38,31 +38,6 @@
     </customMetadataTypeAccesses>
     <description>For administrators who build and maintain AI Agents and their supporting configuration, with read-only visibility into platform logs, violations, conversations and terms acknowledgments.</description>
     <fieldPermissions>
-        <editable>false</editable>
-        <field>AIConversation__c.PublicId__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>AIDataSource__c.SourceName__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>AIPlatformLog__c.ExceptionLogDetail__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>AIPromptTemplate__c.ActivationCriteria__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>AIViolation__c.ReviewStatus__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
         <editable>true</editable>
         <field>AIAgentDataSource__c.AIDataSource__c</field>
         <readable>true</readable>
@@ -294,6 +269,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>AIConversation__c.PublicId__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>AIConversation__c.RelatedObjectAPIName__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -355,6 +335,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>AIDataSource__c.SOQLTemplate__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>AIDataSource__c.SourceName__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -609,6 +594,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>AIPlatformLog__c.ExceptionLogDetail__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>AIPlatformLog__c.ExceptionMessage__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -665,6 +655,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>AIPromptTemplate__c.AITone__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>AIPromptTemplate__c.ActivationCriteria__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -865,6 +860,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>AIViolation__c.RequestBlocked__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>AIViolation__c.ReviewStatus__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1190,30 +1190,6 @@
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <tabSettings>
-        <tab>AI_Activity</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>AI_Agent_Wizard</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>AI_Agents</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>AI_Home</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>AI_Library</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>AI_Settings</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
         <tab>AIAgent__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
@@ -1275,6 +1251,30 @@
     </tabSettings>
     <tabSettings>
         <tab>AIWorkflowAction__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AI_Activity</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AI_Agent_Wizard</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AI_Agents</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AI_Home</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AI_Library</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AI_Settings</tab>
         <visibility>Visible</visibility>
     </tabSettings>
 </PermissionSet>
